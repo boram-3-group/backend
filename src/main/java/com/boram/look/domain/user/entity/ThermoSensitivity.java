@@ -1,5 +1,6 @@
 package com.boram.look.domain.user.entity;
 
+import com.boram.look.api.dto.SensitivityDto;
 import com.boram.look.domain.AuditingFields;
 import jakarta.persistence.*;
 import lombok.*;
@@ -24,6 +25,25 @@ public class ThermoSensitivity extends AuditingFields {
     private User createUser;
 
     @ManyToOne
-    @JoinColumn(name = "modify_user_id")
-    private User modifyUser;
+    @JoinColumn(name = "update_user_id")
+    private User updateUser;
+
+    public ThermoSensitivity(String content) {
+        this.content = content;
+    }
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
+
+    public SensitivityDto.Get toDto() {
+        return SensitivityDto.Get.builder()
+                .id(this.id)
+                .content(this.content)
+                .createUser(this.createUser.toDto())
+                .updateUser(this.updateUser.toDto())
+                .createdAt(this.getCreatedAt())
+                .updatedAt(this.getUpdatedAt())
+                .build();
+    }
 }
