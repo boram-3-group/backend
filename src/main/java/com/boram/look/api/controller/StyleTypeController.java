@@ -1,8 +1,7 @@
 package com.boram.look.api.controller;
 
-import com.boram.look.api.dto.SensitivityDto;
 import com.boram.look.api.dto.StyleTypeDto;
-import com.boram.look.service.user.ThermoSensitivityService;
+import com.boram.look.service.user.StyleTypeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -13,24 +12,23 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/sensitivity")
+@RequestMapping("/api/v1/style-type")
 @RequiredArgsConstructor
 @Slf4j
-public class ThermoSensitivityController {
+public class StyleTypeController {
 
-    private final ThermoSensitivityService sensitivityService;
+    private final StyleTypeService styleTypeService;
 
     @PostMapping
-    public ResponseEntity<?> doSensitivityEdit(@RequestBody List<SensitivityDto.Edit> dto) {
-        sensitivityService.doEdit(dto);
+    public ResponseEntity<?> doSensitivityEdit(@RequestBody List<StyleTypeDto.Edit> dto) {
+        styleTypeService.doEdit(dto);
         return ResponseEntity.ok("편집 완료");
     }
 
     @GetMapping
-    public ResponseEntity<?> getThermoSensitivities(Pageable pageable) {
-        Page<SensitivityDto.Get> pages = sensitivityService.getThermoSensitivities(pageable);
+    public ResponseEntity<?> getStyleTypes(Pageable pageable) {
+        Page<StyleTypeDto.Get> pages = styleTypeService.getStyleTypes(pageable);
         return ResponseEntity.ok(pages);
     }
-
 
 }

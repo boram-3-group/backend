@@ -36,12 +36,14 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<?> getUserProfile(@PathVariable Long userId) {
+        log.info("UserController.getUserProfile is called.\nuserId:{}", userId);
         UserDto.Profile profile = userService.getUserProfile(userId);
         return ResponseEntity.ok(profile);
     }
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<?> deleteUser(@PathVariable Long userId) {
+        log.info("UserController.deleteUser is called.\nuserId:{}", userId);
         userService.deleteUser(userId);
         return ResponseEntity.ok("회원 삭제 완료");
     }
