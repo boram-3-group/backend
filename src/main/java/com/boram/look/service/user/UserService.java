@@ -1,22 +1,15 @@
 package com.boram.look.service.user;
 
 import com.boram.look.api.dto.UserDto;
-import com.boram.look.domain.user.entity.StyleType;
-import com.boram.look.domain.user.entity.ThermoSensitivity;
 import com.boram.look.domain.user.entity.User;
-import com.boram.look.domain.user.repository.StyleTypeRepository;
-import com.boram.look.domain.user.repository.ThermoSensitivityRepository;
 import com.boram.look.domain.user.repository.UserRepository;
 import com.boram.look.global.ex.ResourceNotFoundException;
-import com.boram.look.service.user.helper.StyleTypesHelper;
-import com.boram.look.service.user.helper.ThermoSensitivityHelper;
 import com.boram.look.service.user.helper.UserServiceHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -24,23 +17,19 @@ import java.util.Set;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final ThermoSensitivityRepository thermoRepository;
-    private final StyleTypeRepository styleRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public void joinUser(UserDto.Save dto) {
-        ThermoSensitivity sensitivity = ThermoSensitivityHelper.findThermo(dto.getThermoId(), thermoRepository);
-        Set<StyleType> styleTypes = StyleTypesHelper.findStyleTypes(dto.getStyleTypeIds(), styleRepository);
-        User user = dto.toEntity(sensitivity, styleTypes);
+        String encodedPassword = passwordEncoder.encode(dto.getPassword());
+        User user = dto.toEntity(encodedPassword);
         userRepository.save(user);
     }
 
     @Transactional
     public void updateUser(Long userId, UserDto.Save dto) {
-        ThermoSensitivity sensitivity = ThermoSensitivityHelper.findThermo(dto.getThermoId(), thermoRepository);
-        Set<StyleType> styleTypes = StyleTypesHelper.findStyleTypes(dto.getStyleTypeIds(), styleRepository);
         User user = UserServiceHelper.findUser(userId, userRepository);
-        user.update(dto, sensitivity, styleTypes);
+        user.update(dto);
     }
 
     @Transactional
