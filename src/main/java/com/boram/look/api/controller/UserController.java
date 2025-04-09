@@ -1,10 +1,12 @@
 package com.boram.look.api.controller;
 
 import com.boram.look.api.dto.UserDto;
+import com.boram.look.global.security.authentication.PrincipalDetails;
 import com.boram.look.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -25,12 +27,22 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<?> updateUser(
+    public ResponseEntity<?> updateUserProfile(
             @PathVariable Long userId,
             @RequestBody UserDto.Save dto
     ) {
         log.info("UserController.updateUser is called.\nuserId:{}\ndto:{}", userId, dto);
-        userService.updateUser(userId, dto);
+        userService.updateUserProfile(userId, dto);
+        return ResponseEntity.ok("회원 정보 수정 완료");
+    }
+
+    @PutMapping("/{userId}/password")
+    public ResponseEntity<?> updateUserPassword(
+            @PathVariable Long userId,
+            @RequestBody String password
+    ) {
+        log.info("UserController.updateUser is called.\nuserId:{}\npassword:{}", userId, password);
+        userService.updateUserPassword(userId, password);
         return ResponseEntity.ok("회원 정보 수정 완료");
     }
 
@@ -48,4 +60,9 @@ public class UserController {
         return ResponseEntity.ok("회원 삭제 완료");
     }
 
+    @GetMapping("/test")
+    public ResponseEntity<?> test(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+        log.info("test is called.\nprincipalDetails: {}", principalDetails);
+        return ResponseEntity.ok("gogo");
+    }
 }

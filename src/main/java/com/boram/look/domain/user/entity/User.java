@@ -36,7 +36,6 @@ public class User extends AuditingFields {
 
     public void update(UserDto.Save dto) {
         this.username = dto.getUsername();
-        this.password = dto.getPassword();
         this.gender = dto.getGender();
     }
 
@@ -46,5 +45,9 @@ public class User extends AuditingFields {
                 .username(this.username)
                 .gender(this.gender)
                 .build();
+    }
+
+    public void updatePassword(String encodedPassword) {
+        this.password = encodedPassword;
     }
 }

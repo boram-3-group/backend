@@ -27,9 +27,16 @@ public class UserService {
     }
 
     @Transactional
-    public void updateUser(Long userId, UserDto.Save dto) {
+    public void updateUserProfile(Long userId, UserDto.Save dto) {
         User user = UserServiceHelper.findUser(userId, userRepository);
         user.update(dto);
+    }
+
+    @Transactional
+    public void updateUserPassword(Long userId, String password) {
+        User user = UserServiceHelper.findUser(userId, userRepository);
+        String encodedPassword = passwordEncoder.encode(password);
+        user.updatePassword(encodedPassword);
     }
 
     @Transactional

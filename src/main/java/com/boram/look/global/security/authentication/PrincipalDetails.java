@@ -1,4 +1,4 @@
-package com.boram.look.global.security.password;
+package com.boram.look.global.security.authentication;
 
 import com.boram.look.domain.user.entity.User;
 import lombok.AllArgsConstructor;

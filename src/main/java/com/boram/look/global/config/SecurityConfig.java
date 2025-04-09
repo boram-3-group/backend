@@ -3,7 +3,11 @@ package com.boram.look.global.config;
 
 import com.boram.look.global.security.CustomAccessDeniedHandler;
 import com.boram.look.global.security.CustomAuthenticationEntryPoint;
-import com.boram.look.global.security.password.CustomUsernamePasswordLoginConfigurer;
+import com.boram.look.global.security.CustomResponseHandler;
+import com.boram.look.global.security.authentication.CustomUsernamePasswordLoginConfigurer;
+import com.boram.look.global.security.authentication.PrincipalDetailsService;
+import com.boram.look.global.security.authorization.JwtAuthorizationConfigurer;
+import com.boram.look.service.auth.JwtProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -11,13 +15,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
@@ -38,6 +39,11 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 public class SecurityConfig {
 
     private final ObjectMapper objectMapper;
+    private final JwtProvider jwtProvider;
+    private final PrincipalDetailsService principalDetailsService;
+    private final CustomResponseHandler customResponseHandler;
+    private final AuthenticationManager authenticationManager;
+
 
     /**
      * Spring Security의 기본 보안 필터 체인을 구성합니다.
@@ -70,10 +76,14 @@ public class SecurityConfig {
                                 .accessDeniedHandler(customAccessDeniedHandler())
                 )
                 .with(
-                        customUsernamePasswordLoginFilter(),
-                        customizer -> customizer
-                                .processUrl("/api/v1/auth/login")
-                                .objectMapper(objectMapper)
+                        customUsernamePasswordLoginConfigurer(),
+                        customizer -> {
+                        }
+                )
+                .with(
+                        jwtAuthorizationConfigurer(),
+                        customizer -> {
+                        }
                 )
                 .build();
     }
@@ -90,12 +100,11 @@ public class SecurityConfig {
         return new OrRequestMatcher(
                 new AntPathRequestMatcher("/h2-console/**"),
                 new AntPathRequestMatcher("/healthy"),
-                new AntPathRequestMatcher("/api/v1/auth/token/{memberId}"),
-                new AntPathRequestMatcher("/api/v1/user", HttpMethod.POST.name()),
-                //new AntPathRequestMatcher("/api/v1/auth/login", HttpMethod.POST.name()),
                 new AntPathRequestMatcher("/swagger-ui/**"),
                 new AntPathRequestMatcher("/v3/api-docs/**"),
-                new AntPathRequestMatcher("/swagger/**")
+                new AntPathRequestMatcher("/swagger/**"),
+                new AntPathRequestMatcher("/api/v1/auth/token/{memberId}"),
+                new AntPathRequestMatcher("/api/v1/user", HttpMethod.POST.name())
         );
     }
 
@@ -107,18 +116,22 @@ public class SecurityConfig {
         return new CustomAccessDeniedHandler(objectMapper);
     }
 
-    private CustomUsernamePasswordLoginConfigurer customUsernamePasswordLoginFilter() {
-        return new CustomUsernamePasswordLoginConfigurer();
+    private CustomUsernamePasswordLoginConfigurer customUsernamePasswordLoginConfigurer() {
+        return CustomUsernamePasswordLoginConfigurer.builder()
+                .customResponseHandler(this.customResponseHandler)
+                .jwtProvider(this.jwtProvider)
+                .objectMapper(this.objectMapper)
+                .authenticationManager(this.authenticationManager)
+                .processUrl("/api/v1/auth/login")
+                .build();
     }
 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
+    private JwtAuthorizationConfigurer jwtAuthorizationConfigurer() {
+        return JwtAuthorizationConfigurer.builder()
+                .jwtProvider(this.jwtProvider)
+                .principalDetailsService(this.principalDetailsService)
+                .build();
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 
 }

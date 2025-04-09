@@ -1,8 +1,7 @@
-package com.boram.look.global.security.password;
+package com.boram.look.global.security.authentication;
 
 import com.boram.look.global.security.CustomResponseHandler;
-import com.boram.look.service.auth.AuthService;
-import com.boram.look.service.user.UserService;
+import com.boram.look.service.auth.JwtProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -10,7 +9,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,10 +23,9 @@ import java.util.Map;
 @AllArgsConstructor
 public class CustomUsernamePasswordLoginFilter extends OncePerRequestFilter {
 
-    private AuthService authService;
-    private UserService userService;
     private CustomResponseHandler customResponseHandler;
     private AuthenticationManager authenticationManager;
+    private JwtProvider jwtProvider;
 
     private RequestMatcher requestMatcher;
     private ObjectMapper objectMapper;
@@ -52,10 +49,11 @@ public class CustomUsernamePasswordLoginFilter extends OncePerRequestFilter {
         Authentication auth = authenticationManager.authenticate(authRequest);
 
         // 인증 성공 → JWT 생성 & 반환
-//        String jwt = jwtProvider.createToken(authResult.getName(), authResult.getAuthorities());
-        System.out.println(auth.toString());
+        String accessToken = jwtProvider.createAccessToken(auth.getName(), auth.getAuthorities());
+        String refreshToken = jwtProvider.createRefreshToken(auth.getName());
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.getWriter().write(objectMapper.writeValueAsString(Map.of("token", auth)));
+        response.getWriter().write(objectMapper.writeValueAsString(Map.of("access", accessToken)));
+        response.getWriter().write(objectMapper.writeValueAsString(Map.of("refresh", refreshToken)));
     }
 }
