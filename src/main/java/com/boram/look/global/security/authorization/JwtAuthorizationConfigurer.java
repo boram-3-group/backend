@@ -2,7 +2,7 @@ package com.boram.look.global.security.authorization;
 
 import com.boram.look.global.security.authentication.CustomUsernamePasswordLoginFilter;
 import com.boram.look.global.security.authentication.PrincipalDetailsService;
-import com.boram.look.service.auth.JwtProvider;
+import com.boram.look.global.security.JwtProvider;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
@@ -25,4 +25,7 @@ public class JwtAuthorizationConfigurer extends SecurityConfigurerAdapter<Defaul
         http.addFilterBefore(authorizationFilter, CustomUsernamePasswordLoginFilter.class);
     }
 
+    public JwtAuthorizationConfigurer customizer() {
+        return this;
+    }
 }

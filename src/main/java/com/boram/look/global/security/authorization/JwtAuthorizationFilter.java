@@ -1,7 +1,7 @@
 package com.boram.look.global.security.authorization;
 
 import com.boram.look.global.security.authentication.PrincipalDetailsService;
-import com.boram.look.service.auth.JwtProvider;
+import com.boram.look.global.security.JwtProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,7 +35,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         }
 
         String token = header.substring(7);
-        if (!jwtProvider.isTokenValid(token)) {
+        if (jwtProvider.isTokenInvalid(token)) {
             filterChain.doFilter(request, response);
             return;
         }

@@ -1,13 +1,15 @@
 package com.boram.look.global.config;
 
 
+import com.boram.look.domain.auth.repository.RefreshTokenEntityRepository;
 import com.boram.look.global.security.CustomAccessDeniedHandler;
 import com.boram.look.global.security.CustomAuthenticationEntryPoint;
 import com.boram.look.global.security.CustomResponseHandler;
 import com.boram.look.global.security.authentication.CustomUsernamePasswordLoginConfigurer;
 import com.boram.look.global.security.authentication.PrincipalDetailsService;
 import com.boram.look.global.security.authorization.JwtAuthorizationConfigurer;
-import com.boram.look.service.auth.JwtProvider;
+import com.boram.look.global.security.JwtProvider;
+import com.boram.look.global.security.reissue.TokenReissueConfigurer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -43,6 +45,7 @@ public class SecurityConfig {
     private final PrincipalDetailsService principalDetailsService;
     private final CustomResponseHandler customResponseHandler;
     private final AuthenticationManager authenticationManager;
+    private final RefreshTokenEntityRepository refreshTokenEntityRepository;
 
 
     /**
@@ -76,14 +79,16 @@ public class SecurityConfig {
                                 .accessDeniedHandler(customAccessDeniedHandler())
                 )
                 .with(
+                        tokenReissueConfigurer(),
+                        customizer -> customizer.customizer()
+                )
+                .with(
                         customUsernamePasswordLoginConfigurer(),
-                        customizer -> {
-                        }
+                        customizer -> customizer.customizer()
                 )
                 .with(
                         jwtAuthorizationConfigurer(),
-                        customizer -> {
-                        }
+                        customizer -> customizer.customizer()
                 )
                 .build();
     }
@@ -130,6 +135,14 @@ public class SecurityConfig {
         return JwtAuthorizationConfigurer.builder()
                 .jwtProvider(this.jwtProvider)
                 .principalDetailsService(this.principalDetailsService)
+                .build();
+    }
+
+    private TokenReissueConfigurer tokenReissueConfigurer() {
+        return TokenReissueConfigurer.builder()
+                .jwtProvider(this.jwtProvider)
+                .objectMapper(this.objectMapper)
+                .refreshTokenRepository(this.refreshTokenEntityRepository)
                 .build();
     }
 
