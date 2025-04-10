@@ -1,53 +1,29 @@
 package com.boram.look.service.notification;
 
-import com.boram.look.domain.notification.Notification;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import com.boram.look.api.dto.NotificationDto;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingException;
+import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.Notification;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
-import java.io.IOException;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
-@RequiredArgsConstructor
-@Slf4j
 public class NotificationService {
 
-    private final Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
+    public void sendNotification(
+            NotificationDto dto
+    ) throws FirebaseMessagingException {
+        Notification notification = Notification.builder()
+                .setTitle(dto.getTitle())
+                .setBody(dto.toString())
+                .build();
+        Message message = Message.builder()
+                .setToken(dto.getTargetToken())
+                .setNotification(notification)
+                .build();
 
-    public SseEmitter subscribe(String userId) {
-        SseEmitter emitter = new SseEmitter(60 * 1000L); // 1분 타임아웃
-        emitters.put(userId, emitter);
-
-        emitter.onCompletion(() -> emitters.remove(userId));
-        emitter.onTimeout(() -> emitters.remove(userId));
-        emitter.onError((e) -> emitters.remove(userId));
-
-        // 연결 확인용 dummy 이벤트 전송
-        try {
-            emitter.send(SseEmitter.event().name("connect").data("connected"));
-        } catch (IOException e) {
-            emitter.completeWithError(e);
-        }
-
-        return emitter;
+        String response = FirebaseMessaging.getInstance().send(message);
+        System.out.println("Successfully sent message: " + response);
     }
-
-    public void sendNotification(Notification notification) {
-        SseEmitter emitter = emitters.get(notification.getReceiveUserProfile().getId());
-        if (emitter != null) {
-            try {
-                emitter.send(SseEmitter.event()
-                        .name("notification")
-                        .data(notification));
-            } catch (IOException e) {
-                emitter.completeWithError(e);
-                emitters.remove(notification.getReceiveUserProfile().getId());
-            }
-        }
-    }
-
 
 }
