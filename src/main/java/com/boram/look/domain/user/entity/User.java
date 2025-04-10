@@ -5,9 +5,11 @@ import com.boram.look.domain.AuditingFields;
 import com.boram.look.domain.user.constants.Gender;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.type.SqlTypes;
 
-import java.util.Set;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
@@ -21,42 +23,41 @@ public class User extends AuditingFields {
     @Id
     @GeneratedValue
     @UuidGenerator
-    @Column(name = "id", columnDefinition = "BINARY(16)")
-    private UUID id;   // 각 영상 프로젝트를 구분하는 UUID
+    @JdbcTypeCode(SqlTypes.BINARY)
+    @Column(name = "id", columnDefinition = "BINARY(16)", nullable = false, updatable = false)
+    private UUID id;
 
     @Column(name = "username", unique = true, length = 50)
     private String username;
+    @Column(name = "nickname", unique = false, length = 50)
+    private String nickname;
     @Column(name = "password", nullable = false)
     private String password;
     @Enumerated(EnumType.STRING)
     @Column(name = "gender", nullable = false)
     private Gender gender;
 
-    @ManyToOne
-    @JoinColumn(name = "body_type_id", nullable = false)
-    private ThermoSensitivity thermoSensitivity;
+    @Column(name = "birth_date", nullable = false)
+    private LocalDate birthDate;
 
-    @ManyToMany
-    @JoinTable(
-            name = "user_style",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "style_type_id")
-    )
-    private Set<StyleType> styleTypes;
-
-
-    public void update(UserDto.Save dto, ThermoSensitivity sensitivity, Set<StyleType> styleTypes) {
+    public void update(UserDto.Save dto) {
         this.username = dto.getUsername();
-        this.password = dto.getPassword();
-        this.thermoSensitivity = sensitivity;
-        this.styleTypes = styleTypes;
         this.gender = dto.getGender();
+        this.nickname = dto.getNickname();
+        this.birthDate = dto.getBirthDate();
     }
 
     public UserDto.Profile toDto() {
         return UserDto.Profile.builder()
                 .id(this.id.toString())
                 .username(this.username)
+                .gender(this.gender)
+                .nickname(this.nickname)
+                .birthDate(this.birthDate)
                 .build();
+    }
+
+    public void updatePassword(String encodedPassword) {
+        this.password = encodedPassword;
     }
 }
