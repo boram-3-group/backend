@@ -2,14 +2,13 @@ package com.boram.look.global.config;
 
 
 import com.boram.look.domain.auth.repository.RefreshTokenEntityRepository;
-import com.boram.look.domain.user.repository.FirebaseTokenRepository;
 import com.boram.look.global.security.CustomAccessDeniedHandler;
 import com.boram.look.global.security.CustomAuthenticationEntryPoint;
 import com.boram.look.global.security.CustomResponseHandler;
+import com.boram.look.global.security.JwtProvider;
 import com.boram.look.global.security.authentication.CustomUsernamePasswordLoginConfigurer;
 import com.boram.look.global.security.authentication.PrincipalDetailsService;
 import com.boram.look.global.security.authorization.JwtAuthorizationConfigurer;
-import com.boram.look.global.security.JwtProvider;
 import com.boram.look.global.security.reissue.TokenReissueConfigurer;
 import com.boram.look.service.user.FirebaseTokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;

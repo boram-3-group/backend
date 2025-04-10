@@ -2,9 +2,7 @@ package com.boram.look.global.security.authentication;
 
 import com.boram.look.domain.auth.RefreshTokenEntity;
 import com.boram.look.domain.auth.repository.RefreshTokenEntityRepository;
-import com.boram.look.domain.user.entity.FirebaseToken;
 import com.boram.look.domain.user.entity.User;
-import com.boram.look.domain.user.repository.FirebaseTokenRepository;
 import com.boram.look.global.security.CustomResponseHandler;
 import com.boram.look.global.security.JwtProvider;
 import com.boram.look.service.user.FirebaseTokenService;

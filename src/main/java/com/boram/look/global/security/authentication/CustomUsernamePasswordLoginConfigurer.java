@@ -1,7 +1,6 @@
 package com.boram.look.global.security.authentication;
 
 import com.boram.look.domain.auth.repository.RefreshTokenEntityRepository;
-import com.boram.look.domain.user.repository.FirebaseTokenRepository;
 import com.boram.look.global.security.CustomResponseHandler;
 import com.boram.look.global.security.JwtProvider;
 import com.boram.look.global.security.reissue.TokenReissueFilter;
@@ -14,7 +13,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.DefaultSecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @AllArgsConstructor
