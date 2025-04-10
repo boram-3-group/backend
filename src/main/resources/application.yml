@@ -22,7 +22,10 @@ spring:
         use_sql_comments: true
     open-in-view: false
 
+springdoc:
+  use-fqn: true
+
 jwt:
   secret-key: "local-test"
-  access_expiration_time: 3600000
+  access_expiration_time: 3000
   refresh_expiration_time: 1209600000

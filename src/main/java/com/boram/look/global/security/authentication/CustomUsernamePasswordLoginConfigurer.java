@@ -1,5 +1,6 @@
 package com.boram.look.global.security.authentication;
 
+import com.boram.look.domain.auth.repository.RefreshTokenEntityRepository;
 import com.boram.look.global.security.CustomResponseHandler;
 import com.boram.look.global.security.JwtProvider;
 import com.boram.look.global.security.reissue.TokenReissueFilter;
@@ -11,6 +12,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.DefaultSecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @AllArgsConstructor
@@ -22,6 +24,7 @@ public class CustomUsernamePasswordLoginConfigurer extends SecurityConfigurerAda
     private final JwtProvider jwtProvider;
     private final CustomResponseHandler customResponseHandler;
     private final AuthenticationManager authenticationManager;
+    private RefreshTokenEntityRepository refreshTokenEntityRepository;
 
     @Override
     public void configure(HttpSecurity http) {
@@ -30,9 +33,10 @@ public class CustomUsernamePasswordLoginConfigurer extends SecurityConfigurerAda
                 .customResponseHandler(this.customResponseHandler)
                 .jwtProvider(this.jwtProvider)
                 .authenticationManager(this.authenticationManager)
+                .refreshTokenEntityRepository(this.refreshTokenEntityRepository)
                 .requestMatcher(new AntPathRequestMatcher(processUrl, HttpMethod.POST.name()))
                 .build();
-        http.addFilterBefore(authFilter, TokenReissueFilter.class);
+        http.addFilterAfter(authFilter, TokenReissueFilter.class);
     }
 
     public CustomUsernamePasswordLoginConfigurer customizer() {

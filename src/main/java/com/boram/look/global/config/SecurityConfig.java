@@ -80,15 +80,15 @@ public class SecurityConfig {
                 )
                 .with(
                         tokenReissueConfigurer(),
-                        customizer -> customizer.customizer()
+                        TokenReissueConfigurer::customizer
                 )
                 .with(
                         customUsernamePasswordLoginConfigurer(),
-                        customizer -> customizer.customizer()
+                        CustomUsernamePasswordLoginConfigurer::customizer
                 )
                 .with(
                         jwtAuthorizationConfigurer(),
-                        customizer -> customizer.customizer()
+                        JwtAuthorizationConfigurer::customizer
                 )
                 .build();
     }
@@ -107,8 +107,8 @@ public class SecurityConfig {
                 new AntPathRequestMatcher("/healthy"),
                 new AntPathRequestMatcher("/swagger-ui/**"),
                 new AntPathRequestMatcher("/v3/api-docs/**"),
+                new AntPathRequestMatcher("/swagger-ui.html"),
                 new AntPathRequestMatcher("/swagger/**"),
-                new AntPathRequestMatcher("/api/v1/auth/token/{memberId}"),
                 new AntPathRequestMatcher("/api/v1/user", HttpMethod.POST.name())
         );
     }
@@ -127,6 +127,7 @@ public class SecurityConfig {
                 .jwtProvider(this.jwtProvider)
                 .objectMapper(this.objectMapper)
                 .authenticationManager(this.authenticationManager)
+                .refreshTokenEntityRepository(this.refreshTokenEntityRepository)
                 .processUrl("/api/v1/auth/login")
                 .build();
     }
@@ -135,6 +136,7 @@ public class SecurityConfig {
         return JwtAuthorizationConfigurer.builder()
                 .jwtProvider(this.jwtProvider)
                 .principalDetailsService(this.principalDetailsService)
+                .authenticationManager(this.authenticationManager)
                 .build();
     }
 
@@ -143,6 +145,7 @@ public class SecurityConfig {
                 .jwtProvider(this.jwtProvider)
                 .objectMapper(this.objectMapper)
                 .refreshTokenRepository(this.refreshTokenEntityRepository)
+                .processUrl("/api/v1/auth/reissue")
                 .build();
     }
 

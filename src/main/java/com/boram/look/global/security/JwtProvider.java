@@ -6,9 +6,12 @@ import com.boram.look.domain.auth.repository.RefreshTokenEntityRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.util.Date;
+import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
@@ -20,6 +23,8 @@ public class JwtProvider {
     private long accessTokenExpirationTime;
     @Value("${jwt.refresh_expiration_time}")
     private long refreshTokenExpirationTime;
+    @Value("${spring.active.profiles")
+    private String activeProfiles;
 
     private final RefreshTokenEntityRepository refreshTokenEntityRepository;
 
@@ -91,9 +96,14 @@ public class JwtProvider {
 
 
     public void buildRefreshTokenCookie(String newRefreshToken, HttpServletResponse response) {
-        String cookieValue = "refreshToken=" + newRefreshToken +
-                "; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=" + (60 * 60 * 24 * 7);
-
-        response.setHeader("Set-Cookie", cookieValue);
+        ResponseCookie cookie = ResponseCookie.from("refreshToken", newRefreshToken)
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .path("/")
+                .maxAge(Duration.ofDays(7))
+                .build();
+        response.setHeader("Set-Cookie", cookie.toString());
     }
+
 }
