@@ -12,4 +12,5 @@ import lombok.ToString;
 class LoginRequestDto {
     private String username;
     private String password;
+    private String firebaseTargetToken;
 }

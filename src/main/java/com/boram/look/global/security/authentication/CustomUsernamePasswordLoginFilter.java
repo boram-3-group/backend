@@ -2,9 +2,12 @@ package com.boram.look.global.security.authentication;
 
 import com.boram.look.domain.auth.RefreshTokenEntity;
 import com.boram.look.domain.auth.repository.RefreshTokenEntityRepository;
+import com.boram.look.domain.user.entity.FirebaseToken;
 import com.boram.look.domain.user.entity.User;
+import com.boram.look.domain.user.repository.FirebaseTokenRepository;
 import com.boram.look.global.security.CustomResponseHandler;
 import com.boram.look.global.security.JwtProvider;
+import com.boram.look.service.user.FirebaseTokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -34,6 +37,7 @@ public class CustomUsernamePasswordLoginFilter extends OncePerRequestFilter {
     private AuthenticationManager authenticationManager;
     private RefreshTokenEntityRepository refreshTokenEntityRepository;
     private JwtProvider jwtProvider;
+    private final FirebaseTokenService firebaseTokenService;
 
     private RequestMatcher requestMatcher;
     private ObjectMapper objectMapper;
@@ -67,6 +71,7 @@ public class CustomUsernamePasswordLoginFilter extends OncePerRequestFilter {
                 .refreshTokenValue(refreshToken)
                 .roleString(roleString)
                 .build());
+        firebaseTokenService.insertToken(loginDto.getFirebaseTargetToken(), loginUser.getId().toString(), deviceId);
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.getWriter().write(objectMapper.writeValueAsString(Map.of("access", accessToken)));

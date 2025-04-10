@@ -2,6 +2,7 @@ package com.boram.look.global.config;
 
 
 import com.boram.look.domain.auth.repository.RefreshTokenEntityRepository;
+import com.boram.look.domain.user.repository.FirebaseTokenRepository;
 import com.boram.look.global.security.CustomAccessDeniedHandler;
 import com.boram.look.global.security.CustomAuthenticationEntryPoint;
 import com.boram.look.global.security.CustomResponseHandler;
@@ -10,6 +11,7 @@ import com.boram.look.global.security.authentication.PrincipalDetailsService;
 import com.boram.look.global.security.authorization.JwtAuthorizationConfigurer;
 import com.boram.look.global.security.JwtProvider;
 import com.boram.look.global.security.reissue.TokenReissueConfigurer;
+import com.boram.look.service.user.FirebaseTokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -46,6 +48,7 @@ public class SecurityConfig {
     private final CustomResponseHandler customResponseHandler;
     private final AuthenticationManager authenticationManager;
     private final RefreshTokenEntityRepository refreshTokenEntityRepository;
+    private final FirebaseTokenService firebaseTokenService;
 
 
     /**
@@ -127,6 +130,7 @@ public class SecurityConfig {
                 .jwtProvider(this.jwtProvider)
                 .objectMapper(this.objectMapper)
                 .authenticationManager(this.authenticationManager)
+                .firebaseTokenRepository(this.firebaseTokenService)
                 .refreshTokenEntityRepository(this.refreshTokenEntityRepository)
                 .processUrl("/api/v1/auth/login")
                 .build();

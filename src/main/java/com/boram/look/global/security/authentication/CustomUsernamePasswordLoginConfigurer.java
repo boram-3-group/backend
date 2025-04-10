@@ -1,9 +1,11 @@
 package com.boram.look.global.security.authentication;
 
 import com.boram.look.domain.auth.repository.RefreshTokenEntityRepository;
+import com.boram.look.domain.user.repository.FirebaseTokenRepository;
 import com.boram.look.global.security.CustomResponseHandler;
 import com.boram.look.global.security.JwtProvider;
 import com.boram.look.global.security.reissue.TokenReissueFilter;
+import com.boram.look.service.user.FirebaseTokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,7 +26,8 @@ public class CustomUsernamePasswordLoginConfigurer extends SecurityConfigurerAda
     private final JwtProvider jwtProvider;
     private final CustomResponseHandler customResponseHandler;
     private final AuthenticationManager authenticationManager;
-    private RefreshTokenEntityRepository refreshTokenEntityRepository;
+    private final RefreshTokenEntityRepository refreshTokenEntityRepository;
+    private final FirebaseTokenService firebaseTokenRepository;
 
     @Override
     public void configure(HttpSecurity http) {
@@ -34,6 +37,7 @@ public class CustomUsernamePasswordLoginConfigurer extends SecurityConfigurerAda
                 .jwtProvider(this.jwtProvider)
                 .authenticationManager(this.authenticationManager)
                 .refreshTokenEntityRepository(this.refreshTokenEntityRepository)
+                .firebaseTokenService(this.firebaseTokenRepository)
                 .requestMatcher(new AntPathRequestMatcher(processUrl, HttpMethod.POST.name()))
                 .build();
         http.addFilterAfter(authFilter, TokenReissueFilter.class);
