@@ -9,6 +9,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
@@ -28,15 +29,22 @@ public class User extends AuditingFields {
 
     @Column(name = "username", unique = true, length = 50)
     private String username;
+    @Column(name = "nickname", unique = false, length = 50)
+    private String nickname;
     @Column(name = "password", nullable = false)
     private String password;
     @Enumerated(EnumType.STRING)
     @Column(name = "gender", nullable = false)
     private Gender gender;
 
+    @Column(name = "birth_date", nullable = false)
+    private LocalDate birthDate;
+
     public void update(UserDto.Save dto) {
         this.username = dto.getUsername();
         this.gender = dto.getGender();
+        this.nickname = dto.getNickname();
+        this.birthDate = dto.getBirthDate();
     }
 
     public UserDto.Profile toDto() {
@@ -44,6 +52,8 @@ public class User extends AuditingFields {
                 .id(this.id.toString())
                 .username(this.username)
                 .gender(this.gender)
+                .nickname(this.nickname)
+                .birthDate(this.birthDate)
                 .build();
     }
 

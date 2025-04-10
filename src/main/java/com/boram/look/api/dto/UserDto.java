@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
-import java.util.List;
+import java.time.LocalDate;
 
 public class UserDto {
 
@@ -19,12 +19,16 @@ public class UserDto {
         private String username;
         private String password;
         private Gender gender;
+        private LocalDate birthDate;
+        private String nickname;
 
         public User toEntity(String encodedPassword) {
             return User.builder()
                     .password(encodedPassword)
                     .username(this.username)
                     .gender(this.gender)
+                    .nickname(this.nickname)
+                    .birthDate(this.birthDate)
                     .build();
         }
 
@@ -38,9 +42,8 @@ public class UserDto {
     public static class Profile {
         private String id;
         private String username;
-        private String password;
-        private List<Integer> styleTypeIds;
-        private Integer thermoId;
+        private String nickname;
+        private LocalDate birthDate;
         private Gender gender;
     }
 
