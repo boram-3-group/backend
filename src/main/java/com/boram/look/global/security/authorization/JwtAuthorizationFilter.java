@@ -1,26 +1,38 @@
 package com.boram.look.global.security.authorization;
 
-import com.boram.look.global.security.authentication.PrincipalDetailsService;
 import com.boram.look.global.security.JwtProvider;
+import com.boram.look.global.security.authentication.PrincipalDetailsService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.Builder;
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import java.io.IOException;
 
-@RequiredArgsConstructor
-@Builder
-public class JwtAuthorizationFilter extends OncePerRequestFilter {
+@Slf4j
+public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     private final JwtProvider jwtProvider;
     private final PrincipalDetailsService principalDetailsService;
+
+    @Builder
+    public JwtAuthorizationFilter(
+            AuthenticationManager authenticationManager,
+            JwtProvider jwtProvider,
+            PrincipalDetailsService principalDetailsService
+    ) {
+        super(authenticationManager);
+        this.jwtProvider = jwtProvider;
+        this.principalDetailsService = principalDetailsService;
+    }
 
     @Override
     protected void doFilterInternal(
@@ -30,12 +42,14 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         String header = request.getHeader("Authorization");
         if (header == null || !header.startsWith("Bearer ")) {
+//            log.info("header is not a valid authorization header\nrequest url: {}", request.getRequestURL());
             filterChain.doFilter(request, response);
             return;
         }
 
         String token = header.substring(7);
         if (jwtProvider.isTokenInvalid(token)) {
+            log.info("token is not valid");
             filterChain.doFilter(request, response);
             return;
         }
