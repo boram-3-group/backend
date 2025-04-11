@@ -47,5 +47,5 @@ WORKDIR /app
 COPY --from=builder-jre /jre $JAVA_HOME
 COPY --chown=1000:1000 --from=build /app/build/libs/*.jar /app/app.jar
 
-ENTRYPOINT ["java", "-Dspring.profiles.active=test", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Dspring.profiles.active=prod", "-jar", "app.jar"]
 EXPOSE 8080
