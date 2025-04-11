@@ -1,28 +1,29 @@
 server:
-  port: 8080
+  port: ${PORT}
 
 spring:
   application:
     name: look
 
   datasource:
-    username: boram
-    password: 1234
-    url: jdbc:mariadb://localhost:3306/onthelook?serverTimezone=Asia/Seoul
+    username: ${DB_USERNAME}
+    password: ${DP_PASSWORD}
+    url: ${DB_URL}
     driver-class-name: org.mariadb.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     properties:
       hibernate:
-        ddl-auto: update
         show_sql: true
         format_sql: true
         use_sql_comments: true
     open-in-view: false
 
 jwt:
-  secret-key: "local-test"
-  access_expiration_time: 3600000
-  refresh_expiration_time: 1209600000
+  secret-key: ${JWT_SECRET_KEY}
+  access_expiration_time: ${ACCESS_EXPIRATION_TIME}
+  refresh_expiration_time: ${REFRESH_EXPIRATION_TIME}

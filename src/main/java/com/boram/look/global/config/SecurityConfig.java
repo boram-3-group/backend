@@ -104,6 +104,7 @@ public class SecurityConfig {
     private RequestMatcher getAuthenticationNotRequiredUrl() {
         return new OrRequestMatcher(
                 new AntPathRequestMatcher("/h2-console/**"),
+                new AntPathRequestMatcher("/"),
                 new AntPathRequestMatcher("/healthy"),
                 new AntPathRequestMatcher("/swagger-ui/**"),
                 new AntPathRequestMatcher("/v3/api-docs/**"),
