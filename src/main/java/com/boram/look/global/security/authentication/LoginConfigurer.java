@@ -12,12 +12,11 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.DefaultSecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @AllArgsConstructor
 @Builder
-public class CustomUsernamePasswordLoginConfigurer extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
+public class LoginConfigurer extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
 
     private final String processUrl;
     private final ObjectMapper objectMapper;
@@ -39,7 +38,7 @@ public class CustomUsernamePasswordLoginConfigurer extends SecurityConfigurerAda
         http.addFilterAfter(authFilter, TokenReissueFilter.class);
     }
 
-    public CustomUsernamePasswordLoginConfigurer customizer() {
+    public LoginConfigurer customizer() {
         return this;
     }
 }

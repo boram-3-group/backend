@@ -7,7 +7,7 @@ spring:
 
   datasource:
     username: ${DB_USERNAME}
-    password: ${DP_PASSWORD}
+    password: ${DB_PASSWORD}
     url: ${DB_URL}
     driver-class-name: org.mariadb.jdbc.Driver
     hikari:
@@ -18,10 +18,43 @@ spring:
       ddl-auto: none
     properties:
       hibernate:
+        ddl-auto: none
         show_sql: true
         format_sql: true
         use_sql_comments: true
     open-in-view: false
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            redirect-uri: ${GOOGLE_REDIRECT_URI}
+            scope:
+              - openid
+              - profile
+              - email
+          kakao:
+            client-id: ${KAKAO_CLIENT_ID}
+            client-secret: ${KAKAO_CLIENT_SECRET}
+            redirect-uri: ${KAKAO_REDIRECT_URI}
+            scope:
+              - openid
+              - profile
+              - email
+        provider:
+          google:
+            authorization-uri: ${GOOGLE_AUTHORIZATION_URI}
+            token-uri: ${GOOGLE_TOKEN_URI}
+            user-info-uri: ${GOOGLE_USER_INFO_URI}
+            jwk-set-uri: ${GOOGLE_JWK_SET_URI}
+          kakao:
+            authorization-uri: ${KAKAO_AUTHORIZATION_URI}
+            token-uri: ${KAKAO_TOKEN_URI}
+            user-info-uri: ${KAKAO_USER_INFO_URI}
+            jwk-set-uri: ${KAKAO_JWK_SET_URI}
 
 jwt:
   secret-key: ${JWT_SECRET_KEY}

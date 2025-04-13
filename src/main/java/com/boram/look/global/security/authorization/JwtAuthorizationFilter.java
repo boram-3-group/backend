@@ -2,7 +2,6 @@ package com.boram.look.global.security.authorization;
 
 import com.boram.look.global.security.JwtProvider;
 import com.boram.look.global.security.authentication.PrincipalDetailsService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

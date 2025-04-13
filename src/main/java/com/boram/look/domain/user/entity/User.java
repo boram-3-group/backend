@@ -10,6 +10,7 @@ import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -29,16 +30,24 @@ public class User extends AuditingFields {
 
     @Column(name = "username", unique = true, length = 50)
     private String username;
-    @Column(name = "nickname", unique = false, length = 50)
+    @Column(name = "nickname", length = 50)
     private String nickname;
-    @Column(name = "password", nullable = false)
+    @Column(name = "password")
     private String password;
     @Enumerated(EnumType.STRING)
-    @Column(name = "gender", nullable = false)
+    @Column(name = "gender")
     private Gender gender;
 
-    @Column(name = "birth_date", nullable = false)
+    @Column(name = "birth_date")
     private LocalDate birthDate;
+
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
+
+    public List<UserRole> getRoles() {
+        return List.of(role);
+    }
+
 
     public void update(UserDto.Save dto) {
         this.username = dto.getUsername();

@@ -3,6 +3,7 @@ package com.boram.look.global.security.authentication;
 import com.boram.look.domain.auth.RefreshTokenEntity;
 import com.boram.look.domain.auth.repository.RefreshTokenEntityRepository;
 import com.boram.look.domain.user.entity.User;
+import com.boram.look.global.ResponseUtil;
 import com.boram.look.global.security.CustomResponseHandler;
 import com.boram.look.global.security.JwtProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,19 +13,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Builder
 @AllArgsConstructor
@@ -57,7 +52,7 @@ public class CustomUsernamePasswordLoginFilter extends OncePerRequestFilter {
         User loginUser = ((PrincipalDetails) auth.getPrincipal()).getUser();
 
         // 인증 성공 → JWT 생성 & 반환
-        String roleString = this.buildRoleString(auth.getAuthorities());
+        String roleString = ResponseUtil.buildRoleString(auth.getAuthorities());
         String accessToken = jwtProvider.createAccessToken(auth.getName(), loginUser.getId().toString(), roleString);
         String refreshToken = jwtProvider.createRefreshToken(loginUser.getUsername(), loginUser.getId().toString(), deviceId);
 
@@ -68,19 +63,8 @@ public class CustomUsernamePasswordLoginFilter extends OncePerRequestFilter {
                 .roleString(roleString)
                 .build());
 
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.getWriter().write(objectMapper.writeValueAsString(Map.of("access", accessToken)));
-        jwtProvider.buildRefreshTokenCookie(refreshToken, response);
+        ResponseUtil.responseAccessToken(this.objectMapper, response, accessToken);
+        ResponseUtil.responseRefreshToken(response, jwtProvider, refreshToken);
     }
 
-    private String buildRoleString(Collection<? extends GrantedAuthority> authorities) {
-        String roleString = "";
-        if (authorities != null) {
-            roleString = authorities.stream()
-                    .filter(Objects::nonNull)
-                    .map(GrantedAuthority::getAuthority)
-                    .collect(Collectors.joining(","));
-        }
-        return roleString;
-    }
 }
