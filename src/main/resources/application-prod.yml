@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: ${PORT}
 
 spring:
   application:
@@ -10,6 +10,8 @@ spring:
     password: ${DB_PASSWORD}
     url: ${DB_URL}
     driver-class-name: org.mariadb.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
 
   jpa:
     hibernate:

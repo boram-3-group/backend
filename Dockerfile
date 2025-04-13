@@ -1,20 +1,51 @@
-FROM gradle:8.5-jdk21 AS builder
+#-------------------------------------------------------------
+# 1단계: 커스텀 JRE 생성 (jlink)
+#-------------------------------------------------------------
+FROM eclipse-temurin:21-alpine as builder-jre
 
+RUN apk add --no-cache binutils
+
+RUN $JAVA_HOME/bin/jlink \
+         --module-path "$JAVA_HOME/jmods" \
+         --verbose \
+         --add-modules ALL-MODULE-PATH \
+         --strip-debug \
+         --no-man-pages \
+         --no-header-files \
+         --compress=2 \
+         --output /jre
+
+#-------------------------------------------------------------
+# 2단계: Gradle 빌드
+#-------------------------------------------------------------
+FROM gradle:8.5-jdk21-alpine AS build
 WORKDIR /app
 
-# 의존성 캐시를 활용하려면 build.gradle 먼저 복사하고 의존성만 먼저 설치
+# 캐시 최적화: 의존성 먼저 다운로드
 COPY build.gradle settings.gradle ./
-COPY gradlew .
 COPY gradle ./gradle
-RUN chmod +x gradlew
-RUN ./gradlew dependencies
+RUN --mount=type=cache,target=/home/gradle/.gradle ./gradlew dependencies || true
 
-# 소스 코드는 나중에 복사 (변경될 일이 많기 때문)
-COPY src ./src
-RUN ./gradlew bootjar
+# 전체 복사 후 빌드
+COPY . .
+RUN --mount=type=cache,target=/home/gradle/.gradle ./gradlew bootJar
 
-# 실제 런타임 이미지
-FROM openjdk:21-jdk-slim
+#-------------------------------------------------------------
+# 3단계: 최종 실행 이미지 (Alpine + custom JRE)
+#-------------------------------------------------------------
+FROM alpine:3.18
+ENV JAVA_HOME=/jre
+ENV PATH="$JAVA_HOME/bin:$PATH"
+
+ARG APPLICATION_USER=appuser
+RUN adduser --no-create-home -u 1000 -D $APPLICATION_USER && \
+    mkdir /app && chown -R $APPLICATION_USER /app
+
+USER 1000
 WORKDIR /app
-COPY --from=builder /app/build/libs/*.jar app.jar
-ENTRYPOINT ["java", "-jar", "app.jar"]
+
+COPY --from=builder-jre /jre $JAVA_HOME
+COPY --chown=1000:1000 --from=build /app/build/libs/*.jar /app/app.jar
+
+ENTRYPOINT ["java", "-Dspring.profiles.active=prod", "-jar", "app.jar"]
+EXPOSE 8080
