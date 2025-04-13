@@ -2,8 +2,10 @@ package com.boram.look.service.user;
 
 import com.boram.look.api.dto.UserDto;
 import com.boram.look.domain.user.entity.User;
+import com.boram.look.domain.user.entity.UserRole;
 import com.boram.look.domain.user.repository.UserRepository;
 import com.boram.look.global.ex.ResourceNotFoundException;
+import com.boram.look.global.security.oauth.OAuth2Response;
 import com.boram.look.service.user.helper.UserServiceHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,4 +52,19 @@ public class UserService {
         User user = userRepository.findById(userId).orElseThrow(ResourceNotFoundException::new);
         return user.toDto();
     }
+
+    @Transactional
+    public User findOrCreateUser(OAuth2Response oAuth2Response) {
+        String username = oAuth2Response.registrationId().getRegistrationId() + "_" + oAuth2Response.id();
+        return userRepository.findByUsername(username)
+                .orElseGet(() -> {
+                    // 신규 사용자 생성 로직
+                    User joinUser = User.builder()
+                            .username(username)
+                            .role(UserRole.USER)
+                            .build();
+                    return userRepository.save(joinUser);
+                });
+    }
+
 }

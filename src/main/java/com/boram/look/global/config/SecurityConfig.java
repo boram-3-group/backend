@@ -5,11 +5,14 @@ import com.boram.look.domain.auth.repository.RefreshTokenEntityRepository;
 import com.boram.look.global.security.CustomAccessDeniedHandler;
 import com.boram.look.global.security.CustomAuthenticationEntryPoint;
 import com.boram.look.global.security.CustomResponseHandler;
-import com.boram.look.global.security.authentication.CustomUsernamePasswordLoginConfigurer;
+import com.boram.look.global.security.JwtProvider;
+import com.boram.look.global.security.authentication.LoginConfigurer;
 import com.boram.look.global.security.authentication.PrincipalDetailsService;
 import com.boram.look.global.security.authorization.JwtAuthorizationConfigurer;
-import com.boram.look.global.security.JwtProvider;
+import com.boram.look.global.security.oauth.CustomOAuth2LoginSuccessHandler;
+import com.boram.look.global.security.oauth.TokenClientRouter;
 import com.boram.look.global.security.reissue.TokenReissueConfigurer;
+import com.boram.look.service.user.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -46,7 +49,7 @@ public class SecurityConfig {
     private final CustomResponseHandler customResponseHandler;
     private final AuthenticationManager authenticationManager;
     private final RefreshTokenEntityRepository refreshTokenEntityRepository;
-
+    private final UserService userService;
 
     /**
      * Spring Security의 기본 보안 필터 체인을 구성합니다.
@@ -78,13 +81,18 @@ public class SecurityConfig {
                                 .authenticationEntryPoint(customAuthenticationEntryPoint())
                                 .accessDeniedHandler(customAccessDeniedHandler())
                 )
+                .oauth2Login(oauth -> oauth
+                        .tokenEndpoint(tokenEndpoint -> tokenEndpoint
+                                .accessTokenResponseClient(tokenClientRouter(http))
+                        ).successHandler(customOAuth2LoginSuccessHandler())
+                )
                 .with(
                         tokenReissueConfigurer(),
                         TokenReissueConfigurer::customizer
                 )
                 .with(
                         customUsernamePasswordLoginConfigurer(),
-                        CustomUsernamePasswordLoginConfigurer::customizer
+                        LoginConfigurer::customizer
                 )
                 .with(
                         jwtAuthorizationConfigurer(),
@@ -109,6 +117,12 @@ public class SecurityConfig {
                 new AntPathRequestMatcher("/v3/api-docs/**"),
                 new AntPathRequestMatcher("/swagger-ui.html"),
                 new AntPathRequestMatcher("/swagger/**"),
+                new AntPathRequestMatcher("/login/oauth2/code/**"),
+                new AntPathRequestMatcher("/oauth2/authorization/**"),
+                new AntPathRequestMatcher("/oauth/oidc/**"),
+                new AntPathRequestMatcher("/actuator/**"),
+                new AntPathRequestMatcher("/favicon.ico"),
+                new AntPathRequestMatcher("/error"),
                 new AntPathRequestMatcher("/api/v1/user", HttpMethod.POST.name())
         );
     }
@@ -121,8 +135,8 @@ public class SecurityConfig {
         return new CustomAccessDeniedHandler(objectMapper);
     }
 
-    private CustomUsernamePasswordLoginConfigurer customUsernamePasswordLoginConfigurer() {
-        return CustomUsernamePasswordLoginConfigurer.builder()
+    private LoginConfigurer customUsernamePasswordLoginConfigurer() {
+        return LoginConfigurer.builder()
                 .customResponseHandler(this.customResponseHandler)
                 .jwtProvider(this.jwtProvider)
                 .objectMapper(this.objectMapper)
@@ -149,5 +163,18 @@ public class SecurityConfig {
                 .build();
     }
 
+    private CustomOAuth2LoginSuccessHandler customOAuth2LoginSuccessHandler() {
+        return CustomOAuth2LoginSuccessHandler.builder()
+                .jwtProvider(this.jwtProvider)
+                .objectMapper(this.objectMapper)
+                .userService(this.userService)
+                .build();
+    }
+
+    private TokenClientRouter tokenClientRouter(HttpSecurity http) {
+        return TokenClientRouter.builder()
+                .http(http)
+                .build();
+    }
 
 }
