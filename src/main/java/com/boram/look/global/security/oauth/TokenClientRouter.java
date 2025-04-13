@@ -7,11 +7,8 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResp
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.RestClientAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,16 +16,11 @@ import java.util.Map;
 public class TokenClientRouter implements OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> {
 
     private final ClientRegistrationRepository clientRegistrationRepository;
-//    private final OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService;
     private final Map<String, OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest>> clients = new HashMap<>();
     private final OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> defaultClient;
 
     @Builder
-    public TokenClientRouter(
-            HttpSecurity http,
-            OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService
-    ) {
-//        this.oauth2UserService = oauth2UserService;
+    public TokenClientRouter(HttpSecurity http) {
         // 기본 OAuth2 client (예: Google, GitHub 등)
         this.defaultClient = new RestClientAuthorizationCodeTokenResponseClient();
         // Kakao 전용 커스터마이징된 토큰 요청 로직
@@ -37,10 +29,8 @@ public class TokenClientRouter implements OAuth2AccessTokenResponseClient<OAuth2
 
         this.clients.put("kakao", KakaoOAuth2AccessTokenResponseClient.builder()
                 .clientRegistrationRepository(this.clientRegistrationRepository)
-//                .oauth2UserService(this.oauth2UserService)
                 .build()
         );
-
 
     }
 
