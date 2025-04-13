@@ -7,3 +7,4 @@ out
 Dockerfile
 README.md
 *.iml
+.gitattributes
