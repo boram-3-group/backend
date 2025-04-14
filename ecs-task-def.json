@@ -121,11 +121,11 @@
     }
   ],
   "executionRoleArn": "arn:aws:iam::789909227789:role/ecsTaskExecutionRole",
-  "networkMode": "awsvpc",
+  "networkMode": "bridge",
   "volumes": [],
   "placementConstraints": [],
   "requiresCompatibilities": [
-    "FARGATE"
+    "EC2"
   ],
   "cpu": "1024",
   "memory": "3072",
