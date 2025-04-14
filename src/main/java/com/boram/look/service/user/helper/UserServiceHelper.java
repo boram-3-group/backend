@@ -4,9 +4,11 @@ import com.boram.look.domain.user.entity.User;
 import com.boram.look.domain.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 
+import java.util.UUID;
+
 public class UserServiceHelper {
     public static User findUser(
-            Long userId,
+            UUID userId,
             UserRepository repository
     ) {
         return repository.findById(userId)

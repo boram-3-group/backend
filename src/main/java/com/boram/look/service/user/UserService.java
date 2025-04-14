@@ -13,6 +13,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -29,27 +31,27 @@ public class UserService {
     }
 
     @Transactional
-    public void updateUserProfile(Long userId, UserDto.Save dto) {
-        User user = UserServiceHelper.findUser(userId, userRepository);
+    public void updateUserProfile(String userId, UserDto.Save dto) {
+        User user = UserServiceHelper.findUser(UUID.fromString(userId), userRepository);
         user.update(dto);
     }
 
     @Transactional
-    public void updateUserPassword(Long userId, String password) {
-        User user = UserServiceHelper.findUser(userId, userRepository);
+    public void updateUserPassword(String userId, String password) {
+        User user = UserServiceHelper.findUser(UUID.fromString(userId), userRepository);
         String encodedPassword = passwordEncoder.encode(password);
         user.updatePassword(encodedPassword);
     }
 
     @Transactional
-    public void deleteUser(Long userId) {
-        User deleteUser = UserServiceHelper.findUser(userId, userRepository);
+    public void deleteUser(String userId) {
+        User deleteUser = UserServiceHelper.findUser(UUID.fromString(userId), userRepository);
         userRepository.delete(deleteUser);
     }
 
     @Transactional(readOnly = true)
-    public UserDto.Profile getUserProfile(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(ResourceNotFoundException::new);
+    public UserDto.Profile getUserProfile(String userId) {
+        User user = userRepository.findById(UUID.fromString(userId)).orElseThrow(ResourceNotFoundException::new);
         return user.toDto();
     }
 

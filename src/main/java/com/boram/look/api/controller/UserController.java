@@ -35,7 +35,7 @@ public class UserController {
     @Operation(summary = "회원 정보 수정")
     @PutMapping("/{userId}")
     public ResponseEntity<?> updateUserProfile(
-            @PathVariable Long userId,
+            @PathVariable String userId,
             @RequestBody UserDto.Save dto
     ) {
         log.info("UserController.updateUser is called.\nuserId:{}\ndto:{}", userId, dto);
@@ -46,7 +46,7 @@ public class UserController {
     @PutMapping("/{userId}/password")
     @Operation(summary = "비밀번호 변경")
     public ResponseEntity<?> updateUserPassword(
-            @PathVariable Long userId,
+            @PathVariable String userId,
             @RequestBody String password
     ) {
         log.info("UserController.updateUser is called.\nuserId:{}\npassword:{}", userId, password);
@@ -60,7 +60,7 @@ public class UserController {
             responseCode = "200",
             description = "회원 프로필",
             content = @Content(schema = @Schema(implementation = UserDto.Profile.class)))
-    public ResponseEntity<?> getUserProfile(@PathVariable Long userId) {
+    public ResponseEntity<?> getUserProfile(@PathVariable String userId) {
         log.info("UserController.getUserProfile is called.\nuserId:{}", userId);
         UserDto.Profile profile = userService.getUserProfile(userId);
         return ResponseEntity.ok(profile);
@@ -68,7 +68,7 @@ public class UserController {
 
     @DeleteMapping("/{userId}")
     @Operation(summary = "회원 탈퇴")
-    public ResponseEntity<?> deleteUser(@PathVariable Long userId) {
+    public ResponseEntity<?> deleteUser(@PathVariable String userId) {
         log.info("UserController.deleteUser is called.\nuserId:{}", userId);
         userService.deleteUser(userId);
         return ResponseEntity.ok("회원 삭제 완료");
