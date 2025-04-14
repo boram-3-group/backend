@@ -33,7 +33,7 @@ jobs:
       - name: Deploy to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ecs-task-def.json
+          task-definition: onthelook-task-ecs
           service: onthelook-dev
           cluster: onthelook-test
           wait-for-service-stability: true
