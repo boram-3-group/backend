@@ -2,19 +2,17 @@ package com.boram.look.global.security;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.boram.look.domain.auth.repository.RefreshTokenEntityRepository;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.boram.look.api.dto.OAuthJwtDto;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.util.Date;
-import java.util.Objects;
 
 @Component
-@RequiredArgsConstructor
 public class JwtProvider {
 
     @Value("${jwt.secret-key}")
@@ -23,10 +21,6 @@ public class JwtProvider {
     private long accessTokenExpirationTime;
     @Value("${jwt.refresh_expiration_time}")
     private long refreshTokenExpirationTime;
-    @Value("${spring.active.profiles")
-    private String activeProfiles;
-
-    private final RefreshTokenEntityRepository refreshTokenEntityRepository;
 
 
     /**
@@ -37,7 +31,6 @@ public class JwtProvider {
             String userId,
             String roleString
     ) {
-
         return JWT.create()
                 .withSubject(username)
                 .withExpiresAt(new Date(System.currentTimeMillis() + this.accessTokenExpirationTime))
@@ -70,6 +63,17 @@ public class JwtProvider {
                 .getSubject();
     }
 
+    public OAuthJwtDto buildDto(String token) {
+        DecodedJWT jwt = JWT.require(Algorithm.HMAC512(secret))
+                .build()
+                .verify(token);
+        return OAuthJwtDto.builder()
+                .username(jwt.getSubject())
+                .userId(jwt.getClaim("userId").asString())
+                .roleString(jwt.getClaim("roles").asString())
+                .build();
+    }
+
     /**
      * JWT에서 사용자 이름 추출
      */
@@ -78,6 +82,13 @@ public class JwtProvider {
                 .build()
                 .verify(token)
                 .getClaim("userId").asString();
+    }
+
+    public String getRoleString(String token) {
+        return JWT.require(Algorithm.HMAC512(secret))
+                .build()
+                .verify(token)
+                .getClaim("roles").asString();
     }
 
     /**

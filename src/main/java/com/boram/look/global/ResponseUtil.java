@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.io.IOException;
+import java.net.URI;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -33,7 +35,7 @@ public class ResponseUtil {
             HttpServletResponse response,
             JwtProvider jwtProvider,
             String refreshToken
-    ) throws IOException {
+    ) {
         jwtProvider.buildRefreshTokenCookie(refreshToken, response);
     }
 
@@ -46,6 +48,15 @@ public class ResponseUtil {
                     .collect(Collectors.joining(","));
         }
         return roleString;
+    }
+
+    public static String getStateIdFromCallbackUrl(String urlDecoded) {
+        URI uri = URI.create(urlDecoded);
+        String query = uri.getQuery();
+        Map<String, String> paramMap = Arrays.stream(query.split("&"))
+                .map(s -> s.split("="))
+                .collect(Collectors.toMap(a -> a[0], a -> a.length > 1 ? a[1] : ""));
+        return paramMap.get("stateId");
     }
 
 }

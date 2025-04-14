@@ -9,6 +9,7 @@ import com.boram.look.global.security.JwtProvider;
 import com.boram.look.global.security.authentication.LoginConfigurer;
 import com.boram.look.global.security.authentication.PrincipalDetailsService;
 import com.boram.look.global.security.authorization.JwtAuthorizationConfigurer;
+import com.boram.look.global.security.oauth.CustomOAuth2AuthorizationRequestResolver;
 import com.boram.look.global.security.oauth.CustomOAuth2LoginSuccessHandler;
 import com.boram.look.global.security.oauth.TokenClientRouter;
 import com.boram.look.global.security.reissue.TokenReissueConfigurer;
@@ -24,6 +25,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
@@ -50,6 +52,7 @@ public class SecurityConfig {
     private final AuthenticationManager authenticationManager;
     private final RefreshTokenEntityRepository refreshTokenEntityRepository;
     private final UserService userService;
+    private final ClientRegistrationRepository clientRegistrationRepository;
 
     /**
      * Spring Security의 기본 보안 필터 체인을 구성합니다.
@@ -82,6 +85,11 @@ public class SecurityConfig {
                                 .accessDeniedHandler(customAccessDeniedHandler())
                 )
                 .oauth2Login(oauth -> oauth
+                        .authorizationEndpoint(endpoint -> endpoint
+                                .authorizationRequestResolver(
+                                        new CustomOAuth2AuthorizationRequestResolver(clientRegistrationRepository, "/oauth2/authorization")
+                                )
+                        )
                         .tokenEndpoint(tokenEndpoint -> tokenEndpoint
                                 .accessTokenResponseClient(tokenClientRouter(http))
                         ).successHandler(customOAuth2LoginSuccessHandler())
@@ -121,6 +129,7 @@ public class SecurityConfig {
                 new AntPathRequestMatcher("/login/oauth2/code/**"),
                 new AntPathRequestMatcher("/oauth2/authorization/**"),
                 new AntPathRequestMatcher("/oauth/oidc/**"),
+                new AntPathRequestMatcher("/test/**"),
                 new AntPathRequestMatcher("/actuator/**"),
                 new AntPathRequestMatcher("/favicon.ico"),
                 new AntPathRequestMatcher("/error"),
