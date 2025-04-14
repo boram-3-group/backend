@@ -42,8 +42,8 @@ spring:
             redirect-uri: ${KAKAO_REDIRECT_URI}
             scope:
               - openid
-              - profile
-              - email
+              - profile_nickname
+              - profile_image
         provider:
           google:
             authorization-uri: ${GOOGLE_AUTHORIZATION_URI}

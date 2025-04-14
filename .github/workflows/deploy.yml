@@ -34,6 +34,6 @@ jobs:
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ecs-task-def.json
-          service: onthelook-service-dev
-          cluster: onthelook-cluster
+          service: onthelook-service-dev4
+          cluster: onthelook-ecs
           wait-for-service-stability: true
