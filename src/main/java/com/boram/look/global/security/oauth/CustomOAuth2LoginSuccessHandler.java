@@ -17,6 +17,8 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -48,6 +50,11 @@ public class CustomOAuth2LoginSuccessHandler implements AuthenticationSuccessHan
         // 인증 성공 → JWT 생성 & 반환
         String roleString = ResponseUtil.buildRoleString(loginUser.getRoles());
         String accessToken = jwtProvider.createAccessToken(loginUser.getUsername(), loginUser.getId().toString(), roleString);
+
+        String stateEncoded = request.getParameter("state");
+        String redirectUri = new String(Base64.getDecoder().decode(stateEncoded), StandardCharsets.UTF_8);
+
+        response.sendRedirect(redirectUri + "?userId=" + loginUser.getId());
         ResponseUtil.responseAccessToken(this.objectMapper, response, accessToken);
     }
 
