@@ -1,0 +1,137 @@
+{
+  "family": "onthelook-task-ecs",
+  "containerDefinitions": [
+    {
+      "name": "onthelook",
+      "image": "789909227789.dkr.ecr.ap-northeast-2.amazonaws.com/on-the-look:latest",
+      "cpu": 0,
+      "portMappings": [
+        {
+          "name": "onthelook-spring-8080",
+          "containerPort": 8080,
+          "hostPort": 8080,
+          "protocol": "tcp",
+          "appProtocol": "http"
+        }
+      ],
+      "essential": true,
+      "environment": [
+        {
+          "name": "GOOGLE_CLIENT_SECRET",
+          "value": "arn:aws:ssm:ap-northeast-2:789909227789:parameter/GOOGLE_CLIENT_SECRET"
+        },
+        {
+          "name": "KAKAO_CLIENT_SECRET",
+          "value": "arn:aws:ssm:ap-northeast-2:789909227789:parameter/KAKAO_CLIENT_SECRET"
+        },
+        {
+          "name": "KAKAO_REDIRECT_URI",
+          "value": "arn:aws:ssm:ap-northeast-2:789909227789:parameter/KAKAO_REDIRECT_URI"
+        },
+        {
+          "name": "PORT",
+          "value": "arn:aws:ssm:ap-northeast-2:789909227789:parameter/PORT"
+        },
+        {
+          "name": "GOOGLE_CLIENT_ID",
+          "value": "arn:aws:ssm:ap-northeast-2:789909227789:parameter/GOOGLE_CLIENT_ID"
+        },
+        {
+          "name": "GOOGLE_AUTHORIZATION_URI",
+          "value": "arn:aws:ssm:ap-northeast-2:789909227789:parameter/GOOGLE_AUTHORIZATION_URI"
+        },
+        {
+          "name": "KAKAO_JWK_SET_URI",
+          "value": "arn:aws:ssm:ap-northeast-2:789909227789:parameter/KAKAO_JWK_SET_URI"
+        },
+        {
+          "name": "JWT_SECRET_KEY",
+          "value": "arn:aws:ssm:ap-northeast-2:789909227789:parameter/JWT_SECRET_KEY"
+        },
+        {
+          "name": "GOOGLE_TOKEN_URI",
+          "value": "arn:aws:ssm:ap-northeast-2:789909227789:parameter/GOOGLE_TOKEN_URI"
+        },
+        {
+          "name": "KAKAO_TOKEN_URI",
+          "value": "arn:aws:ssm:ap-northeast-2:789909227789:parameter/KAKAO_TOKEN_URI"
+        },
+        {
+          "name": "KAKAO_AUTHORIZATION_URI",
+          "value": "arn:aws:ssm:ap-northeast-2:789909227789:parameter/KAKAO_AUTHORIZATION_URI"
+        },
+        {
+          "name": "DB_USERNAME",
+          "value": "arn:aws:ssm:ap-northeast-2:789909227789:parameter/DB_USERNAME"
+        },
+        {
+          "name": "REFRESH_EXPIRATION_TIME",
+          "value": "arn:aws:ssm:ap-northeast-2:789909227789:parameter/REFRESH_EXPIRATION_TIME"
+        },
+        {
+          "name": "DB_URL",
+          "value": "arn:aws:ssm:ap-northeast-2:789909227789:parameter/DB_URL"
+        },
+        {
+          "name": "KAKAO_CLIENT_ID",
+          "value": "arn:aws:ssm:ap-northeast-2:789909227789:parameter/KAKAO_CLIENT_ID"
+        },
+        {
+          "name": "KAKAO_USER_INFO_URI",
+          "value": "arn:aws:ssm:ap-northeast-2:789909227789:parameter/KAKAO_USER_INFO_URI"
+        },
+        {
+          "name": "GOOGLE_JWK_SET_URI",
+          "value": "arn:aws:ssm:ap-northeast-2:789909227789:parameter/GOOGLE_JWK_SET_URI"
+        },
+        {
+          "name": "ACCESS_EXPIRATION_TIME",
+          "value": "arn:aws:ssm:ap-northeast-2:789909227789:parameter/ACCESS_EXPIRATION_TIME"
+        },
+        {
+          "name": "GOOGLE_USER_INFO_URI",
+          "value": "arn:aws:ssm:ap-northeast-2:789909227789:parameter/GOOGLE_USER_INFO_URI"
+        },
+        {
+          "name": "DB_PASSWORD",
+          "value": "arn:aws:ssm:ap-northeast-2:789909227789:parameter/DB_PASSWORD"
+        },
+        {
+          "name": "GOOGLE_REDIRECT_URI",
+          "value": "arn:aws:ssm:ap-northeast-2:789909227789:parameter/GOOGLE_REDIRECT_URI"
+        }
+      ],
+      "environmentFiles": [],
+      "mountPoints": [],
+      "volumesFrom": [],
+      "ulimits": [],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/onthelook-task-ecs",
+          "mode": "non-blocking",
+          "awslogs-create-group": "true",
+          "max-buffer-size": "25m",
+          "awslogs-region": "ap-northeast-2",
+          "awslogs-stream-prefix": "ecs"
+        },
+        "secretOptions": []
+      },
+      "systemControls": []
+    }
+  ],
+  "executionRoleArn": "arn:aws:iam::789909227789:role/ecsTaskExecutionRole",
+  "networkMode": "awsvpc",
+  "volumes": [],
+  "placementConstraints": [],
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "1024",
+  "memory": "3072",
+  "runtimePlatform": {
+    "cpuArchitecture": "X86_64",
+    "operatingSystemFamily": "LINUX"
+  },
+  "enableFaultInjection": false
+}
