@@ -15,7 +15,7 @@
         }
       ],
       "essential": true,
-      "environment": [
+      "secrets": [
         {
           "name": "GOOGLE_CLIENT_SECRET",
           "valueFrom": "arn:aws:ssm:ap-northeast-2:789909227789:parameter/GOOGLE_CLIENT_SECRET"
