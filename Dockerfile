@@ -28,6 +28,7 @@ RUN --mount=type=cache,target=/home/gradle/.gradle ./gradlew dependencies || tru
 
 # 전체 복사 후 빌드
 COPY . .
+RUN chmod +x ./gradlew
 RUN --mount=type=cache,target=/home/gradle/.gradle ./gradlew bootJar
 
 #-------------------------------------------------------------
