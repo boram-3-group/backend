@@ -133,7 +133,8 @@ public class SecurityConfig {
                 new AntPathRequestMatcher("/actuator/**"),
                 new AntPathRequestMatcher("/favicon.ico"),
                 new AntPathRequestMatcher("/error"),
-                new AntPathRequestMatcher("/api/v1/user", HttpMethod.POST.name())
+                new AntPathRequestMatcher("/api/v1/user", HttpMethod.POST.name()),
+                new AntPathRequestMatcher("/api/v1/region/upload", HttpMethod.POST.name())
         );
     }
 

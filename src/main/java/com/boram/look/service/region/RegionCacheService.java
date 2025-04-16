@@ -7,6 +7,7 @@ import com.boram.look.domain.region.SiGunGuRegion;
 import com.boram.look.domain.region.entity.Region;
 import com.boram.look.domain.region.repository.RegionRepository;
 import jakarta.annotation.PostConstruct;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
@@ -24,9 +25,11 @@ import java.util.Optional;
 public class RegionCacheService {
 
     private final RegionRepository regionRepository;
-//    private final GeometryFactory geometryFactory = new GeometryFactory();
-
     private final Map<String, SiGunGuRegion> cache = new HashMap<>();
+
+    public Map<String, SiGunGuRegion> cache() {
+        return this.cache;
+    }
 
     @PostConstruct
     public void loadRegionMap() {

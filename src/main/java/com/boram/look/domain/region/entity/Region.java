@@ -27,7 +27,7 @@ public class Region {
 
 
     @Lob
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "MEDIUMTEXT")
     private String polygonText; // WKT 형식의 Polygon 문자열
 
 }
