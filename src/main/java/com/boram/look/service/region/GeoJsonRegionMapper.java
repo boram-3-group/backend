@@ -7,6 +7,7 @@ import com.boram.look.domain.region.SiGunGuRegion;
 import com.boram.look.domain.region.entity.Region;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -20,12 +21,13 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class GeoJsonRegionMapper {
 
-    private final Map<String, SiGunGuRegion> siGunGuRegionMap = new HashMap<>();
     private final GeometryFactory geometryFactory = new GeometryFactory();
+    private final RegionCacheService cacheService;
 
-    public GeoJsonRegionMapper(File geoJsonFile) throws Exception {
+    public void buildRegionGeoJson(File geoJsonFile) throws Exception {
         String geoJsonText = Files.readString(geoJsonFile.toPath());
         ObjectMapper mapper = new ObjectMapper();
         JsonNode root = mapper.readTree(geoJsonText);
@@ -41,7 +43,7 @@ public class GeoJsonRegionMapper {
             String admNm = feature.get("properties").get("adm_nm").asText();
             JsonNode geometry = feature.get("geometry");
 
-            Geometry geom = reader.read(geometry.toString());
+            Geometry geom = reader.read(mapper.writeValueAsString(geometry));
             RegionPolygon region = new RegionPolygon(siGunGuCode, admNm, geom);
 
             tempMap.computeIfAbsent(siGunGuCode, k -> new ArrayList<>()).add(region);
@@ -58,7 +60,7 @@ public class GeoJsonRegionMapper {
                 union = union.union(polygons.get(i).polygon());
             }
             Point centroid = union.getCentroid();
-            GridXY grid = GeoUtil.toGrid(centroid.getCoordinate().x, centroid.getCoordinate().y);
+            GridXY grid = GeoUtil.toGrid(centroid.getCoordinate().y, centroid.getCoordinate().x);
             SiGunGuRegion siGunGuRegion = SiGunGuRegion.builder()
                     .code(code)
                     .name(name)
@@ -66,12 +68,12 @@ public class GeoJsonRegionMapper {
                     .center(centroid.getCoordinate())
                     .polygons(polygons)
                     .build();
-            siGunGuRegionMap.put(code, siGunGuRegion);
+            cacheService.cache().put(code, siGunGuRegion);
         }
     }
 
     public List<Region> toRegionEntities() {
-        return siGunGuRegionMap.values().stream()
+        return cacheService.cache().values().stream()
                 .map(region -> {
                     String polygonWkt = region.polygons().getFirst().polygon().toText(); // 첫 폴리곤만 사용
                     return Region.builder()
@@ -89,7 +91,7 @@ public class GeoJsonRegionMapper {
     public Optional<String> findSiGunGuCode(double lat, double lon) {
         Point userPoint = geometryFactory.createPoint(new Coordinate(lon, lat));
 
-        for (SiGunGuRegion region : siGunGuRegionMap.values()) {
+        for (SiGunGuRegion region : cacheService.cache().values()) {
             for (RegionPolygon polygon : region.polygons()) {
                 if (polygon.polygon().contains(userPoint)) {
                     return Optional.of(region.code());
@@ -100,30 +102,11 @@ public class GeoJsonRegionMapper {
     }
 
     public Optional<Coordinate> getSiGunGuCenter(String siGunGuCode) {
-        return Optional.ofNullable(siGunGuRegionMap.get(siGunGuCode)).map(SiGunGuRegion::center);
+        return Optional.ofNullable(cacheService.cache().get(siGunGuCode)).map(SiGunGuRegion::center);
     }
 
     public Optional<SiGunGuRegion> getSiGunGuRegion(String siGunGuCode) {
-        return Optional.ofNullable(siGunGuRegionMap.get(siGunGuCode));
+        return Optional.ofNullable(cacheService.cache().get(siGunGuCode));
     }
 
-
-    public static void main(String[] args) throws Exception {
-        File geoJson = new File("./HangJeongDong_ver20250401.geojson");
-        GeoJsonRegionMapper mapper = new GeoJsonRegionMapper(geoJson);
-
-        double lat = 37.4923;
-        double lon = 127.0296;
-        Optional<String> siGunGu = mapper.findSiGunGuCode(lat, lon);
-        System.out.println("위치가 속한 시군구 코드: " + siGunGu.orElse("알 수 없음"));
-
-        siGunGu.ifPresent(code -> {
-            Optional<Coordinate> center = mapper.getSiGunGuCenter(code);
-            center.ifPresent(c -> System.out.println("중심 좌표: lat=" + c.y + ", lon=" + c.x));
-        });
-
-        Coordinate center = mapper.getSiGunGuCenter("11740").orElseThrow();
-        GridXY grid = GeoUtil.toGrid(center.y, center.x); // 위도(y), 경도(x)
-        System.out.println("기상청 격자 좌표: " + grid);
-    }
 }
