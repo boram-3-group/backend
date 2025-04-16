@@ -1,0 +1,22 @@
+@startuml 날씨캐시컴포넌트
+
+package "com.boram.look" {
+    [UserController] --> [WeatherFacade]
+
+    package "domain.weather" {
+        [WeatherFacade] --> [WeatherCacheService]
+        [WeatherFacade] --> [WeatherRegionMapper]
+        [WeatherCacheService] --> [RedisTemplate]
+    }
+
+    package "external" {
+        [WeatherFacade] --> [KmaWeatherClient]
+    }
+
+    package "infra" {
+        [RedisTemplate]
+        [KmaWeatherClient] --> [기상청API]
+    }
+}
+
+@enduml
