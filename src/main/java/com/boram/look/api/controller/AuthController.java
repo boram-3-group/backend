@@ -48,8 +48,8 @@ public class AuthController {
     ) {
         String token = oidcTokenCacheService.getOIDCAccessToken(stateId);
         OAuthJwtDto dto = jwtProvider.buildDto(token);
-        String issuedToken = jwtProvider.createAccessToken(dto.getUsername(), dto.getUserId(), dto.getRoleString());
-        String refreshToken = jwtProvider.createRefreshToken(dto.getUsername(), dto.getUserId(), deviceId);
+        String issuedToken = jwtProvider.createAccessToken(dto.username(), dto.userId(), dto.roleString());
+        String refreshToken = jwtProvider.createRefreshToken(dto.username(), dto.userId(), deviceId);
         ResponseUtil.responseRefreshToken(response, this.jwtProvider, refreshToken);
         return ResponseEntity.ok(Map.of("access", issuedToken));
     }
