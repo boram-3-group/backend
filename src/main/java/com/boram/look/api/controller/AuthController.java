@@ -4,6 +4,7 @@ import com.boram.look.api.dto.OAuthJwtDto;
 import com.boram.look.global.ResponseUtil;
 import com.boram.look.global.security.JwtProvider;
 import com.boram.look.global.security.oauth.OAuth2RegistrationId;
+import com.boram.look.global.security.oauth.OidcTokenCacheService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,7 @@ import java.util.Map;
 public class AuthController {
 
     private final JwtProvider jwtProvider;
+    private final OidcTokenCacheService oidcTokenCacheService;
 
     @GetMapping("/oauth/oidc/{registrationId}")
     public String loginPage(
@@ -44,13 +46,10 @@ public class AuthController {
             @PathVariable String stateId,
             @RequestBody String deviceId
     ) {
-        // TODO: 여기서 stateId로 저장된 accestoken 가져오기
-        String token = "test";
-
+        String token = oidcTokenCacheService.getOIDCAccessToken(stateId);
         OAuthJwtDto dto = jwtProvider.buildDto(token);
         String issuedToken = jwtProvider.createAccessToken(dto.getUsername(), dto.getUserId(), dto.getRoleString());
         String refreshToken = jwtProvider.createRefreshToken(dto.getUsername(), dto.getUserId(), deviceId);
-
         ResponseUtil.responseRefreshToken(response, this.jwtProvider, refreshToken);
         return ResponseEntity.ok(Map.of("access", issuedToken));
     }

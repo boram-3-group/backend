@@ -37,6 +37,7 @@ public class CustomOAuth2LoginSuccessHandler implements AuthenticationSuccessHan
     private final ObjectMapper objectMapper;
     private final JwtProvider jwtProvider;
     private final UserService userService;
+    private final OidcTokenCacheService oidcTokenCacheService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
@@ -65,9 +66,7 @@ public class CustomOAuth2LoginSuccessHandler implements AuthenticationSuccessHan
         String accessToken = jwtProvider.createAccessToken(loginUser.getUsername(), loginUser.getId().toString(), roleString);
         String stateId = ResponseUtil.getStateIdFromCallbackUrl(urlDecoded);
 
-        //TODO: 엘라스틱 캐시에 클라이언트에서 준 stateId, access token 넣어주기
-
-
+        oidcTokenCacheService.saveOIDCAccessToken(stateId, accessToken);
         String redirectUri = new String(Base64.getUrlDecoder().decode(urlDecoded), StandardCharsets.UTF_8);
         response.sendRedirect(redirectUri);
     }
