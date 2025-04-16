@@ -1,0 +1,27 @@
+@startuml 날씨조회시퀀스
+
+actor User
+participant "Frontend (위경도 수집)" as Front
+participant "Backend API" as API
+participant "WeatherRegionMapper" as RegionMapper
+participant "Redis (weather:{region})" as Redis
+participant "WeatherCacheService" as CacheService
+participant "KMA Weather API" as KMA
+
+User -> Front : 현재 위치(GPS 위경도) 허용
+Front -> API : /api/weather?lat=37.48&lon=127.01
+API -> RegionMapper : 위경도 → 행정구역(예: 서초구)
+RegionMapper --> API : "서초구"
+API -> Redis : weather:서초구
+Redis --> API : (날씨 있음?) or (null)
+alt 캐시 HIT
+    API --> Front : 캐시된 날씨 응답
+else 캐시 MISS
+    API -> KMA : 서초구 날씨 외부 API 요청
+    KMA --> API : 날씨 데이터
+    API -> CacheService : 캐시 저장 (TTL 10~30분)
+    CacheService --> Redis : put(weather:서초구, 데이터)
+    API --> Front : 날씨 응답
+end
+
+@enduml
