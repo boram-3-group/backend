@@ -4,6 +4,10 @@ server:
 spring:
   application:
     name: look
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
 
   datasource:
     username: ${DB_USERNAME}
