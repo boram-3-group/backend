@@ -21,7 +21,7 @@ public class WeatherScheduler {
     private final RegionCacheService regionCacheService;
     private final WeatherService weatherService;
 
-    @Scheduled(cron = "20 10,13,16,19,22,1,4 * * *") // 매일 02:15, 05:15, ... 실행
+    @Scheduled(cron = "0 15 2,5,8,11,14,17,20,23 * * *") // 매일 02:15, 05:15, ... 실행
     public void runForecastBatch() throws ExecutionException, InterruptedException {
         weatherService.fetchAllWeather(regionCacheService.cache());
     }
