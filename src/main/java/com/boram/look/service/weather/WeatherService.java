@@ -1,13 +1,13 @@
 package com.boram.look.service.weather;
 
 import com.boram.look.api.dto.WeatherForecastDto;
-import com.boram.look.api.dto.WeatherResponse;
+import com.boram.look.domain.region.SiGunGuRegion;
 import com.boram.look.domain.weather.Forecast;
+import com.boram.look.domain.weather.ForecastBase;
 import com.boram.look.domain.weather.WeatherMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nimbusds.jose.util.StandardCharset;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -16,19 +16,18 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @RequiredArgsConstructor
 public class WeatherService {
     private final RestTemplate restTemplate = new RestTemplate();
+    private final WeatherFailureService failureService;
 
     @Value("${weather.vilage-fcst-url}")
     private String vilageFcstUrl;
@@ -36,14 +35,15 @@ public class WeatherService {
     private String serviceKey;
 
 
-    public List<WeatherForecastDto> callWeather(int nx, int ny)  {
-        String url = UriComponentsBuilder.fromHttpUrl(this.vilageFcstUrl)
+    public List<WeatherForecastDto> callWeather(int nx, int ny, Long regionId) {
+        ForecastBase base = getNearestForecastBase();
+        String url = UriComponentsBuilder.fromUriString(this.vilageFcstUrl)
                 .queryParam("serviceKey", this.serviceKey)
                 .queryParam("numOfRows", 1000)
                 .queryParam("pageNo", 1)
                 .queryParam("dataType", "JSON")
-                .queryParam("base_date", LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")))
-                .queryParam("base_time", getNearestForecastTime()) // 0200, 0500 ...
+                .queryParam("base_date", base.baseDate())
+                .queryParam("base_time", base.baseTime()) // 0200, 0500 ...
                 .queryParam("nx", nx)
                 .queryParam("ny", ny)
                 .build(false)
@@ -56,7 +56,9 @@ public class WeatherService {
         try {
             root = mapper.readTree(response.getBody());
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            System.out.println("fail region id: " + regionId);
+            failureService.saveFailure(regionId);
+            return new ArrayList<>();
         }
         JsonNode items = root.path("response").path("body").path("items").path("item");
 
@@ -74,8 +76,8 @@ public class WeatherService {
         return results;
     }
 
-    public List<Forecast> fetchWeatherForRegion(int nx, int ny) {
-        List<WeatherForecastDto> res = this.callWeather(nx, ny);
+    public List<Forecast> fetchWeatherForRegion(int nx, int ny, Long regionId) {
+        List<WeatherForecastDto> res = this.callWeather(nx, ny, regionId);
         return this.mergeForecasts(res);
     }
 
@@ -105,17 +107,73 @@ public class WeatherService {
         return new ArrayList<>(timeMap.values());
     }
 
-    public String getNearestForecastTime() {
+    public ForecastBase getNearestForecastBase() {
         LocalTime now = LocalTime.now();
+        LocalDate today = LocalDate.now();
+
         List<String> baseTimes = List.of("0200", "0500", "0800", "1100", "1400", "1700", "2000", "2300");
 
         for (int i = baseTimes.size() - 1; i >= 0; i--) {
             String time = baseTimes.get(i);
-            LocalTime t = LocalTime.parse(time, DateTimeFormatter.ofPattern("HHmm"));
-            if (now.isAfter(t) || now.equals(t)) {
-                return time;
+            LocalTime baseTime = LocalTime.parse(time, DateTimeFormatter.ofPattern("HHmm"));
+
+            if (now.isAfter(baseTime) || now.equals(baseTime)) {
+                return new ForecastBase(today.format(DateTimeFormatter.ofPattern("yyyyMMdd")), time);
             }
         }
-        return "2300"; // 자정 직후면 전날 23:00 예보
+
+        // 자정 직후 → 전날 23시 예보
+        return new ForecastBase(today.minusDays(1).format(DateTimeFormatter.ofPattern("yyyyMMdd")), "2300");
     }
+
+    public Map<Long, List<Forecast>> fetchAllWeather(Map<Long, SiGunGuRegion> regionMap) throws ExecutionException, InterruptedException {
+        ExecutorService executor = Executors.newFixedThreadPool(10);
+        Semaphore limiter = new Semaphore(30);
+        List<Future<Void>> futures = new ArrayList<>();
+
+        Map<Long, List<Forecast>> weatherMap = new HashMap<>();
+
+        AtomicInteger count = new AtomicInteger();
+        for (Map.Entry<Long, SiGunGuRegion> entry : regionMap.entrySet()) {
+            Long id = entry.getKey();
+            SiGunGuRegion region = entry.getValue();
+            futures.add(executor.submit(() -> {
+                try {
+                    limiter.acquire();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                try {
+                    int current = count.incrementAndGet();
+                    // 30개 단위로 1초 대기
+                    if (current % 30 == 0) {
+                        Thread.sleep(1000);
+                    }
+
+                    List<Forecast> forecasts = this.fetchWeatherForRegion(
+                            region.grid().nx(),
+                            region.grid().ny(),
+                            region.id()
+                    );
+                    synchronized (weatherMap) {
+                        weatherMap.put(id, forecasts);
+                    }
+                } finally {
+                    limiter.release();
+                }
+
+                return null;
+            }));
+
+
+        }
+
+        for (Future<Void> future : futures) {
+            future.get(); // 예외 발생 시 throw 됨
+        }
+        executor.shutdown();
+        executor.close();
+        return weatherMap;
+    }
+
 }

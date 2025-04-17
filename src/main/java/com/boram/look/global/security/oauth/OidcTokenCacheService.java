@@ -1,6 +1,6 @@
 package com.boram.look.global.security.oauth;
 
-import com.boram.look.domain.auth.CacheType;
+import com.boram.look.global.CacheType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;

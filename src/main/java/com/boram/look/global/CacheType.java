@@ -1,4 +1,4 @@
-package com.boram.look.domain.auth;
+package com.boram.look.global;
 
 import lombok.Getter;
 

@@ -1,19 +1,19 @@
 package com.boram.look.api.controller;
 
-import com.boram.look.api.dto.WeatherResponse;
 import com.boram.look.domain.region.SiGunGuRegion;
 import com.boram.look.domain.weather.Forecast;
 import com.boram.look.service.region.RegionCacheService;
+import com.boram.look.service.weather.WeatherCacheService;
 import com.boram.look.service.weather.WeatherService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,16 +21,34 @@ import java.util.Map;
 public class WeatherController {
     private final WeatherService weatherService;
     private final RegionCacheService regionCacheService;
+    private final WeatherCacheService weatherCacheService;
 
+    // chunk: 5분 38.34초
+    // no chunk: 5분 51.18초
+    // executor: 44초
     @GetMapping
-    public ResponseEntity<?> fetchDailyWeather() {
+    public ResponseEntity<?> fetchDailyWeather() throws InterruptedException, ExecutionException {
         Map<Long, SiGunGuRegion> regionMap = regionCacheService.cache();
-        Map<Long, List<Forecast>> weatherMap = new HashMap<>();
-        for (Map.Entry<Long, SiGunGuRegion> entry : regionMap.entrySet()) {
-            SiGunGuRegion region = entry.getValue();
-            List<Forecast> forecasts = weatherService.fetchWeatherForRegion(region.grid().nx(), region.grid().ny());
-            weatherMap.put(entry.getKey(), forecasts);
-        }
+        Map<Long, List<Forecast>> weatherMap = weatherService.fetchAllWeather(regionMap);
+        weatherCacheService.updateWeatherCache(weatherMap);
         return ResponseEntity.ok(weatherMap);
+    }
+
+
+    @GetMapping("/region/{regionId}")
+    public ResponseEntity<?> getWeather(@PathVariable Long regionId) throws JsonProcessingException {
+        List<Forecast> forecasts = weatherCacheService.getForecast(regionId);
+        return ResponseEntity.ok(forecasts);
+    }
+
+    @GetMapping("/position")
+    public ResponseEntity<?> getWeatherByPosition(
+            @RequestParam double lat,
+            @RequestParam double lon
+    ) throws JsonProcessingException {
+        SiGunGuRegion region = regionCacheService.findRegionByLocation(lat, lon)
+                .orElseThrow(EntityNotFoundException::new);
+        List<Forecast> forecasts = weatherCacheService.getForecast(region.id());
+        return ResponseEntity.ok(forecasts);
     }
 }
