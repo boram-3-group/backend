@@ -11,6 +11,7 @@ import com.boram.look.global.security.authentication.PrincipalDetailsService;
 import com.boram.look.global.security.authorization.JwtAuthorizationConfigurer;
 import com.boram.look.global.security.oauth.CustomOAuth2AuthorizationRequestResolver;
 import com.boram.look.global.security.oauth.CustomOAuth2LoginSuccessHandler;
+import com.boram.look.global.security.oauth.OidcTokenCacheService;
 import com.boram.look.global.security.oauth.TokenClientRouter;
 import com.boram.look.global.security.reissue.TokenReissueConfigurer;
 import com.boram.look.service.user.UserService;
@@ -53,6 +54,7 @@ public class SecurityConfig {
     private final RefreshTokenEntityRepository refreshTokenEntityRepository;
     private final UserService userService;
     private final ClientRegistrationRepository clientRegistrationRepository;
+    private final OidcTokenCacheService oidcTokenCacheService;
 
     /**
      * Spring Security의 기본 보안 필터 체인을 구성합니다.
@@ -129,6 +131,7 @@ public class SecurityConfig {
                 new AntPathRequestMatcher("/login/oauth2/code/**"),
                 new AntPathRequestMatcher("/oauth2/authorization/**"),
                 new AntPathRequestMatcher("/oauth/oidc/**"),
+                new AntPathRequestMatcher("/oauth/issue/**", HttpMethod.POST.name()),
                 new AntPathRequestMatcher("/test/**"),
                 new AntPathRequestMatcher("/actuator/**"),
                 new AntPathRequestMatcher("/favicon.ico"),
@@ -179,6 +182,7 @@ public class SecurityConfig {
                 .jwtProvider(this.jwtProvider)
                 .objectMapper(this.objectMapper)
                 .userService(this.userService)
+                .oidcTokenCacheService(this.oidcTokenCacheService)
                 .build();
     }
 

@@ -33,7 +33,7 @@ public class CustomOAuth2AuthorizationRequestResolver implements OAuth2Authoriza
         String customState = request.getParameter("state");
 
         return OAuth2AuthorizationRequest.from(originalRequest)
-                .state(customState) // 여기서 우리가 넣은 state로 덮어씀!
+                .state(customState)
                 .build();
     }
 }

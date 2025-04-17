@@ -61,14 +61,14 @@ public class CustomOAuth2LoginSuccessHandler implements AuthenticationSuccessHan
         String roleString = ResponseUtil.buildRoleString(loginUser.getRoles());
 
         String stateEncoded = request.getParameter("state");
-        String urlDecoded = URLDecoder.decode(stateEncoded, StandardCharsets.UTF_8);
+        byte[] decodedBytes = Base64.getUrlDecoder().decode(stateEncoded);
+        String callbackUrl = new String(decodedBytes, StandardCharsets.UTF_8);
 
         String accessToken = jwtProvider.createAccessToken(loginUser.getUsername(), loginUser.getId().toString(), roleString);
-        String stateId = ResponseUtil.getStateIdFromCallbackUrl(urlDecoded);
+        String stateId = ResponseUtil.getStateIdFromCallbackUrl(callbackUrl);
 
         oidcTokenCacheService.saveOIDCAccessToken(stateId, accessToken);
-        String redirectUri = new String(Base64.getUrlDecoder().decode(urlDecoded), StandardCharsets.UTF_8);
-        response.sendRedirect(redirectUri);
+        response.sendRedirect(callbackUrl);
     }
 
 }

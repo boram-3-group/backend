@@ -44,7 +44,7 @@ public class AuthController {
     public ResponseEntity<?> issueToken(
             HttpServletResponse response,
             @PathVariable String stateId,
-            @RequestBody String deviceId
+            @RequestHeader("X-DEVICE-ID") String deviceId
     ) {
         String token = oidcTokenCacheService.getOIDCAccessToken(stateId);
         OAuthJwtDto dto = jwtProvider.buildDto(token);
@@ -55,9 +55,10 @@ public class AuthController {
     }
 
     @GetMapping("/test/callback")
-    public void callback(
-            @RequestBody String access
+    public ResponseEntity<?> callback(
+            @RequestParam String stateId
     ) {
-        log.info("callback is called.\naccessToken: {}", access);
+        log.info("callback is called.\nstateId: {}", stateId);
+        return ResponseEntity.ok(Map.of("state", stateId));
     }
 }
