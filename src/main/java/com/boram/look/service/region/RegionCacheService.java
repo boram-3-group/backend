@@ -26,6 +26,10 @@ public class RegionCacheService {
     private final RegionRepository regionRepository;
     private final Map<Long, SiGunGuRegion> cache = new ConcurrentHashMap<>();
 
+    public Map<Long, SiGunGuRegion> cache() {
+        return cache;
+    }
+
     @PostConstruct
     public void loadRegionMap() {
         WKTReader reader = new WKTReader();

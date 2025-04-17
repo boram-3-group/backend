@@ -138,7 +138,8 @@ public class SecurityConfig {
                 new AntPathRequestMatcher("/error"),
                 new AntPathRequestMatcher("/api/v1/user", HttpMethod.POST.name()),
                 new AntPathRequestMatcher("/api/v1/region/upload", HttpMethod.POST.name()),
-                new AntPathRequestMatcher("/api/v1/region/**")
+                new AntPathRequestMatcher("/api/v1/region/**"),
+                new AntPathRequestMatcher("/api/v1/weather/**")
         );
     }
 
