@@ -69,3 +69,8 @@ jwt:
   secret-key: ${JWT_SECRET_KEY}
   access_expiration_time: ${ACCESS_EXPIRATION_TIME}
   refresh_expiration_time: ${REFRESH_EXPIRATION_TIME}
+
+
+weather:
+  vilage-fcst-url: ${WEATHER_FCST_URL}
+  service-key: ${WEATHER_SERVICE_KEY}

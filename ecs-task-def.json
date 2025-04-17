@@ -105,6 +105,14 @@
           "valueFrom": "arn:aws:ssm:ap-northeast-2:789909227789:parameter/REDIS_PORT"
         },
         {
+          "name": "WEATHER_FCST_URL",
+          "valueFrom": "arn:aws:ssm:ap-northeast-2:789909227789:parameter/WEATHER_FCST_URL"
+        },
+        {
+          "name": "WEATHER_SERVICE_KEY",
+          "valueFrom": "arn:aws:ssm:ap-northeast-2:789909227789:parameter/WEATHER_SERVICE_KEY"
+        },
+        {
           "name": "GOOGLE_REDIRECT_URI",
           "valueFrom": "arn:aws:ssm:ap-northeast-2:789909227789:parameter/GOOGLE_REDIRECT_URI"
         }
