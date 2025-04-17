@@ -1,20 +1,38 @@
 package com.boram.look.domain.region.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "region")
 @Getter
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
+@Table(name = "region", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"sido", "sgg"})
+})
 public class Region {
 
     @Id
-    private String code; // 시군구 코드
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id; // 시군구 코드
 
-    private String name; // 시군구 이름
+    // "sgg": "11110",
+    // "sido": "11",
+    // "sidonm": "서울특별시",
+    // "sggnm": "종로구",
+
+    @Column(name = "sgg", nullable = false)
+    private String sgg;
+    @Column(name = "sggnm", nullable = false)
+    private String sggnm;
+    @Column(name = "sido", nullable = false)
+    private String sido;
+    @Column(name = "sidonm", nullable = false)
+    private String sidonm;
 
     private double lat;  // 중심 위도
 
@@ -23,7 +41,6 @@ public class Region {
     private int nx;      // 기상청 격자 X
 
     private int ny;      // 기상청 격자 Y
-
 
 
     @Lob

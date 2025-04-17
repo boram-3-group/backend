@@ -2,15 +2,17 @@ package com.boram.look.domain.region;
 
 import lombok.Builder;
 import org.locationtech.jts.geom.Coordinate;
-
-import java.util.List;
+import org.locationtech.jts.geom.Geometry;
 
 @Builder
 public record SiGunGuRegion(
-        String code,
-        String name,
+        Long id,
+        String sgg,
+        String sggnm,
+        String sido,
+        String sidonm,
         Coordinate center,
-        List<RegionPolygon> polygons,
+        Geometry polygon,
         GridXY grid
 ) {
 }

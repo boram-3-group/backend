@@ -7,27 +7,21 @@ import com.boram.look.domain.region.SiGunGuRegion;
 import com.boram.look.domain.region.entity.Region;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
-import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.io.geojson.GeoJsonReader;
-import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-@Component
-@RequiredArgsConstructor
 public class GeoJsonRegionMapper {
 
-    private final GeometryFactory geometryFactory = new GeometryFactory();
-    private final RegionCacheService cacheService;
-
-    public void buildRegionGeoJson(File geoJsonFile) throws Exception {
+    public List<SiGunGuRegion> buildRegionGeoJson(File geoJsonFile) throws Exception {
         String geoJsonText = Files.readString(geoJsonFile.toPath());
         ObjectMapper mapper = new ObjectMapper();
         JsonNode root = mapper.readTree(geoJsonText);
@@ -49,7 +43,7 @@ public class GeoJsonRegionMapper {
             tempMap.computeIfAbsent(siGunGuCode, k -> new ArrayList<>()).add(region);
         }
 
-        // SiGunGuRegion 객체 생성
+        List<SiGunGuRegion> siGunGuRegions = new ArrayList<>();
         for (Map.Entry<String, List<RegionPolygon>> entry : tempMap.entrySet()) {
             String code = entry.getKey();
             List<RegionPolygon> polygons = entry.getValue();
@@ -62,51 +56,36 @@ public class GeoJsonRegionMapper {
             Point centroid = union.getCentroid();
             GridXY grid = GeoUtil.toGrid(centroid.getCoordinate().y, centroid.getCoordinate().x);
             SiGunGuRegion siGunGuRegion = SiGunGuRegion.builder()
-                    .code(code)
-                    .name(name)
+                    .sgg(code)
+                    .sggnm(name)
+                    .sido(code)
+                    .sidonm(code)
                     .grid(grid)
                     .center(centroid.getCoordinate())
-                    .polygons(polygons)
+                    .polygon(union)
                     .build();
-            cacheService.cache().put(code, siGunGuRegion);
+            siGunGuRegions.add(siGunGuRegion);
         }
+
+        return siGunGuRegions;
     }
 
-    public List<Region> toRegionEntities() {
-        return cacheService.cache().values().stream()
-                .map(region -> {
-                    String polygonWkt = region.polygons().getFirst().polygon().toText(); // 첫 폴리곤만 사용
+    public List<Region> toRegionEntities(List<SiGunGuRegion> regions) {
+        return regions.stream()
+                .map(siGunGu -> {
+                    String polygonWkt = siGunGu.polygon().toText(); // 첫 폴리곤만 사용
                     return Region.builder()
-                            .code(region.code())
-                            .name(region.name())
-                            .lat(region.center().y)
-                            .lon(region.center().x)
+                            .sgg(siGunGu.sgg())
+                            .sggnm(siGunGu.sggnm())
+                            .sido(siGunGu.sido())
+                            .sidonm(siGunGu.sidonm())
+                            .lat(siGunGu.center().y)
+                            .lon(siGunGu.center().x)
                             .polygonText(polygonWkt)
-                            .nx(region.grid().nx())
-                            .ny(region.grid().ny())
+                            .nx(siGunGu.grid().nx())
+                            .ny(siGunGu.grid().ny())
                             .build();
                 }).collect(Collectors.toList());
-    }
-
-    public Optional<String> findSiGunGuCode(double lat, double lon) {
-        Point userPoint = geometryFactory.createPoint(new Coordinate(lon, lat));
-
-        for (SiGunGuRegion region : cacheService.cache().values()) {
-            for (RegionPolygon polygon : region.polygons()) {
-                if (polygon.polygon().contains(userPoint)) {
-                    return Optional.of(region.code());
-                }
-            }
-        }
-        return Optional.empty();
-    }
-
-    public Optional<Coordinate> getSiGunGuCenter(String siGunGuCode) {
-        return Optional.ofNullable(cacheService.cache().get(siGunGuCode)).map(SiGunGuRegion::center);
-    }
-
-    public Optional<SiGunGuRegion> getSiGunGuRegion(String siGunGuCode) {
-        return Optional.ofNullable(cacheService.cache().get(siGunGuCode));
     }
 
 }

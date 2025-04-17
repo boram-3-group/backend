@@ -2,61 +2,75 @@ package com.boram.look.service.region;
 
 
 import com.boram.look.domain.region.GridXY;
-import com.boram.look.domain.region.RegionPolygon;
 import com.boram.look.domain.region.SiGunGuRegion;
 import com.boram.look.domain.region.entity.Region;
 import com.boram.look.domain.region.repository.RegionRepository;
 import jakarta.annotation.PostConstruct;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.io.WKTReader;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
 public class RegionCacheService {
 
     private final RegionRepository regionRepository;
-    private final Map<String, SiGunGuRegion> cache = new HashMap<>();
-
-    public Map<String, SiGunGuRegion> cache() {
-        return this.cache;
-    }
+    private final Map<Long, SiGunGuRegion> cache = new ConcurrentHashMap<>();
 
     @PostConstruct
     public void loadRegionMap() {
         WKTReader reader = new WKTReader();
         for (Region e : regionRepository.findAll()) {
             try {
-                Geometry polygon = reader.read(e.getPolygonText());
-                RegionPolygon rp = new RegionPolygon(e.getCode(), e.getName(), polygon);
+                Geometry geom = reader.read(e.getPolygonText());
                 GridXY grid = new GridXY(e.getNx(), e.getNy());
                 Coordinate center = new Coordinate(e.getLon(), e.getLat());
 
                 SiGunGuRegion region = SiGunGuRegion.builder()
-                        .code(e.getCode())
-                        .name(e.getName())
+                        .id(e.getId())
+                        .sgg(e.getSgg())
+                        .sggnm(e.getSggnm())
+                        .sido(e.getSido())
+                        .sidonm(e.getSidonm())
                         .center(center)
-                        .polygons(List.of(rp))
+                        .polygon(geom)
                         .grid(grid)
                         .build();
-                cache.put(e.getCode(), region);
+                cache.put(e.getId(), region);
             } catch (Exception ex) {
-                throw new RuntimeException("Polygon 파싱 실패: " + e.getCode(), ex);
+                throw new RuntimeException("Polygon 파싱 실패: " + e.getSgg() + " " + e.getSido(), ex);
             }
         }
     }
 
-    public Optional<SiGunGuRegion> findByCode(String code) {
+    public Optional<SiGunGuRegion> findByCode(Long code) {
         return Optional.ofNullable(cache.get(code));
+    }
+
+    public Optional<SiGunGuRegion> findRegionByLocation(double latitude, double longitude) {
+        GeometryFactory factory = new GeometryFactory();
+        Point userPoint = factory.createPoint(new Coordinate(longitude, latitude));
+
+        // 캐시에서 전체 시군구 꺼내서 검사
+        Collection<SiGunGuRegion> allRegions = this.cache.values();
+
+        for (SiGunGuRegion region : allRegions) {
+            if (region.polygon().covers(userPoint)) {
+                return Optional.of(region);
+            }
+        }
+
+        // 어디에도 포함되지 않는 경우
+        return Optional.empty();
     }
 
 }
