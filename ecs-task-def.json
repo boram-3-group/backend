@@ -97,6 +97,14 @@
           "valueFrom": "arn:aws:ssm:ap-northeast-2:789909227789:parameter/DB_PASSWORD"
         },
         {
+          "name": "REDIS_HOST",
+          "valueFrom": "arn:aws:ssm:ap-northeast-2:789909227789:parameter/REDIS_HOST"
+        },
+        {
+          "name": "REDIS_PORT",
+          "valueFrom": "arn:aws:ssm:ap-northeast-2:789909227789:parameter/REDIS_PORT"
+        },
+        {
           "name": "GOOGLE_REDIRECT_URI",
           "valueFrom": "arn:aws:ssm:ap-northeast-2:789909227789:parameter/GOOGLE_REDIRECT_URI"
         }
