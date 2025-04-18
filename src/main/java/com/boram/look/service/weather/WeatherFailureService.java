@@ -20,13 +20,12 @@ public class WeatherFailureService {
                             fail.updateFailureTime();
                             repository.save(fail);
                         },
-                        () -> {
-                            repository.save(WeatherFetchFailure.builder()
-                                    .regionId(regionId)
-                                    .lastFailedAt(java.time.LocalDateTime.now())
-                                    .failCount(1)
-                                    .build());
-                        });
+                        () -> repository.save(WeatherFetchFailure.builder()
+                                .regionId(regionId)
+                                .lastFailedAt(java.time.LocalDateTime.now())
+                                .failCount(1)
+                                .build())
+                );
     }
 
     public void removeFailure(Long regionId) {

@@ -1,11 +1,11 @@
 package com.boram.look.service.weather;
 
-import com.boram.look.domain.region.SiGunGuRegion;
 import com.boram.look.domain.weather.Forecast;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +15,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class WeatherCacheService {
     private final ObjectMapper objectMapper;
     private final RedisTemplate<String, String> redisTemplate;
@@ -31,7 +32,7 @@ public class WeatherCacheService {
             try {
                 value = objectMapper.writeValueAsString(entry.getValue());
             } catch (JsonProcessingException e) {
-                e.printStackTrace();
+                log.error(e.getMessage());
             }
 
             assert value != null;
@@ -44,7 +45,7 @@ public class WeatherCacheService {
         try {
             value = objectMapper.writeValueAsString(forecasts);
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
         }
 
         assert value != null;
@@ -59,6 +60,7 @@ public class WeatherCacheService {
             forecasts = objectMapper.readValue(json, new TypeReference<>() {
             });
         } catch (JsonProcessingException e) {
+            log.error(e.getMessage());
         }
         return forecasts;
     }

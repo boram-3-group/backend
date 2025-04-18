@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class WeatherService {
     private final RestTemplate restTemplate = new RestTemplate();
     private final WeatherFailureService failureService;
@@ -37,17 +39,7 @@ public class WeatherService {
 
     public List<WeatherForecastDto> callWeather(int nx, int ny, Long regionId) {
         ForecastBase base = getNearestForecastBase();
-        String url = UriComponentsBuilder.fromUriString(this.vilageFcstUrl)
-                .queryParam("serviceKey", this.serviceKey)
-                .queryParam("numOfRows", 1000)
-                .queryParam("pageNo", 1)
-                .queryParam("dataType", "JSON")
-                .queryParam("base_date", base.baseDate())
-                .queryParam("base_time", base.baseTime()) // 0200, 0500 ...
-                .queryParam("nx", nx)
-                .queryParam("ny", ny)
-                .build(false)
-                .toUriString();
+        String url = this.buildWeatherRequestUrl(base, nx, ny);
         URI uri = URI.create(url); // 문자열을 URI 객체로 변환
         ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
 
@@ -56,7 +48,7 @@ public class WeatherService {
         try {
             root = mapper.readTree(response.getBody());
         } catch (JsonProcessingException e) {
-            System.out.println("fail region id: " + regionId);
+            log.error("fail region id: {}\nbody: {}", regionId, response.getBody());
             failureService.saveFailure(regionId);
             return new ArrayList<>();
         }
@@ -74,6 +66,20 @@ public class WeatherService {
         }
 
         return results;
+    }
+
+    private String buildWeatherRequestUrl(ForecastBase base, int nx, int ny) {
+        return UriComponentsBuilder.fromUriString(this.vilageFcstUrl)
+                .queryParam("serviceKey", this.serviceKey)
+                .queryParam("numOfRows", 1000)
+                .queryParam("pageNo", 1)
+                .queryParam("dataType", "JSON")
+                .queryParam("base_date", base.baseDate())
+                .queryParam("base_time", base.baseTime()) // 0200, 0500 ...
+                .queryParam("nx", nx)
+                .queryParam("ny", ny)
+                .build(false)
+                .toUriString();
     }
 
     public List<Forecast> fetchWeatherForRegion(int nx, int ny, Long regionId) {
