@@ -60,6 +60,13 @@ public class RegionCacheService {
         return Optional.ofNullable(cache.get(code));
     }
 
+    /**
+     * Point-in-Polygon
+     *
+     * @param latitude  위도
+     * @param longitude 경도
+     * @return 해당 위 경도가 속한 시군구 지역 데이터
+     */
     public Optional<SiGunGuRegion> findRegionByLocation(double latitude, double longitude) {
         GeometryFactory factory = new GeometryFactory();
         Point userPoint = factory.createPoint(new Coordinate(longitude, latitude));
