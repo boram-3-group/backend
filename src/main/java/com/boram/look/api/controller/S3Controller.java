@@ -1,5 +1,6 @@
 package com.boram.look.api.controller;
 
+import com.boram.look.api.dto.PresignedUrlDto;
 import com.boram.look.service.s3.S3FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,18 +20,21 @@ public class S3Controller {
             @RequestParam("uploadDir") String uploadDir
     ) {
         String url = s3FileService.upload(file, uploadDir);
+        s3FileService.saveFileMetadata("asdf", file, url);
         return ResponseEntity.ok(url);
     }
 
-    @DeleteMapping("/{key}")
-    public ResponseEntity<String> upload(@PathVariable String key) {
-        s3FileService.delete(key);
+    @DeleteMapping("/{fileId}")
+    public ResponseEntity<String> upload(@PathVariable Long fileId) {
+        String pathKey = s3FileService.deleteFileMetadata(fileId);
+        s3FileService.delete(pathKey);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{key}/url")
-    public ResponseEntity<String> getPresignedUrl(@PathVariable String key) {
-        String url = s3FileService.generatePresignedUrl(key, 10);
-        return ResponseEntity.ok(url);
+    @GetMapping("/{fileId}/url")
+    public ResponseEntity<?> getPresignedUrl(@PathVariable Long fileId) {
+        String pathKey = s3FileService.getFilePathKey(fileId);
+        PresignedUrlDto dto = s3FileService.generatePresignedUrl(pathKey, 10, fileId);
+        return ResponseEntity.ok(dto);
     }
 }
