@@ -36,9 +36,15 @@ public class WeatherScheduler {
         for (WeatherFetchFailure failure : failures) {
             Long regionId = failure.getRegionId();
             SiGunGuRegion region = regionCacheService.cache().get(regionId);
+            if (region == null) {
+                log.warn("캐시에 regionId={} 정보 없음", regionId);
+                continue;
+            }
+
             List<Forecast> forecasts = weatherService.fetchWeatherForRegion(region.grid().nx(), region.grid().ny(), region.id());
             // forecasts가 빈 리스트이면 연계가 실패한 것으로 간주
             if (forecasts.isEmpty()) {
+                weatherFailureService.updateFailureTime(failure.getRegionId());
                 continue;
             }
 

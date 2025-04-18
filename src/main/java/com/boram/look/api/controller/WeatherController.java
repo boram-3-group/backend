@@ -5,7 +5,6 @@ import com.boram.look.domain.weather.Forecast;
 import com.boram.look.service.region.RegionCacheService;
 import com.boram.look.service.weather.WeatherCacheService;
 import com.boram.look.service.weather.WeatherService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequiredArgsConstructor
@@ -36,7 +34,7 @@ public class WeatherController {
 
 
     @GetMapping("/region/{regionId}")
-    public ResponseEntity<?> getWeather(@PathVariable Long regionId) throws JsonProcessingException {
+    public ResponseEntity<?> getWeather(@PathVariable Long regionId) {
         List<Forecast> forecasts = weatherCacheService.getForecast(regionId);
         return ResponseEntity.ok(forecasts);
     }
