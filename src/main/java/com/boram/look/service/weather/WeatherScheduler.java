@@ -36,19 +36,14 @@ public class WeatherScheduler {
         for (WeatherFetchFailure failure : failures) {
             Long regionId = failure.getRegionId();
             SiGunGuRegion region = regionCacheService.cache().get(regionId);
-
-            try {
-                List<Forecast> forecasts = weatherService.fetchWeatherForRegion(region.grid().nx(), region.grid().ny(), region.id());
-                // forecasts가 빈 리스트이면 연계가 실패한 것으로 간주
-                if (forecasts.isEmpty()) {
-                    continue;
-                }
-
-                weatherCacheService.put(regionId.toString(), forecasts);
-                weatherFailureService.removeFailure(regionId); // 성공 시 삭제
-            } catch (Exception e) {
-                log.warn("재시도 실패: regionId={}, reason={}", regionId, e.getMessage());
+            List<Forecast> forecasts = weatherService.fetchWeatherForRegion(region.grid().nx(), region.grid().ny(), region.id());
+            // forecasts가 빈 리스트이면 연계가 실패한 것으로 간주
+            if (forecasts.isEmpty()) {
+                continue;
             }
+
+            weatherCacheService.put(regionId.toString(), forecasts);
+            weatherFailureService.removeFailure(regionId); // 성공 시 삭제
         }
     }
 
