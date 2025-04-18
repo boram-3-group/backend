@@ -1,26 +1,19 @@
 package com.boram.look.service.s3;
 
-import com.boram.look.api.dto.PresignedUrlDto;
-import com.boram.look.domain.s3.FileMetadata;
-import com.boram.look.domain.s3.repository.FileMetadataRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
-import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -28,7 +21,6 @@ import java.util.UUID;
 public class S3FileService {
     private final S3Client s3Client;
     private final S3Presigner s3Presigner;
-    private final FileMetadataRepository metadataRepository;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -56,7 +48,7 @@ public class S3FileService {
         s3Client.deleteObject(request);
     }
 
-    public PresignedUrlDto generatePresignedUrl(String key, int expireMinutes, Long fileId) {
+    public String generatePresignedUrl(String key, int expireMinutes) {
         GetObjectRequest request = GetObjectRequest.builder()
                 .bucket(bucket)
                 .key(key)
@@ -66,37 +58,7 @@ public class S3FileService {
                 .signatureDuration(Duration.ofSeconds(expireMinutes))
                 .getObjectRequest(request)
                 .build();
-        String presignedUrl = s3Presigner.presignGetObject(presignRequest).url().toString();
-        return PresignedUrlDto.builder()
-                .fileId(fileId)
-                .presignedUrl(presignedUrl)
-                .build();
+        return s3Presigner.presignGetObject(presignRequest).url().toString();
     }
 
-
-    @Transactional
-    public void saveFileMetadata(String userId, MultipartFile file, String key) {
-        FileMetadata metadata = FileMetadata.builder()
-                .size(file.getSize())
-                .originalFilename(file.getOriginalFilename())
-                .pathKey(key)
-                .uploaderUserId(userId)
-                .uploadedAt(LocalDateTime.now())
-                .contentType(file.getContentType())
-                .build();
-        metadataRepository.save(metadata);
-    }
-
-    @Transactional
-    public String deleteFileMetadata(Long fileId) {
-        Optional<FileMetadata> metadata = metadataRepository.findById(fileId);
-        metadata.ifPresent(data -> metadataRepository.deleteById(data.getId()));
-        return metadata.get().getPathKey();
-    }
-
-    @Transactional(readOnly = true)
-    public String getFilePathKey(Long fileId) {
-        FileMetadata metadata = metadataRepository.findById(fileId).orElseThrow(EntityNotFoundException::new);
-        return metadata.getPathKey();
-    }
 }
