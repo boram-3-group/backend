@@ -27,7 +27,7 @@ public class WeatherController {
     // no chunk: 5분 51.18초
     // executor: 44초
     @GetMapping
-    public ResponseEntity<?> fetchDailyWeather() throws InterruptedException, ExecutionException {
+    public ResponseEntity<?> fetchDailyWeather() {
         Map<Long, SiGunGuRegion> regionMap = regionCacheService.cache();
         Map<Long, List<Forecast>> weatherMap = weatherService.fetchAllWeather(regionMap);
         weatherCacheService.updateWeatherCache(weatherMap);
@@ -45,7 +45,7 @@ public class WeatherController {
     public ResponseEntity<?> getWeatherByPosition(
             @RequestParam double lat,
             @RequestParam double lon
-    ) throws JsonProcessingException {
+    ) {
         SiGunGuRegion region = regionCacheService.findRegionByLocation(lat, lon)
                 .orElseThrow(EntityNotFoundException::new);
         List<Forecast> forecasts = weatherCacheService.getForecast(region.id());

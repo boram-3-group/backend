@@ -8,14 +8,12 @@ import com.boram.look.service.region.RegionService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.net.URI;
-import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -28,22 +26,17 @@ public class RegionController {
     private final RegionCacheService regionCacheService;
 
     @PostMapping("/upload")
-    public ResponseEntity<?> uploadGeoJsonToDb(@RequestPart MultipartFile file) {
+    public ResponseEntity<?> uploadGeoJsonToDb(@RequestPart MultipartFile file) throws Exception {
         GeoJsonRegionMapper geoJsonRegionMapper = new GeoJsonRegionMapper();
-        try {
-            File tempFile = File.createTempFile("upload", ".geojson");
-            file.transferTo(tempFile);
-            List<SiGunGuRegion> regions = geoJsonRegionMapper.buildRegionGeoJson(tempFile);
-            tempFile.delete();
-            List<Region> entities = geoJsonRegionMapper.toRegionEntities(regions);
-            regionService.saveBulkEntities(entities);
-            regionCacheService.loadRegionMap();
-            //TODO: URI 집어넣기
-            return ResponseEntity.created(URI.create("hasdhasd")).body("행정구역 정보 업로드 완료 (" + entities.size() + "건)");
-        } catch (Exception e) {
-            log.error(Arrays.toString(e.getStackTrace()));
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("업로드 실패: " + e.getMessage());
-        }
+        File tempFile = File.createTempFile("upload", ".geojson");
+        file.transferTo(tempFile);
+        List<SiGunGuRegion> regions = geoJsonRegionMapper.buildRegionGeoJson(tempFile);
+        tempFile.delete();
+        List<Region> entities = geoJsonRegionMapper.toRegionEntities(regions);
+        regionService.saveBulkEntities(entities);
+        regionCacheService.loadRegionMap();
+        //TODO: URI 집어넣기
+        return ResponseEntity.created(URI.create("hasdhasd")).body("행정구역 정보 업로드 완료 (" + entities.size() + "건)");
     }
 
     @GetMapping

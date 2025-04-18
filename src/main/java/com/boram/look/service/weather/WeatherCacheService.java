@@ -21,7 +21,12 @@ public class WeatherCacheService {
 
     public void updateWeatherCache(Map<Long, List<Forecast>> weatherMap) {
         for (Map.Entry<Long, List<Forecast>> entry : weatherMap.entrySet()) {
-            String key = "weather:" + entry.getKey(); // ex) weather:11010
+            // 연계 실패한 날씨 정보는 일단 있는 캐시 사용
+            if (entry.getValue().isEmpty()) {
+                continue;
+            }
+
+            String key = "weather:" + entry.getKey(); // ex) weather:110
             String value = null;
             try {
                 value = objectMapper.writeValueAsString(entry.getValue());
@@ -46,10 +51,15 @@ public class WeatherCacheService {
         redisTemplate.opsForValue().set(regionId, value, Duration.ofHours(4));
     }
 
-    public List<Forecast> getForecast(Long regionId) throws JsonProcessingException {
+    public List<Forecast> getForecast(Long regionId) {
         String key = "weather:" + regionId;
         String json = redisTemplate.opsForValue().get(key);
-        return objectMapper.readValue(json, new TypeReference<>() {
-        });
+        List<Forecast> forecasts = null;
+        try {
+            forecasts = objectMapper.readValue(json, new TypeReference<>() {
+            });
+        } catch (JsonProcessingException e) {
+        }
+        return forecasts;
     }
 }

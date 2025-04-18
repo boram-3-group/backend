@@ -7,6 +7,7 @@ import com.boram.look.domain.region.SiGunGuRegion;
 import com.boram.look.domain.region.entity.Region;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.locationtech.jts.geom.Geometry;
@@ -16,7 +17,6 @@ import org.locationtech.jts.io.geojson.GeoJsonReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,7 +34,7 @@ public class GeoJsonRegionMapper {
             JsonNode root = mapper.readTree(parser);
             JsonNode features = root.get("features");
             if (features == null || !features.isArray()) {
-                throw new IllegalArgumentException("Invalid GeoJSON format: 'features' field is missing or not an array");
+                throw new JsonMappingException(is, "Invalid GeoJSON format: 'features' field is missing or not an array");
             }
 
             GeoJsonReader reader = new GeoJsonReader();

@@ -126,7 +126,7 @@ public class WeatherService {
         return new ForecastBase(today.minusDays(1).format(DateTimeFormatter.ofPattern("yyyyMMdd")), "2300");
     }
 
-    public Map<Long, List<Forecast>> fetchAllWeather(Map<Long, SiGunGuRegion> regionMap) throws ExecutionException, InterruptedException {
+    public Map<Long, List<Forecast>> fetchAllWeather(Map<Long, SiGunGuRegion> regionMap) {
         ExecutorService executor = Executors.newFixedThreadPool(10);
         Semaphore limiter = new Semaphore(30);
         List<Future<Void>> futures = new ArrayList<>();
@@ -169,7 +169,11 @@ public class WeatherService {
         }
 
         for (Future<Void> future : futures) {
-            future.get(); // 예외 발생 시 throw 됨
+            try {
+                future.get(); // 예외 발생 시 throw 됨
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
         }
         executor.shutdown();
         executor.close();

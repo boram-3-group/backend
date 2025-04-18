@@ -22,7 +22,7 @@ public class WeatherScheduler {
     private final WeatherService weatherService;
 
     @Scheduled(cron = "0 15 2,5,8,11,14,17,20,23 * * *") // 매일 02:15, 05:15, ... 실행
-    public void runForecastBatch() throws ExecutionException, InterruptedException {
+    public void runForecastBatch() {
         weatherService.fetchAllWeather(regionCacheService.cache());
     }
 
@@ -39,6 +39,11 @@ public class WeatherScheduler {
 
             try {
                 List<Forecast> forecasts = weatherService.fetchWeatherForRegion(region.grid().nx(), region.grid().ny(), region.id());
+                // forecasts가 빈 리스트이면 연계가 실패한 것으로 간주
+                if (forecasts.isEmpty()) {
+                    continue;
+                }
+
                 weatherCacheService.put(regionId.toString(), forecasts);
                 weatherFailureService.removeFailure(regionId); // 성공 시 삭제
             } catch (Exception e) {
