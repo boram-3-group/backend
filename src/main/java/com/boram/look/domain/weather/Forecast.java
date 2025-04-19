@@ -11,5 +11,4 @@ public class Forecast {
     private int pop;          // POP
     private String icon;      // ☀️, 🌧 등
     private String message;   // 텍스트 메시지
-
 }

@@ -10,8 +10,15 @@ public class WeatherConstants {
             "0200", "0500", "0800", "1100", "1400", "1700", "2000", "2300"
     );
 
+    // 3시간동안의 기온 예상값
     public static final String KMA_TEMP_3H = "T3H";
-    public static final String KMA_PRECIPITATION_PROBABILITY = "SKY";
+
+    // 강수 확률
+    public static final String KMA_PRECIPITATION_PROBABILITY = "POP";
+
+    // 강수 유형
     public static final String KMA_PRECIPITATION_TYPE = "PTY";
-    public static final String KMA_SKY_CONDITION = "POP";
+
+    // 구름 정도
+    public static final String KMA_SKY_CONDITION = "SKY";
 }
