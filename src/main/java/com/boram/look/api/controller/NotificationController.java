@@ -2,6 +2,7 @@ package com.boram.look.api.controller;
 
 import com.boram.look.domain.notification.Notification;
 import com.boram.look.service.notification.NotificationService;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +13,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @RequestMapping("/api/v1/notifications")
 @RequiredArgsConstructor
 @Slf4j
+@Hidden
 public class NotificationController {
 
     private final NotificationService notificationService;

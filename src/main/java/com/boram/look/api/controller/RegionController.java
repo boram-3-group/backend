@@ -5,6 +5,9 @@ import com.boram.look.domain.region.entity.Region;
 import com.boram.look.service.region.GeoJsonRegionMapper;
 import com.boram.look.service.region.RegionCacheService;
 import com.boram.look.service.region.RegionService;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +28,7 @@ public class RegionController {
     private final RegionService regionService;
     private final RegionCacheService regionCacheService;
 
+    @Hidden
     @PostMapping("/upload")
     public ResponseEntity<?> uploadGeoJsonToDb(@RequestPart MultipartFile file) throws Exception {
         GeoJsonRegionMapper geoJsonRegionMapper = new GeoJsonRegionMapper();
@@ -39,13 +43,14 @@ public class RegionController {
         return ResponseEntity.created(URI.create("hasdhasd")).body("행정구역 정보 업로드 완료 (" + entities.size() + "건)");
     }
 
+    @Operation(description = "위도, 경도를 입력하고 그 위,경도에 위치한 지역이 어디인지 출력")
     @GetMapping
     public ResponseEntity<?> getRegionsFromPoint(
-            @RequestParam double lat,
-            @RequestParam double lon
+            @Parameter(description = "위도 (Latitude)") @RequestParam double lat,
+            @Parameter(description = "경도 (Longitude)") @RequestParam double lon
     ) {
         SiGunGuRegion region = regionCacheService.findRegionByLocation(lat, lon)
                 .orElseThrow(EntityNotFoundException::new);
-        return ResponseEntity.ok(region.toString());
+        return ResponseEntity.ok(region.toDto().toString());
     }
 }

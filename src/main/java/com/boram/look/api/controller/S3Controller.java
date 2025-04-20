@@ -2,6 +2,7 @@ package com.boram.look.api.controller;
 
 import com.boram.look.service.s3.FileMetadataService;
 import com.boram.look.service.s3.S3FileService;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/files")
+@Hidden
 public class S3Controller {
 
     private final S3FileService s3FileService;

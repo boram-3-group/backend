@@ -5,6 +5,9 @@ import com.boram.look.global.ResponseUtil;
 import com.boram.look.global.security.JwtProvider;
 import com.boram.look.global.security.oauth.OAuth2RegistrationId;
 import com.boram.look.global.security.oauth.OidcTokenCacheService;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,10 +27,11 @@ public class AuthController {
     private final JwtProvider jwtProvider;
     private final OidcTokenCacheService oidcTokenCacheService;
 
+    @Operation(description = "OAuth 시작 RestAPI")
     @GetMapping("/oauth/oidc/{registrationId}")
     public String loginPage(
-            @PathVariable String registrationId,
-            @RequestParam String callbackUrl
+            @Parameter(description = "제공자 ID - kakao, google") @PathVariable String registrationId,
+            @Parameter(description = "콜백url - 로그인 완료시 리다이렉션시킬 프론트엔드 url") @RequestParam String callbackUrl
     ) {
         StringBuilder builder = new StringBuilder("redirect:");
         OAuth2RegistrationId registration = OAuth2RegistrationId.valueOf(registrationId.toUpperCase());
@@ -39,11 +43,12 @@ public class AuthController {
         return builder.toString();
     }
 
+    @Operation(description = "callback url에서 보낸 stateId를 이용해 엑세스토큰을 최초에만 발급하는 API")
     @PostMapping("/oauth/issue/{stateId}")
     public ResponseEntity<?> issueToken(
             HttpServletResponse response,
-            @PathVariable String stateId,
-            @RequestHeader("X-DEVICE-ID") String deviceId
+            @Parameter(description = "사용자 식별 ID - 프론트에서 발급")  @PathVariable String stateId,
+            @Parameter(description = "제공자 ID - kakao, google") @RequestHeader("X-DEVICE-ID") String deviceId
     ) {
         String token = oidcTokenCacheService.getOIDCAccessToken(stateId);
         OAuthJwtDto dto = jwtProvider.buildDto(token);
@@ -53,6 +58,7 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("access", issuedToken));
     }
 
+    @Hidden
     @GetMapping("/test/callback")
     public ResponseEntity<?> callback(
             @RequestParam String stateId

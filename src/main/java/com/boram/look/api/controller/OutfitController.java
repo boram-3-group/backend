@@ -10,6 +10,8 @@ import com.boram.look.service.outfit.OutfitService;
 import com.boram.look.service.region.RegionCacheService;
 import com.boram.look.service.weather.WeatherCacheService;
 import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -30,12 +32,13 @@ public class OutfitController {
     private final RegionCacheService regionCacheService;
     private final WeatherCacheService weatherCacheService;
 
+    @Operation(description = "파라메터 값에 해당하는 코디들을 출력")
     @GetMapping
     public ResponseEntity<?> getOutfitByPosition(
-            @RequestParam(name = "longitude") float longitude,
-            @RequestParam(name = "latitude") float latitude,
-            @RequestParam(name = "event-type-id") Integer eventTypeId,
-            @RequestParam(name = "gender") Gender gender
+            @Parameter(description = "경도 (Longitude)") @RequestParam(name = "longitude") float longitude,
+            @Parameter(description = "위도 (Latitude)") @RequestParam(name = "latitude") float latitude,
+            @Parameter(description = "이벤트 유형 ID") @RequestParam(name = "event-type-id") Integer eventTypeId,
+            @Parameter(description = "성별 (MALE / FEMALE / NONE)") @RequestParam(name = "gender") Gender gender
     ) {
         SiGunGuRegion region = regionCacheService.findRegionByLocation(latitude, longitude).orElseThrow(ResourceNotFoundException::new);
         List<Forecast> forecasts = weatherCacheService.getForecast(region.id());
