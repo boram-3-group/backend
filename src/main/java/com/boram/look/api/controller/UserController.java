@@ -75,6 +75,7 @@ public class UserController {
     }
 
     @GetMapping("/test")
+    @Hidden
     public ResponseEntity<?> test(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         log.info("test is called.\nprincipalDetails: {}", principalDetails);
         return ResponseEntity.ok("gogo");

@@ -5,6 +5,9 @@ import com.boram.look.domain.weather.Forecast;
 import com.boram.look.service.region.RegionCacheService;
 import com.boram.look.service.weather.WeatherCacheService;
 import com.boram.look.service.weather.WeatherService;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +28,7 @@ public class WeatherController {
     // no chunk: 5분 51.18초
     // executor: 44초
     @GetMapping
+    @Hidden
     public ResponseEntity<?> fetchDailyWeather() {
         Map<Long, SiGunGuRegion> regionMap = regionCacheService.cache();
         Map<Long, List<Forecast>> weatherMap = weatherService.fetchAllWeather(regionMap);
@@ -32,7 +36,7 @@ public class WeatherController {
         return ResponseEntity.ok(weatherMap);
     }
 
-
+    @Hidden
     @GetMapping("/region/{regionId}")
     public ResponseEntity<?> getWeather(@PathVariable Long regionId) {
         List<Forecast> forecasts = weatherCacheService.getForecast(regionId);
@@ -40,9 +44,10 @@ public class WeatherController {
     }
 
     @GetMapping("/position")
+    @Operation(description = "위, 경도를 입력하여 속한 지역의 날씨를 조회")
     public ResponseEntity<?> getWeatherByPosition(
-            @RequestParam double lat,
-            @RequestParam double lon
+            @Parameter(description = "경도 (Longitude)") @RequestParam double lat,
+            @Parameter(description = "위도 (Latitude)") @RequestParam double lon
     ) {
         SiGunGuRegion region = regionCacheService.findRegionByLocation(lat, lon)
                 .orElseThrow(EntityNotFoundException::new);
