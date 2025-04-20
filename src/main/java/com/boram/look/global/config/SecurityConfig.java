@@ -142,6 +142,10 @@ public class SecurityConfig {
                 new AntPathRequestMatcher("/api/v1/files/**"),
                 new AntPathRequestMatcher("/api/v1/files/upload", HttpMethod.POST.name()),
                 new AntPathRequestMatcher("/api/v1/files/**", HttpMethod.DELETE.name()),
+                new AntPathRequestMatcher("/api/v1/outfit/**", HttpMethod.POST.name()),
+                new AntPathRequestMatcher("/api/v1/outfit/**", HttpMethod.GET.name()),
+                new AntPathRequestMatcher("/api/v1/outfit/**", HttpMethod.DELETE.name()),
+                new AntPathRequestMatcher("/api/v1/outfit/**", HttpMethod.PUT.name()),
                 new AntPathRequestMatcher("/api/v1/weather/**")
 
 

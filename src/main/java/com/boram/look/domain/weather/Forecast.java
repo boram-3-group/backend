@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class Forecast {
     private String time;      // "0900"
-    private int temperature;  // T3H
+    private float temperature;  // T3H
     private int sky;          // SKY
     private int pty;          // PTY
     private int pop;          // POP

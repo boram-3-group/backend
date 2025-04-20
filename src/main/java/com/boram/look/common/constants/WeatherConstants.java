@@ -11,7 +11,7 @@ public class WeatherConstants {
     );
 
     // 3시간동안의 기온 예상값
-    public static final String KMA_TEMP_3H = "T3H";
+    public static final String KMA_TEMP_3H = "TMP";
 
     // 강수 확률
     public static final String KMA_PRECIPITATION_PROBABILITY = "POP";
