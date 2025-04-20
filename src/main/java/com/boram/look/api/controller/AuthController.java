@@ -27,7 +27,10 @@ public class AuthController {
     private final JwtProvider jwtProvider;
     private final OidcTokenCacheService oidcTokenCacheService;
 
-    @Operation(description = "OAuth 시작 RestAPI")
+    @Operation(
+            summary = "oauth 로그인 호출",
+            description = "OAuth 시작 RestAPI"
+    )
     @GetMapping("/oauth/oidc/{registrationId}")
     public String loginPage(
             @Parameter(description = "제공자 ID - kakao, google") @PathVariable String registrationId,
@@ -43,11 +46,14 @@ public class AuthController {
         return builder.toString();
     }
 
-    @Operation(description = "callback url에서 보낸 stateId를 이용해 엑세스토큰을 최초에만 발급하는 API")
+    @Operation(
+            summary = "OIDC 로그인시 access token 토큰 발급",
+            description = "callback url에서 보낸 stateId를 이용해 엑세스토큰을 최초에만 발급하는 API"
+    )
     @PostMapping("/oauth/issue/{stateId}")
     public ResponseEntity<?> issueToken(
             HttpServletResponse response,
-            @Parameter(description = "사용자 식별 ID - 프론트에서 발급")  @PathVariable String stateId,
+            @Parameter(description = "사용자 식별 ID - 프론트에서 발급") @PathVariable String stateId,
             @Parameter(description = "제공자 ID - kakao, google") @RequestHeader("X-DEVICE-ID") String deviceId
     ) {
         String token = oidcTokenCacheService.getOIDCAccessToken(stateId);

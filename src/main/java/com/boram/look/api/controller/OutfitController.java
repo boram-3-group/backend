@@ -32,7 +32,10 @@ public class OutfitController {
     private final RegionCacheService regionCacheService;
     private final WeatherCacheService weatherCacheService;
 
-    @Operation(description = "파라메터 값에 해당하는 코디들을 출력")
+    @Operation(
+            summary = "코디 조회",
+            description = "파라메터 값에 해당하는 코디들을 출력"
+    )
     @GetMapping
     public ResponseEntity<?> getOutfitByPosition(
             @Parameter(description = "경도 (Longitude)") @RequestParam(name = "longitude") float longitude,

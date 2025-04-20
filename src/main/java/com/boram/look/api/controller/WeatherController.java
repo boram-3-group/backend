@@ -43,8 +43,11 @@ public class WeatherController {
         return ResponseEntity.ok(forecasts);
     }
 
+    @Operation(
+            summary = "당일 날씨 조회",
+            description = "위, 경도를 입력하여 속한 지역의 날씨를 조회 현재 시간대로부터 24시간"
+    )
     @GetMapping("/position")
-    @Operation(description = "위, 경도를 입력하여 속한 지역의 날씨를 조회")
     public ResponseEntity<?> getWeatherByPosition(
             @Parameter(description = "경도 (Longitude)") @RequestParam double lat,
             @Parameter(description = "위도 (Latitude)") @RequestParam double lon

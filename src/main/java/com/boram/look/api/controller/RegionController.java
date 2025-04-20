@@ -43,7 +43,10 @@ public class RegionController {
         return ResponseEntity.created(URI.create("hasdhasd")).body("행정구역 정보 업로드 완료 (" + entities.size() + "건)");
     }
 
-    @Operation(description = "위도, 경도를 입력하고 그 위,경도에 위치한 지역이 어디인지 출력")
+    @Operation(
+            summary = "지역 조회",
+            description = "위도, 경도를 입력하고 그 위,경도에 위치한 지역이 어디인지 출력"
+    )
     @GetMapping
     public ResponseEntity<?> getRegionsFromPoint(
             @Parameter(description = "위도 (Latitude)") @RequestParam double lat,

@@ -22,14 +22,20 @@ import java.util.List;
 public class OutfitConditionController {
     private final OutfitConditionService conditionService;
 
-    @Operation(description = "코디 데이터에 사용할 온도 범위 값들을 조회")
+    @Operation(
+            summary = "온도 범위 조회",
+            description = "코디 데이터에 사용할 온도 범위 값들을 조회"
+    )
     @GetMapping("/temperatures")
     public ResponseEntity<?> getTemperatureRanges(Pageable pageable) {
         Page<TemperatureRangeDto.Copy> pages = conditionService.findTemperatureRanges(pageable);
         return ResponseEntity.ok(pages);
     }
 
-    @Operation(description = "코디 데이터에 사용할 행사 종류 값들을 조회")
+    @Operation(
+            summary = "행사 종류 조회",
+            description = "코디 데이터에 사용할 행사 종류 값들을 조회"
+    )
     @GetMapping("/event-types")
     public ResponseEntity<?> getEventTypes(Pageable pageable) {
         Page<EventTypeDto.Copy> pages = conditionService.findEventTypes(pageable);
