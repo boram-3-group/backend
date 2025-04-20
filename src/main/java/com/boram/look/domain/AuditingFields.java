@@ -32,6 +32,5 @@ public abstract class AuditingFields {
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @LastModifiedDate
-    @Column(nullable = false)
     private LocalDateTime updatedAt;
 }

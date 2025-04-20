@@ -22,10 +22,15 @@ public class FileFacade {
         return metadata.toDto(presignedUrl);
     }
 
-    public void delete(Long fileId, Long requesterId) {
-        FileMetadata meta = metadataService.getFileMetadata(fileId);
+    public FileMetadata uploadAndGetEntity(MultipartFile file, String uploadDir, UUID uploaderId) {
+        String url = s3FileService.upload(file, uploadDir);
+        return metadataService.saveFileMetadata(uploaderId, file, url);
+    }
 
-        if (!meta.getUploaderUserId().equals(requesterId)) {
+    public void delete(Long fileId, String requesterId) {
+        FileMetadata meta = metadataService.getFileMetadata(fileId);
+        UUID userUUID = UUID.fromString(requesterId);
+        if (!meta.getUploaderUserId().equals(userUUID)) {
             throw new IllegalArgumentException("삭제 권한 없음");
         }
 
