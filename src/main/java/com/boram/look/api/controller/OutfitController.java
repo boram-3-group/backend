@@ -1,6 +1,7 @@
 package com.boram.look.api.controller;
 
 import com.boram.look.api.dto.OutfitDto;
+import com.boram.look.api.dto.RegionDto;
 import com.boram.look.domain.region.SiGunGuRegion;
 import com.boram.look.domain.user.constants.Gender;
 import com.boram.look.domain.weather.Forecast;
@@ -12,6 +13,9 @@ import com.boram.look.service.weather.WeatherCacheService;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -35,6 +39,12 @@ public class OutfitController {
     @Operation(
             summary = "코디 조회",
             description = "파라메터 값에 해당하는 코디들을 출력"
+    )
+    @ApiResponse(responseCode = "200", description = "성공적으로 코디 정보를 반환함",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = OutfitDto.Transfer.class)
+            )
     )
     @GetMapping
     public ResponseEntity<?> getOutfitByPosition(

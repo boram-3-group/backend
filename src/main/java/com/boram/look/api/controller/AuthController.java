@@ -1,6 +1,7 @@
 package com.boram.look.api.controller;
 
 import com.boram.look.api.dto.OAuthJwtDto;
+import com.boram.look.api.dto.OIDCTokenResponse;
 import com.boram.look.global.ResponseUtil;
 import com.boram.look.global.security.JwtProvider;
 import com.boram.look.global.security.oauth.OAuth2RegistrationId;
@@ -8,6 +9,9 @@ import com.boram.look.global.security.oauth.OidcTokenCacheService;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +54,12 @@ public class AuthController {
             summary = "OIDC 로그인시 access token 토큰 발급",
             description = "callback url에서 보낸 stateId를 이용해 엑세스토큰을 최초에만 발급하는 API"
     )
+    @ApiResponse(responseCode = "200", description = "성공적으로 온도 범위 데이터 조회함",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = OIDCTokenResponse.class)
+            )
+    )
     @PostMapping("/oauth/issue/{stateId}")
     public ResponseEntity<?> issueToken(
             HttpServletResponse response,
@@ -61,7 +71,7 @@ public class AuthController {
         String issuedToken = jwtProvider.createAccessToken(dto.username(), dto.userId(), dto.roleString());
         String refreshToken = jwtProvider.createRefreshToken(dto.username(), dto.userId(), deviceId);
         ResponseUtil.responseRefreshToken(response, this.jwtProvider, refreshToken);
-        return ResponseEntity.ok(Map.of("access", issuedToken));
+        return ResponseEntity.ok(OIDCTokenResponse.builder().access(issuedToken).build());
     }
 
     @Hidden

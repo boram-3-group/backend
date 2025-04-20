@@ -1,13 +1,18 @@
 package com.boram.look.api.controller;
 
+import com.boram.look.api.dto.RegionDto;
 import com.boram.look.domain.region.SiGunGuRegion;
 import com.boram.look.domain.region.entity.Region;
+import com.boram.look.domain.weather.Forecast;
 import com.boram.look.service.region.GeoJsonRegionMapper;
 import com.boram.look.service.region.RegionCacheService;
 import com.boram.look.service.region.RegionService;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +52,12 @@ public class RegionController {
             summary = "지역 조회",
             description = "위도, 경도를 입력하고 그 위,경도에 위치한 지역이 어디인지 출력"
     )
+    @ApiResponse(responseCode = "200", description = "성공적으로 지역 정보를 반환함",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = RegionDto.class)
+            )
+    )
     @GetMapping
     public ResponseEntity<?> getRegionsFromPoint(
             @Parameter(description = "위도 (Latitude)") @RequestParam double lat,
@@ -54,6 +65,6 @@ public class RegionController {
     ) {
         SiGunGuRegion region = regionCacheService.findRegionByLocation(lat, lon)
                 .orElseThrow(EntityNotFoundException::new);
-        return ResponseEntity.ok(region.toDto().toString());
+        return ResponseEntity.ok(region.toDto());
     }
 }

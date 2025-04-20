@@ -1,10 +1,14 @@
 package com.boram.look.api.controller;
 
 import com.boram.look.api.dto.EventTypeDto;
+import com.boram.look.api.dto.RegionDto;
 import com.boram.look.api.dto.TemperatureRangeDto;
 import com.boram.look.service.outfit.OutfitConditionService;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -26,6 +30,12 @@ public class OutfitConditionController {
             summary = "온도 범위 조회",
             description = "코디 데이터에 사용할 온도 범위 값들을 조회"
     )
+    @ApiResponse(responseCode = "200", description = "성공적으로 온도 범위 데이터 조회함",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = TemperatureRangeDto.Copy.class)
+            )
+    )
     @GetMapping("/temperatures")
     public ResponseEntity<?> getTemperatureRanges(Pageable pageable) {
         Page<TemperatureRangeDto.Copy> pages = conditionService.findTemperatureRanges(pageable);
@@ -35,6 +45,12 @@ public class OutfitConditionController {
     @Operation(
             summary = "행사 종류 조회",
             description = "코디 데이터에 사용할 행사 종류 값들을 조회"
+    )
+    @ApiResponse(responseCode = "200", description = "성공적으로 행사 종류 데이터 조회함",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = EventTypeDto.Copy.class)
+            )
     )
     @GetMapping("/event-types")
     public ResponseEntity<?> getEventTypes(Pageable pageable) {

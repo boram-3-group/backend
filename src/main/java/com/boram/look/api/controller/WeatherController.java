@@ -8,6 +8,9 @@ import com.boram.look.service.weather.WeatherService;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -46,6 +49,12 @@ public class WeatherController {
     @Operation(
             summary = "당일 날씨 조회",
             description = "위, 경도를 입력하여 속한 지역의 날씨를 조회 현재 시간대로부터 24시간"
+    )
+    @ApiResponse(responseCode = "200", description = "성공적으로 날씨 정보를 반환함",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = Forecast.class)
+            )
     )
     @GetMapping("/position")
     public ResponseEntity<?> getWeatherByPosition(
