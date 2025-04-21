@@ -1,6 +1,7 @@
 package com.boram.look.service.user;
 
 import com.boram.look.api.dto.UserDto;
+import com.boram.look.domain.user.entity.Agreed;
 import com.boram.look.domain.user.entity.User;
 import com.boram.look.domain.user.entity.UserRole;
 import com.boram.look.domain.user.repository.UserRepository;
@@ -9,10 +10,12 @@ import com.boram.look.global.security.oauth.OAuth2Response;
 import com.boram.look.service.user.helper.UserServiceHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -25,8 +28,16 @@ public class UserService {
 
     @Transactional
     public void joinUser(UserDto.Save dto) {
+        Optional<User> existUser = userRepository.findByUsername(dto.getUsername());
+        existUser.ifPresent(user -> new DuplicateKeyException("이미 사용 중인 아이디입니다."));
+
         String encodedPassword = passwordEncoder.encode(dto.getPassword());
-        User user = dto.toEntity(encodedPassword);
+        Agreed agreed = Agreed.builder()
+                .agreedToMarketing(dto.getAgreedToMarketing())
+                .agreedToPrivacy(dto.getAgreedToPrivacy())
+                .agreedToTerms(dto.getAgreedToTerms())
+                .build();
+        User user = dto.toEntity(encodedPassword, agreed);
         userRepository.save(user);
     }
 

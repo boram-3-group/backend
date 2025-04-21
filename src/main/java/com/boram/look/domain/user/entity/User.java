@@ -3,6 +3,7 @@ package com.boram.look.domain.user.entity;
 import com.boram.look.api.dto.UserDto;
 import com.boram.look.domain.AuditingFields;
 import com.boram.look.domain.user.constants.Gender;
+import com.boram.look.global.security.oauth.OAuth2RegistrationId;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -28,15 +29,25 @@ public class User extends AuditingFields {
     @Column(name = "id", columnDefinition = "BINARY(16)", nullable = false, updatable = false)
     private UUID id;
 
-    @Column(name = "username", unique = true, length = 50)
+    @Column(name = "username", unique = true, length = 12)
     private String username;
-    @Column(name = "nickname", length = 50)
+    @Column(name = "nickname", length = 7)
     private String nickname;
-    @Column(name = "password")
+    @Column(name = "password", length = 14)
     private String password;
+    @Column(name = "email")
+    private String email;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "registration_id", length = 20)
+    private OAuth2RegistrationId registrationId;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "gender")
     private Gender gender;
+
+    @Embedded
+    private Agreed agreed;
 
     @Column(name = "birth_date")
     private LocalDate birthDate;

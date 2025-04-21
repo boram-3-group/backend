@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,7 @@ public class UserController {
 
     @Operation(summary = "회원 가입")
     @PostMapping
-    public ResponseEntity<?> joinUser(@RequestBody UserDto.Save dto) {
+    public ResponseEntity<?> joinUser(@RequestBody @Valid UserDto.Save dto) {
         log.info("UserController.joinUser is called.\ndto:{}", dto);
         userService.joinUser(dto);
         return ResponseEntity.created(URI.create("asdf")).body("회원 가입 완료");

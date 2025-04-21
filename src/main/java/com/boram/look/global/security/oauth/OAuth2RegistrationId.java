@@ -5,7 +5,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum OAuth2RegistrationId {
     KAKAO("kakao"),
-    GOOGLE("google");
+    GOOGLE("google"),
+    NONE("none");
 
     private final String registrationId;
 
