@@ -45,7 +45,6 @@ public class RegionController {
         tempFile.delete();
         Long firstId = regionService.saveBulkEntities(regions);
         regionCacheService.loadRegionMap();
-        //TODO: URI 집어넣기
         return ResponseEntity.created(URI.create("/api/v1/region/" + firstId)).body("행정 구역 정보 업로드 완료");
     }
 
