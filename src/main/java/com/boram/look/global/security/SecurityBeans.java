@@ -18,9 +18,20 @@ public class SecurityBeans {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of("http://localhost:3000", "https://api.ondolook.click", "http://api.ondolook.click")); // or 정확한 origin
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
+        config.setAllowedOrigins(List.of(
+                "http://localhost:3000",
+                "https://api.ondolook.click",
+                "http://api.ondolook.click"
+        ));
+        config.setAllowedMethods(List.of("HEAD", "GET", "PUT", "POST", "OPTIONS", "DELETE"));
+        config.setAllowedHeaders(List.of(
+                "X-DEVICE-ID", "X-Requested-With", "Origin", "Content-Type", "Accept", "Authorization"
+        ));
+        config.setExposedHeaders(List.of(
+                "Access-Control-Allow-Headers", "Authorization", "x-xsrf-token", "Origin",
+                "Accept", "X-Requested-With", "Content-Type", "Access-Control-Request-Method",
+                "Access-Control-Request-Headers"
+        ));
         config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
