@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -59,6 +60,7 @@ public class OutfitController {
         return ResponseEntity.ok(dto);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     @Hidden
     public ResponseEntity<?> insertOutfit(@RequestBody OutfitDto.Insert dto) {
@@ -66,6 +68,7 @@ public class OutfitController {
         return ResponseEntity.created(URI.create("asdf")).build();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{outfitId}")
     @Hidden
     public ResponseEntity<?> updateOutfit(
@@ -76,6 +79,7 @@ public class OutfitController {
         return ResponseEntity.created(URI.create("asdf")).build();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(value = "/{outfitId}/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Hidden
     public ResponseEntity<?> insertOutfitImages(
@@ -88,6 +92,7 @@ public class OutfitController {
         return ResponseEntity.created(URI.create("asdf")).build();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{outfitId}")
     @Hidden
     public ResponseEntity<?> updateOutfit(

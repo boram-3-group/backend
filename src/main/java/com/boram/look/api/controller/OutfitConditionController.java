@@ -1,7 +1,6 @@
 package com.boram.look.api.controller;
 
 import com.boram.look.api.dto.EventTypeDto;
-import com.boram.look.api.dto.RegionDto;
 import com.boram.look.api.dto.TemperatureRangeDto;
 import com.boram.look.service.outfit.OutfitConditionService;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -14,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -58,6 +58,7 @@ public class OutfitConditionController {
         return ResponseEntity.ok(pages);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Hidden
     @PostMapping("/temperatures")
     public ResponseEntity<?> insertTemperatureRanges(@RequestBody List<TemperatureRangeDto.Save> dtos) {
@@ -65,6 +66,7 @@ public class OutfitConditionController {
         return ResponseEntity.created(URI.create("asdf")).build();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Hidden
     @PostMapping("/event-types")
     public ResponseEntity<?> insertEventTypes(@RequestBody List<EventTypeDto.Save> dtos) {
@@ -72,6 +74,7 @@ public class OutfitConditionController {
         return ResponseEntity.created(URI.create("asdf")).build();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Hidden
     @PutMapping("/event-types")
     public ResponseEntity<?> updateEventTypes(@RequestBody List<EventTypeDto.Copy> dtos) {
@@ -79,6 +82,7 @@ public class OutfitConditionController {
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Hidden
     @PutMapping("/temperatures")
     public ResponseEntity<?> updateTemperatureRange(@RequestBody List<TemperatureRangeDto.Copy> dtos) {
@@ -86,6 +90,7 @@ public class OutfitConditionController {
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Hidden
     @DeleteMapping("/event-types")
     public ResponseEntity<?> deleteEventTypes(@RequestParam List<Integer> ids) {
@@ -93,6 +98,7 @@ public class OutfitConditionController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Hidden
     @DeleteMapping("/temperatures")
     public ResponseEntity<?> deleteTemperatureRanges(@RequestParam List<Integer> dtos) {

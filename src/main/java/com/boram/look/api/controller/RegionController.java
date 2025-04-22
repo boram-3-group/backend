@@ -17,6 +17,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,6 +34,7 @@ public class RegionController {
     private final RegionService regionService;
     private final RegionCacheService regionCacheService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Hidden
     @PostMapping("/upload")
     public ResponseEntity<?> uploadGeoJsonToDb(@RequestPart MultipartFile file) throws Exception {
@@ -41,11 +43,10 @@ public class RegionController {
         file.transferTo(tempFile);
         List<SiGunGuRegion> regions = geoJsonRegionMapper.buildRegionGeoJson(tempFile);
         tempFile.delete();
-        List<Region> entities = geoJsonRegionMapper.toRegionEntities(regions);
-        regionService.saveBulkEntities(entities);
+        Long firstId = regionService.saveBulkEntities(regions);
         regionCacheService.loadRegionMap();
         //TODO: URI 집어넣기
-        return ResponseEntity.created(URI.create("hasdhasd")).body("행정구역 정보 업로드 완료 (" + entities.size() + "건)");
+        return ResponseEntity.created(URI.create("/api/v1/region/" + firstId)).body("행정 구역 정보 업로드 완료");
     }
 
     @Operation(
