@@ -20,7 +20,6 @@ public class NotificationController {
 
 
     // 사용자별로 emitter를 보관하는 구조
-
     @GetMapping("/subscribe/{userId}")
     public SseEmitter subscribe(@PathVariable String userId) {
         log.info("NotificationController.subscribe is called.\nuserId: {}", userId);
