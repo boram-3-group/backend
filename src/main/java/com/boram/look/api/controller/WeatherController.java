@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,6 +33,7 @@ public class WeatherController {
     // executor: 44초
     @GetMapping
     @Hidden
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> fetchDailyWeather() {
         Map<Long, SiGunGuRegion> regionMap = regionCacheService.cache();
         Map<Long, List<Forecast>> weatherMap = weatherService.fetchAllWeather(regionMap);
@@ -40,6 +42,7 @@ public class WeatherController {
     }
 
     @Hidden
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/region/{regionId}")
     public ResponseEntity<?> getWeather(@PathVariable Long regionId) {
         List<Forecast> forecasts = weatherCacheService.getForecast(regionId);
