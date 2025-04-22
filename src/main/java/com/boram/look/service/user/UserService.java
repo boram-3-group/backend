@@ -27,7 +27,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public void joinUser(UserDto.Save dto) {
+    public String joinUser(UserDto.Save dto) {
         Optional<User> existUser = userRepository.findByUsername(dto.getUsername());
         existUser.ifPresent(user -> new DuplicateKeyException("이미 사용 중인 아이디입니다."));
 
@@ -38,7 +38,7 @@ public class UserService {
                 .agreedToTerms(dto.getAgreedToTerms())
                 .build();
         User user = dto.toEntity(encodedPassword, agreed);
-        userRepository.save(user);
+        return userRepository.save(user).getId().toString();
     }
 
     @Transactional
@@ -80,4 +80,7 @@ public class UserService {
                 });
     }
 
+    public Boolean canUseUsername(String username) {
+        return userRepository.existsByUsername(username);
+    }
 }

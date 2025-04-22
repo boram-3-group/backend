@@ -22,6 +22,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
@@ -44,6 +45,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  */
 @RequiredArgsConstructor
 @Configuration
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final ObjectMapper objectMapper;
@@ -137,7 +139,6 @@ public class SecurityConfig {
                 new AntPathRequestMatcher("/favicon.ico"),
                 new AntPathRequestMatcher("/error"),
                 new AntPathRequestMatcher("/api/v1/user", HttpMethod.POST.name()),
-                new AntPathRequestMatcher("/api/v1/region/upload", HttpMethod.POST.name()),
                 new AntPathRequestMatcher("/api/v1/region/**"),
                 new AntPathRequestMatcher("/api/v1/files/**"),
                 new AntPathRequestMatcher("/api/v1/files/upload", HttpMethod.POST.name()),
