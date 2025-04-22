@@ -24,7 +24,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(
                 objectMapper.writeValueAsString(
-                        ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        ResponseEntity.status(HttpStatus.FORBIDDEN).build()
                 )
         );
     }
