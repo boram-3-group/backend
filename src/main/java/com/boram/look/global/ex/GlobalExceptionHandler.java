@@ -42,4 +42,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().build();
     }
 
+    @ExceptionHandler(NoExistRegistrationException.class)
+    public ResponseEntity<?> handleNoExistRegistrationException(NoExistRegistrationException ex) {
+        log.error(ex.getMessage());
+        return ResponseEntity.badRequest().build();
+    }
+
 }

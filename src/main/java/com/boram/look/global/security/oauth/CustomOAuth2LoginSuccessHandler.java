@@ -3,6 +3,7 @@ package com.boram.look.global.security.oauth;
 
 import com.boram.look.domain.user.entity.User;
 import com.boram.look.global.ResponseUtil;
+import com.boram.look.global.ex.NoExistRegistrationException;
 import com.boram.look.global.security.JwtProvider;
 import com.boram.look.service.user.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,6 +44,7 @@ public class CustomOAuth2LoginSuccessHandler implements AuthenticationSuccessHan
         OAuth2Response oAuth2Response = switch (registrationId) {
             case GOOGLE -> GoogleOAuth2Response.from(oAuth2User.getAttributes());
             case KAKAO -> KakaoOAuth2Response.from(oAuth2User.getAttributes());
+            case NONE -> throw new NoExistRegistrationException();
         };
         log.debug("CustomOAuth2AuthenticationSuccessHandler#onAuthenticationSuccess: {}", oAuth2Response);
         User loginUser = userService.findOrCreateUser(oAuth2Response);

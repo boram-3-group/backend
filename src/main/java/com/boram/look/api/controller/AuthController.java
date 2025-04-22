@@ -3,6 +3,7 @@ package com.boram.look.api.controller;
 import com.boram.look.api.dto.OAuthJwtDto;
 import com.boram.look.api.dto.OIDCTokenResponse;
 import com.boram.look.global.ResponseUtil;
+import com.boram.look.global.ex.NoExistRegistrationException;
 import com.boram.look.global.security.JwtProvider;
 import com.boram.look.global.security.oauth.OAuth2RegistrationId;
 import com.boram.look.global.security.oauth.OidcTokenCacheService;
@@ -46,6 +47,7 @@ public class AuthController {
         switch (registration) {
             case GOOGLE -> builder.append("/oauth2/authorization/google?state=").append(encodedState);
             case KAKAO -> builder.append("/oauth2/authorization/kakao?state=").append(encodedState);
+            case NONE -> throw new NoExistRegistrationException();
         }
         return builder.toString();
     }
