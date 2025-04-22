@@ -29,11 +29,11 @@ public class User extends AuditingFields {
     @Column(name = "id", columnDefinition = "BINARY(16)", nullable = false, updatable = false)
     private UUID id;
 
-    @Column(name = "username", unique = true, length = 12)
+    @Column(name = "username", unique = true, length = 50)
     private String username;
     @Column(name = "nickname", length = 7)
     private String nickname;
-    @Column(name = "password", length = 14)
+    @Column(name = "password")
     private String password;
     @Column(name = "email")
     private String email;
@@ -53,7 +53,8 @@ public class User extends AuditingFields {
     private LocalDate birthDate;
 
     @Enumerated(EnumType.STRING)
-    private UserRole role;
+    @Builder.Default
+    private UserRole role = UserRole.USER;
 
     public List<UserRole> getRoles() {
         return List.of(role);

@@ -3,6 +3,7 @@ package com.boram.look.api.dto;
 import com.boram.look.domain.user.constants.Gender;
 import com.boram.look.domain.user.entity.Agreed;
 import com.boram.look.domain.user.entity.User;
+import com.boram.look.domain.user.entity.UserRole;
 import com.boram.look.global.security.oauth.OAuth2RegistrationId;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
@@ -59,6 +60,7 @@ public class UserDto {
                     .nickname(this.nickname)
                     .birthDate(this.birthDate)
                     .agreed(agreed)
+                    .email(this.email)
                     .registrationId(OAuth2RegistrationId.NONE)
                     .build();
         }

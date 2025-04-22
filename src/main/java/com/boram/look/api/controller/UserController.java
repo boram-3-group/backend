@@ -37,25 +37,26 @@ public class UserController {
         return ResponseEntity.created(uri).body("회원 가입 완료");
     }
 
-    @PreAuthorize("#userId == authentication.principal.user.id")
+    @PreAuthorize("#userId == authentication.principal.user.id.toString()")
     @Operation(summary = "회원 정보 수정")
     @PutMapping("/{userId}")
     public ResponseEntity<?> updateUserProfile(
             @PathVariable String userId,
-            @RequestBody UserDto.Save dto
+            @RequestBody UserDto.Save dto,
+            @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
         log.info("UserController.updateUser is called.\nuserId:{}\ndto:{}", userId, dto);
         userService.updateUserProfile(userId, dto);
         return ResponseEntity.ok("회원 정보 수정 완료");
     }
 
-    @PreAuthorize("#userId == authentication.principal.user.id")
+    @PreAuthorize("#userId == authentication.principal.user.id.toString()")
     @PutMapping("/{userId}/password")
     @Operation(summary = "비밀번호 변경")
     public ResponseEntity<?> updateUserPassword(
             @PathVariable String userId,
             @RequestBody String password,
-            @AuthenticationPrincipal PrincipalDetails principal
+            @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
         log.info("UserController.updateUser is called.\nuserId:{}\npassword:{}", userId, password);
         userService.updateUserPassword(userId, password);
@@ -74,7 +75,7 @@ public class UserController {
         return ResponseEntity.ok(profile);
     }
 
-    @PreAuthorize("#userId == authentication.principal.user.id")
+    @PreAuthorize("#userId == authentication.principal.user.id.toString()")
     @DeleteMapping("/{userId}")
     @Operation(summary = "회원 탈퇴")
     public ResponseEntity<?> deleteUser(
@@ -92,9 +93,9 @@ public class UserController {
             @Parameter(description = "유저ID (로그인시 사용할)") @PathVariable String username
     ) {
         boolean isExist = userService.canUseUsername(username);
-        String resultStr = "사용가능한 유저네임";
+        String resultStr = "사용 가능한 유저 네임";
         if (isExist) {
-            resultStr = "중복된 유저네임";
+            resultStr = "중복된 유저 네임";
         }
         return ResponseEntity.ok(resultStr);
     }
