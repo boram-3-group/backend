@@ -70,17 +70,6 @@ jwt:
   access_expiration_time: ${ACCESS_EXPIRATION_TIME}
   refresh_expiration_time: ${REFRESH_EXPIRATION_TIME}
 
-springdoc:
-  swagger-ui:
-    url: /v3/api-docs
-    use-root-path: true
-    config-url: /v3/api-docs/swagger-config
-    path: /swagger-ui.html
-    disable-swagger-default-url: true
-    try-it-out-enabled: true
-    display-request-duration: true
-    validator-url: ""
-
 cloud:
   aws:
     credentials:
