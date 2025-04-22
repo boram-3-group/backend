@@ -42,8 +42,7 @@ public class UserController {
     @PutMapping("/{userId}")
     public ResponseEntity<?> updateUserProfile(
             @PathVariable String userId,
-            @RequestBody UserDto.Save dto,
-            @AuthenticationPrincipal PrincipalDetails principalDetails
+            @RequestBody UserDto.Save dto
     ) {
         log.info("UserController.updateUser is called.\nuserId:{}\ndto:{}", userId, dto);
         userService.updateUserProfile(userId, dto);
@@ -55,8 +54,7 @@ public class UserController {
     @Operation(summary = "비밀번호 변경")
     public ResponseEntity<?> updateUserPassword(
             @PathVariable String userId,
-            @RequestBody String password,
-            @AuthenticationPrincipal PrincipalDetails principalDetails
+            @RequestBody String password
     ) {
         log.info("UserController.updateUser is called.\nuserId:{}\npassword:{}", userId, password);
         userService.updateUserPassword(userId, password);
@@ -79,8 +77,7 @@ public class UserController {
     @DeleteMapping("/{userId}")
     @Operation(summary = "회원 탈퇴")
     public ResponseEntity<?> deleteUser(
-            @Parameter(description = "탈퇴할 유저 id") @PathVariable String userId,
-            @AuthenticationPrincipal PrincipalDetails principalDetails
+            @Parameter(description = "탈퇴할 유저 id") @PathVariable String userId
     ) {
         log.info("UserController.deleteUser is called.\nuserId:{}", userId);
         userService.deleteUser(userId);
