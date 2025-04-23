@@ -33,6 +33,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 /**
  * Spring Security 설정을 정의하는 클래스입니다.
@@ -58,6 +59,7 @@ public class SecurityConfig {
     private final UserService userService;
     private final ClientRegistrationRepository clientRegistrationRepository;
     private final OidcTokenCacheService oidcTokenCacheService;
+    private final CorsConfigurationSource corsConfigurationSource;
 
     /**
      * Spring Security의 기본 보안 필터 체인을 구성합니다.
@@ -78,7 +80,7 @@ public class SecurityConfig {
                         .requestMatchers(getAuthenticationNotRequiredUrl()).permitAll()
                         .anyRequest().authenticated()
                 )
-                .cors(Customizer.withDefaults())
+                .cors(cors -> cors.configurationSource(this.corsConfigurationSource))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
