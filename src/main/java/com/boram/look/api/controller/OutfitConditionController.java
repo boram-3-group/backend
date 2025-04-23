@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +29,7 @@ public class OutfitConditionController {
 
     @Operation(
             summary = "온도 범위 조회",
-            description = "코디 데이터에 사용할 온도 범위 값들을 조회"
+            description = "코디 데이터에 사용할 온도 범위 값들을 조회\n아래 pageable 은 {}로 주셔도 동작합니다."
     )
     @ApiResponse(responseCode = "200", description = "성공적으로 온도 범위 데이터 조회함",
             content = @Content(
@@ -44,7 +45,7 @@ public class OutfitConditionController {
 
     @Operation(
             summary = "행사 종류 조회",
-            description = "코디 데이터에 사용할 행사 종류 값들을 조회"
+            description = "코디 데이터에 사용할 행사 종류 값들을 조회\n아래 pageable 은 {}로 주셔도 동작합니다."
     )
     @ApiResponse(responseCode = "200", description = "성공적으로 행사 종류 데이터 조회함",
             content = @Content(

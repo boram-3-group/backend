@@ -18,7 +18,7 @@ public class SecurityBeans {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of(
+        config.setAllowedOriginPatterns(List.of(
                 "http://localhost:3000",
                 "https://api.ondolook.click",
                 "http://api.ondolook.click"
