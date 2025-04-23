@@ -12,6 +12,12 @@
           "hostPort": 8080,
           "protocol": "tcp",
           "appProtocol": "http"
+        },
+        {
+          "name": "onthelook-spring-debug",
+          "containerPort": 5005,
+          "hostPort": 5005,
+          "protocol": "tcp"
         }
       ],
       "essential": true,
