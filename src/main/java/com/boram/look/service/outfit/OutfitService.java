@@ -13,7 +13,7 @@ import com.boram.look.domain.outfit.repository.TemperatureRangeRepository;
 import com.boram.look.domain.s3.FileMetadata;
 import com.boram.look.domain.user.constants.Gender;
 import com.boram.look.domain.user.entity.User;
-import com.boram.look.domain.weather.Forecast;
+import com.boram.look.domain.forecast.Forecast;
 import com.boram.look.global.ex.ResourceNotFoundException;
 import com.boram.look.global.security.authentication.PrincipalDetails;
 import com.boram.look.service.s3.FileFacade;

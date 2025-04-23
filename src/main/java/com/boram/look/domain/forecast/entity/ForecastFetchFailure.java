@@ -1,4 +1,4 @@
-package com.boram.look.domain.weather.entity;
+package com.boram.look.domain.forecast.entity;
 
 
 import jakarta.persistence.Entity;
@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class WeatherFetchFailure {
+public class ForecastFetchFailure {
 
     @Id
     private Long regionId; // 시군구 ID 기준

@@ -1,4 +1,4 @@
-package com.boram.look.service.air;
+package com.boram.look.service.weather.air;
 
 import com.boram.look.api.dto.AirQualityDto;
 import com.boram.look.domain.air.AirQualityCache;

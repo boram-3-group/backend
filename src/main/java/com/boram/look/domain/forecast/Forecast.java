@@ -1,4 +1,4 @@
-package com.boram.look.domain.weather;
+package com.boram.look.domain.forecast;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
