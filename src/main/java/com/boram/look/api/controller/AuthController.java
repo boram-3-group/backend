@@ -7,7 +7,7 @@ import com.boram.look.global.ex.NoExistRegistrationException;
 import com.boram.look.global.security.JwtProvider;
 import com.boram.look.global.security.oauth.OAuth2RegistrationId;
 import com.boram.look.global.security.oauth.OidcTokenCacheService;
-import io.swagger.v3.oas.annotations.Hidden;
+import com.boram.look.service.auth.EmailVerificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.Map;
 
 @Controller
 @Slf4j
@@ -31,6 +30,7 @@ public class AuthController {
 
     private final JwtProvider jwtProvider;
     private final OidcTokenCacheService oidcTokenCacheService;
+    private final EmailVerificationService verificationService;
 
     @Operation(
             summary = "oauth 로그인 호출",
@@ -56,7 +56,7 @@ public class AuthController {
             summary = "OIDC 로그인시 access token 토큰 발급",
             description = "callback url에서 보낸 stateId를 이용해 엑세스토큰을 최초에만 발급하는 API"
     )
-    @ApiResponse(responseCode = "200", description = "성공적으로 온도 범위 데이터 조회함",
+    @ApiResponse(responseCode = "200", description = "엑세스 토큰 및 리프레시 토큰 발급",
             content = @Content(
                     mediaType = "application/json",
                     schema = @Schema(implementation = OIDCTokenResponse.class)
@@ -76,12 +76,25 @@ public class AuthController {
         return ResponseEntity.ok(OIDCTokenResponse.builder().access(issuedToken).build());
     }
 
-    @Hidden
-    @GetMapping("/test/callback")
-    public ResponseEntity<?> callback(
-            @RequestParam String stateId
+    @Operation(summary = "이메일 인증코드 전송")
+    @PostMapping("/api/v1/auth/send-code")
+    public ResponseEntity<?> sendEmailCode(
+            @RequestParam String email
     ) {
-        log.info("callback is called.\nstateId: {}", stateId);
-        return ResponseEntity.ok(Map.of("state", stateId));
+        verificationService.sendVerificationCode(email);
+        return ResponseEntity.ok("인증 코드 전송 완료");
+    }
+
+    @Operation(summary = "이메일 인증 코드 확인")
+    @PostMapping("/api/v1/auth/verify-code")
+    public ResponseEntity<?> verifyEmailCode(
+            @RequestParam String email,
+            @RequestParam String code
+    ) {
+        boolean isValid = verificationService.verifyCode(email, code);
+        if (!isValid) {
+            return ResponseEntity.badRequest().body("인증 실패");
+        }
+        return ResponseEntity.ok("이메일 인증 완료");
     }
 }
