@@ -136,15 +136,11 @@ public class SecurityConfig {
                 new AntPathRequestMatcher("/oauth2/authorization/**"),
                 new AntPathRequestMatcher("/oauth/oidc/**"),
                 new AntPathRequestMatcher("/oauth/issue/**", HttpMethod.POST.name()),
-                new AntPathRequestMatcher("/test/**"),
                 new AntPathRequestMatcher("/actuator/**"),
                 new AntPathRequestMatcher("/favicon.ico"),
                 new AntPathRequestMatcher("/error"),
                 new AntPathRequestMatcher("/api/v1/user", HttpMethod.POST.name()),
-                new AntPathRequestMatcher("/api/v1/outfit/**", HttpMethod.POST.name()),
                 new AntPathRequestMatcher("/api/v1/outfit/**", HttpMethod.GET.name()),
-                new AntPathRequestMatcher("/api/v1/outfit/**", HttpMethod.DELETE.name()),
-                new AntPathRequestMatcher("/api/v1/outfit/**", HttpMethod.PUT.name()),
                 new AntPathRequestMatcher("/api/v1/outfit-condition/**", HttpMethod.GET.name()),
                 new AntPathRequestMatcher("/api/v1/weather/**")
         );
