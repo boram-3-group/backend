@@ -49,6 +49,7 @@ public class RegionController {
     @PostMapping("/merge-sido")
     public ResponseEntity<?> mergeSidoRegions() {
         regionService.mergeSidoRegions();
+        regionCacheService.initSidoCache();
         return ResponseEntity.created(URI.create("/api/v1/region/")).body("시도 지역 병합 완료");
     }
 
