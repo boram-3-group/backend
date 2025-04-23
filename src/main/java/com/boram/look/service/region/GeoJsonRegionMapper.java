@@ -3,7 +3,7 @@ package com.boram.look.service.region;
 import com.boram.look.domain.region.GeoUtil;
 import com.boram.look.domain.region.GridXY;
 import com.boram.look.domain.region.RegionPolygon;
-import com.boram.look.domain.region.SiGunGuRegion;
+import com.boram.look.domain.region.cache.SiGunGuRegion;
 import com.boram.look.domain.region.entity.Region;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.io.geojson.GeoJsonReader;
 
 import java.io.File;
@@ -23,7 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public class GeoJsonRegionMapper {
@@ -59,11 +59,23 @@ public class GeoJsonRegionMapper {
         Map<String, List<RegionPolygon>> grouped = new HashMap<>();
 
         for (JsonNode feature : features) {
-            String fullAdmCd = feature.get("properties").get("adm_cd").asText();
-            String siGunGuCode = fullAdmCd.substring(0, 5);
-            String admNm = feature.get("properties").get("adm_nm").asText();
+            JsonNode properties = feature.get("properties");
+            String admCd = properties.get("adm_cd").asText();
+            String siGunGuCode = properties.get("sgg").asText();
+            String sidoCode = siGunGuCode.substring(0, 2);
+            String admNm = properties.get("adm_nm").asText();
+            String sidoNm = properties.get("sidonm").asText();
+            String sggNm = properties.get("sggnm").asText();
             Geometry geom = reader.read(mapper.writeValueAsString(feature.get("geometry")));
-            RegionPolygon polygon = new RegionPolygon(siGunGuCode, admNm, geom);
+            RegionPolygon polygon = RegionPolygon.builder()
+                    .siGunGuNm(sggNm)
+                    .sidoNm(sidoNm)
+                    .admCd(admCd)
+                    .admNm(admNm)
+                    .polygon(geom)
+                    .sidoCode(sidoCode)
+                    .siGunGuCode(siGunGuCode)
+                    .build();
 
             grouped.computeIfAbsent(siGunGuCode, k -> new ArrayList<>()).add(polygon);
         }
@@ -72,25 +84,44 @@ public class GeoJsonRegionMapper {
     }
 
     private SiGunGuRegion mergePolygonsAndCreateRegion(String sggCode, List<RegionPolygon> polygons) {
-        String sggName = extractSggName(polygons.get(0).admNm());
+        RegionPolygon represntativePolygon = polygons.getFirst();
         Geometry union = polygons.stream().map(RegionPolygon::polygon).reduce(Geometry::union).orElseThrow();
         Point centroid = union.getCentroid();
         GridXY grid = GeoUtil.toGrid(centroid.getY(), centroid.getX());
 
         return SiGunGuRegion.builder()
                 .sgg(sggCode)
-                .sggnm(sggName)
-                .sido(sggCode)
-                .sidonm(sggCode)
+                .sggnm(represntativePolygon.siGunGuNm())
+                .sido(represntativePolygon.sidoCode())
+                .sidonm(represntativePolygon.sidoNm())
                 .grid(grid)
                 .center(centroid.getCoordinate())
                 .polygon(union)
                 .build();
     }
 
-    private String extractSggName(String admNm) {
-        String[] parts = admNm.split(" ");
-        return (parts.length >= 2) ? parts[1] : admNm; // 방어 코드
+
+    public Map<String, Geometry> mergeSidoPolygons(List<Region> rows) {
+        Map<String, Geometry> sidoToMergedGeometry = new HashMap<>();
+        WKTReader reader = new WKTReader();
+
+        for (Region row : rows) {
+            Geometry polygon;
+            try {
+                polygon = reader.read(row.getPolygonText());
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+            String sido = row.getSido();
+
+            if (!sidoToMergedGeometry.containsKey(sido)) {
+                sidoToMergedGeometry.put(sido, polygon);
+            } else {
+                sidoToMergedGeometry.computeIfPresent(sido, (k, existing) -> existing.union(polygon));
+            }
+        }
+
+        return sidoToMergedGeometry;
     }
 
 }

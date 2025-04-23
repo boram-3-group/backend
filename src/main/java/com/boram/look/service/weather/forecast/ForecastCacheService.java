@@ -1,6 +1,6 @@
-package com.boram.look.service.weather;
+package com.boram.look.service.weather.forecast;
 
-import com.boram.look.domain.weather.Forecast;
+import com.boram.look.domain.forecast.Forecast;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,7 +16,7 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class WeatherCacheService {
+public class ForecastCacheService {
     private final ObjectMapper objectMapper;
     private final RedisTemplate<String, String> redisTemplate;
 

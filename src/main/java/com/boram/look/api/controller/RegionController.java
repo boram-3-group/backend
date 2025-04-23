@@ -1,9 +1,7 @@
 package com.boram.look.api.controller;
 
 import com.boram.look.api.dto.RegionDto;
-import com.boram.look.domain.region.SiGunGuRegion;
-import com.boram.look.domain.region.entity.Region;
-import com.boram.look.domain.weather.Forecast;
+import com.boram.look.domain.region.cache.SiGunGuRegion;
 import com.boram.look.service.region.GeoJsonRegionMapper;
 import com.boram.look.service.region.RegionCacheService;
 import com.boram.look.service.region.RegionService;
@@ -46,6 +44,12 @@ public class RegionController {
         Long firstId = regionService.saveBulkEntities(regions);
         regionCacheService.loadRegionMap();
         return ResponseEntity.created(URI.create("/api/v1/region/" + firstId)).body("행정 구역 정보 업로드 완료");
+    }
+
+    @PostMapping("/merge-sido")
+    public ResponseEntity<?> mergeSidoRegions() {
+        regionService.mergeSidoRegions();
+        return ResponseEntity.created(URI.create("/api/v1/region/")).body("시도 지역 병합 완료");
     }
 
     @Operation(

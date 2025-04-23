@@ -1,4 +1,4 @@
-package com.boram.look.global;
+package com.boram.look.global.util;
 
 import com.boram.look.global.security.JwtProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;

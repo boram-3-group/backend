@@ -1,11 +1,11 @@
-package com.boram.look.service.weather;
+package com.boram.look.service.weather.forecast;
 
 import com.boram.look.api.dto.WeatherForecastDto;
 import com.boram.look.common.constants.WeatherConstants;
-import com.boram.look.domain.region.SiGunGuRegion;
-import com.boram.look.domain.weather.Forecast;
-import com.boram.look.domain.weather.ForecastBase;
-import com.boram.look.domain.weather.ForecastMapper;
+import com.boram.look.domain.region.cache.SiGunGuRegion;
+import com.boram.look.domain.forecast.Forecast;
+import com.boram.look.domain.forecast.ForecastBase;
+import com.boram.look.domain.forecast.ForecastMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,9 +27,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class WeatherService {
+public class ForecastService {
     private final RestTemplate restTemplate = new RestTemplate();
-    private final WeatherFailureService failureService;
+    private final ForecastFailureService failureService;
     private final ObjectMapper objectMapper;
 
     @Value("${weather.vilage-fcst-url}")

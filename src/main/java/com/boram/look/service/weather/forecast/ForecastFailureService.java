@@ -1,19 +1,18 @@
-package com.boram.look.service.weather;
+package com.boram.look.service.weather.forecast;
 
-import com.boram.look.domain.weather.entity.WeatherFetchFailure;
-import com.boram.look.domain.weather.repository.WeatherFetchFailureRepository;
+import com.boram.look.domain.forecast.entity.ForecastFetchFailure;
+import com.boram.look.domain.forecast.repository.ForecastFetchFailureRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class WeatherFailureService {
+public class ForecastFailureService {
 
-    private final WeatherFetchFailureRepository repository;
+    private final ForecastFetchFailureRepository repository;
 
     @Transactional(readOnly = true)
     public void saveFailure(Long regionId) {
@@ -23,7 +22,7 @@ public class WeatherFailureService {
                             fail.updateFailureTime();
                             repository.save(fail);
                         },
-                        () -> repository.save(WeatherFetchFailure.builder()
+                        () -> repository.save(ForecastFetchFailure.builder()
                                 .regionId(regionId)
                                 .lastFailedAt(java.time.LocalDateTime.now())
                                 .failCount(1)
@@ -44,11 +43,11 @@ public class WeatherFailureService {
      */
     @Transactional
     public void updateFailureTime(Long regionId) {
-        repository.findById(regionId).ifPresent(WeatherFetchFailure::updateFailureTime);
+        repository.findById(regionId).ifPresent(ForecastFetchFailure::updateFailureTime);
     }
 
     @Transactional(readOnly = true)
-    public List<WeatherFetchFailure> findAllFailures() {
+    public List<ForecastFetchFailure> findAllFailures() {
         return repository.findAll();
     }
 }

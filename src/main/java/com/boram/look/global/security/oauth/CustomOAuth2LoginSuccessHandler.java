@@ -2,7 +2,7 @@ package com.boram.look.global.security.oauth;
 
 
 import com.boram.look.domain.user.entity.User;
-import com.boram.look.global.ResponseUtil;
+import com.boram.look.global.util.ResponseUtil;
 import com.boram.look.global.ex.NoExistRegistrationException;
 import com.boram.look.global.security.JwtProvider;
 import com.boram.look.service.user.UserService;

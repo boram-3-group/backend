@@ -1,10 +1,16 @@
 package com.boram.look.api.controller;
 
-import com.boram.look.domain.region.SiGunGuRegion;
-import com.boram.look.domain.weather.Forecast;
+import com.boram.look.api.dto.AirQualityDto;
+import com.boram.look.api.dto.WeatherDto;
+import com.boram.look.domain.region.cache.SiGunGuRegion;
+import com.boram.look.domain.region.cache.SidoRegionCache;
+import com.boram.look.domain.forecast.Forecast;
+import com.boram.look.global.util.TimeUtil;
+import com.boram.look.service.weather.WeatherFacade;
+import com.boram.look.service.weather.air.AirQualityService;
 import com.boram.look.service.region.RegionCacheService;
-import com.boram.look.service.weather.WeatherCacheService;
-import com.boram.look.service.weather.WeatherService;
+import com.boram.look.service.weather.forecast.ForecastCacheService;
+import com.boram.look.service.weather.forecast.ForecastService;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -17,6 +23,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -24,9 +32,24 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/weather")
 public class WeatherController {
-    private final WeatherService weatherService;
+    private final ForecastService forecastService;
     private final RegionCacheService regionCacheService;
-    private final WeatherCacheService weatherCacheService;
+    private final ForecastCacheService forecastCacheService;
+    private final WeatherFacade weatherFacade;
+
+
+    private final AirQualityService airQualityService;
+    @GetMapping("/air")
+    public ResponseEntity<?> fetchAir() {
+        airQualityService.fetchAirQuality("PM10");
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/air-get")
+    public ResponseEntity<?> getAir() {
+        airQualityService.getAirQualityValue("seoul", "PM10", "2025042220");
+        return ResponseEntity.ok().build();
+    }
 
     // chunk: 5분 38.34초
     // no chunk: 5분 51.18초
@@ -35,9 +58,9 @@ public class WeatherController {
     @Hidden
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> fetchDailyWeather() {
-        Map<Long, SiGunGuRegion> regionMap = regionCacheService.cache();
-        Map<Long, List<Forecast>> weatherMap = weatherService.fetchAllWeather(regionMap);
-        weatherCacheService.updateWeatherCache(weatherMap);
+        Map<Long, SiGunGuRegion> regionMap = regionCacheService.regionCache();
+        Map<Long, List<Forecast>> weatherMap = forecastService.fetchAllWeather(regionMap);
+        forecastCacheService.updateWeatherCache(weatherMap);
         return ResponseEntity.ok(weatherMap);
     }
 
@@ -45,7 +68,7 @@ public class WeatherController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/region/{regionId}")
     public ResponseEntity<?> getWeather(@PathVariable Long regionId) {
-        List<Forecast> forecasts = weatherCacheService.getForecast(regionId);
+        List<Forecast> forecasts = forecastCacheService.getForecast(regionId);
         return ResponseEntity.ok(forecasts);
     }
 
@@ -56,7 +79,7 @@ public class WeatherController {
     @ApiResponse(responseCode = "200", description = "성공적으로 날씨 정보를 반환함",
             content = @Content(
                     mediaType = "application/json",
-                    schema = @Schema(implementation = Forecast.class)
+                    schema = @Schema(implementation = WeatherDto.class)
             )
     )
     @GetMapping("/position")
@@ -64,9 +87,7 @@ public class WeatherController {
             @Parameter(description = "경도 (Longitude)") @RequestParam double lat,
             @Parameter(description = "위도 (Latitude)") @RequestParam double lon
     ) {
-        SiGunGuRegion region = regionCacheService.findRegionByLocation(lat, lon)
-                .orElseThrow(EntityNotFoundException::new);
-        List<Forecast> forecasts = weatherCacheService.getForecast(region.id());
-        return ResponseEntity.ok(forecasts);
+        WeatherDto dto = weatherFacade.getWeather(lat, lon);
+        return ResponseEntity.ok(dto);
     }
 }

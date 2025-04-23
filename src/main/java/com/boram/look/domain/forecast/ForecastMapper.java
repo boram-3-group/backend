@@ -1,4 +1,4 @@
-package com.boram.look.domain.weather;
+package com.boram.look.domain.forecast;
 
 import com.boram.look.api.dto.WeatherForecastDto;
 
