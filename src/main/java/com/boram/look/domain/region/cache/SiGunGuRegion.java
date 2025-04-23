@@ -1,6 +1,7 @@
-package com.boram.look.domain.region;
+package com.boram.look.domain.region.cache;
 
 import com.boram.look.api.dto.RegionDto;
+import com.boram.look.domain.region.GridXY;
 import lombok.Builder;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;

@@ -2,7 +2,7 @@ package com.boram.look.api.controller;
 
 import com.boram.look.api.dto.OAuthJwtDto;
 import com.boram.look.api.dto.OIDCTokenResponse;
-import com.boram.look.global.ResponseUtil;
+import com.boram.look.global.util.ResponseUtil;
 import com.boram.look.global.ex.NoExistRegistrationException;
 import com.boram.look.global.security.JwtProvider;
 import com.boram.look.global.security.oauth.OAuth2RegistrationId;

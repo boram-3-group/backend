@@ -1,6 +1,6 @@
 package com.boram.look.service.weather;
 
-import com.boram.look.domain.region.SiGunGuRegion;
+import com.boram.look.domain.region.cache.SiGunGuRegion;
 import com.boram.look.domain.weather.Forecast;
 import com.boram.look.domain.weather.entity.WeatherFetchFailure;
 import com.boram.look.service.region.RegionCacheService;
@@ -22,7 +22,7 @@ public class WeatherScheduler {
 
     @Scheduled(cron = "0 15 2,5,8,11,14,17,20,23 * * *") // 매일 02:15, 05:15, ... 실행
     public void runForecastBatch() {
-        weatherService.fetchAllWeather(regionCacheService.cache());
+        weatherService.fetchAllWeather(regionCacheService.regionCache());
     }
 
     @Scheduled(fixedDelay = 10 * 60 * 1000) // 10분마다
@@ -34,7 +34,7 @@ public class WeatherScheduler {
 
         for (WeatherFetchFailure failure : failures) {
             Long regionId = failure.getRegionId();
-            SiGunGuRegion region = regionCacheService.cache().get(regionId);
+            SiGunGuRegion region = regionCacheService.regionCache().get(regionId);
             if (region == null) {
                 log.warn("캐시에 regionId={} 정보 없음", regionId);
                 continue;

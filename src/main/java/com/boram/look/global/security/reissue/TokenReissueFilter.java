@@ -2,7 +2,7 @@ package com.boram.look.global.security.reissue;
 
 import com.boram.look.domain.auth.RefreshTokenEntity;
 import com.boram.look.domain.auth.repository.RefreshTokenEntityRepository;
-import com.boram.look.global.ResponseUtil;
+import com.boram.look.global.util.ResponseUtil;
 import com.boram.look.global.security.JwtProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;

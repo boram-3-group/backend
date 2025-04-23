@@ -3,7 +3,8 @@ package com.boram.look.service.region;
 import com.boram.look.domain.region.GeoUtil;
 import com.boram.look.domain.region.GridXY;
 import com.boram.look.domain.region.RegionPolygon;
-import com.boram.look.domain.region.SiGunGuRegion;
+import com.boram.look.domain.region.cache.SiGunGuRegion;
+import com.boram.look.domain.region.entity.Region;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -12,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.io.geojson.GeoJsonReader;
 
 import java.io.File;
@@ -96,6 +98,30 @@ public class GeoJsonRegionMapper {
                 .center(centroid.getCoordinate())
                 .polygon(union)
                 .build();
+    }
+
+
+    public Map<String, Geometry> mergeSidoPolygons(List<Region> rows) {
+        Map<String, Geometry> sidoToMergedGeometry = new HashMap<>();
+        WKTReader reader = new WKTReader();
+
+        for (Region row : rows) {
+            Geometry polygon;
+            try {
+                polygon = reader.read(row.getPolygonText());
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+            String sido = row.getSido();
+
+            if (!sidoToMergedGeometry.containsKey(sido)) {
+                sidoToMergedGeometry.put(sido, polygon);
+            } else {
+                sidoToMergedGeometry.computeIfPresent(sido, (k, existing) -> existing.union(polygon));
+            }
+        }
+
+        return sidoToMergedGeometry;
     }
 
 }
