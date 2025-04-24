@@ -10,6 +10,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +23,8 @@ public class ForecastScheduler {
 
     @Scheduled(cron = "0 15 2,5,8,11,14,17,20,23 * * *") // 매일 02:15, 05:15, ... 실행
     public void runForecastBatch() {
-        forecastService.fetchAllWeather(regionCacheService.regionCache());
+        Map<Long, List<Forecast>> weatherMap = forecastService.fetchAllWeather(regionCacheService.regionCache());
+        forecastCacheService.updateWeatherCache(weatherMap);
     }
 
     @Scheduled(fixedDelay = 10 * 60 * 1000) // 10분마다
