@@ -145,6 +145,11 @@ public class SecurityConfig {
                 new AntPathRequestMatcher("/api/v1/outfit/**", HttpMethod.GET.name()),
                 new AntPathRequestMatcher("/api/v1/outfit-condition**", HttpMethod.GET.name()),
                 new AntPathRequestMatcher("/api/v1/region/**"),
+                new AntPathRequestMatcher("/api/v1/auth/send-code"),
+                new AntPathRequestMatcher("/api/v1/auth/verify-code"),
+                new AntPathRequestMatcher("/api/v1/auth/username"),
+                new AntPathRequestMatcher("/api/v1/auth/reset-email"),
+                new AntPathRequestMatcher("/api/v1/auth/reset-password"),
                 new AntPathRequestMatcher("/api/v1/weather/**")
         );
     }

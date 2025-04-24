@@ -40,6 +40,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.locationtech.jts:jts-core:1.19.0'
     implementation 'org.locationtech.jts.io:jts-io-common:1.19.0'
+
     implementation 'software.amazon.awssdk:ses:2.25.3'
     implementation 'software.amazon.awssdk:regions'
 
@@ -63,6 +64,10 @@ dependencies {
     implementation("commons-logging:commons-logging") {
         exclude group: 'commons-logging', module: 'commons-logging'
     }
+}
+
+configurations.configureEach {
+    exclude group: 'commons-logging', module: 'commons-logging'
 }
 
 tasks.named('test') {

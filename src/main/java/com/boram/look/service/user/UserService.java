@@ -66,6 +66,7 @@ public class UserService {
         User user = UserServiceHelper.findUser(userId, userRepository);
         String encodedPassword = passwordEncoder.encode(dto.newPassword());
         user.updatePassword(encodedPassword);
+        resetCodeRepository.delete(resetCode);
     }
 
     @Transactional
@@ -107,7 +108,7 @@ public class UserService {
 
     @Transactional
     public void saveVerificationCode(UserDto.PasswordResetEmail dto) {
-        User user = userRepository.findByUsername(dto.email()).orElseThrow(EntityNotFoundException::new);
+        User user = userRepository.findByUsername(dto.username()).orElseThrow(EntityNotFoundException::new);
         PasswordResetCode resetCode = PasswordResetCode.builder()
                 .userId(user.getId().toString())
                 .code(dto.verificationCode())

@@ -108,11 +108,11 @@ public class AuthController {
     ) {
         String username = userService.findUsername(email);
         verificationService.sendUsernameEmail(email, username);
-        return ResponseEntity.ok("이메일 인증 완료");
+        return ResponseEntity.ok("이메일 전송 완료");
     }
 
     @Operation(summary = "비밀번호 재설정 이메일 보내기")
-    @PostMapping("/api/v1/auth/username")
+    @PostMapping("/api/v1/auth/reset-email")
     public ResponseEntity<?> sendResetPasswordEmail(
             @RequestBody UserDto.PasswordResetEmail dto
     ) {
@@ -122,7 +122,7 @@ public class AuthController {
     }
 
     @Operation(summary = "비밀번호 재설정 코드로 비밀번호 변경")
-    @PostMapping("/api/v1/auth/username")
+    @PostMapping("/api/v1/auth/reset-password")
     public ResponseEntity<?> resetPassword(
             @RequestBody UserDto.PasswordResetRequest dto
     ) {
