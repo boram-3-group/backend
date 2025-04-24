@@ -1,6 +1,8 @@
 package com.boram.look.service.user;
 
 import com.boram.look.api.dto.UserDto;
+import com.boram.look.domain.auth.PasswordResetCode;
+import com.boram.look.domain.auth.repository.PasswordResetCodeRepository;
 import com.boram.look.domain.user.entity.Agreed;
 import com.boram.look.domain.user.entity.User;
 import com.boram.look.domain.user.entity.UserRole;
@@ -8,6 +10,7 @@ import com.boram.look.domain.user.repository.UserRepository;
 import com.boram.look.global.ex.ResourceNotFoundException;
 import com.boram.look.global.security.oauth.OAuth2Response;
 import com.boram.look.service.user.helper.UserServiceHelper;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
@@ -25,6 +28,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final PasswordResetCodeRepository resetCodeRepository;
 
     @Transactional
     public String joinUser(UserDto.Save dto) {
@@ -55,6 +59,16 @@ public class UserService {
     }
 
     @Transactional
+    public void resetUserPassword(UserDto.PasswordResetRequest dto) {
+        PasswordResetCode resetCode = resetCodeRepository.findByCode(dto.code())
+                .orElseThrow(EntityNotFoundException::new);
+        UUID userId = UUID.fromString(resetCode.getUserId());
+        User user = UserServiceHelper.findUser(userId, userRepository);
+        String encodedPassword = passwordEncoder.encode(dto.newPassword());
+        user.updatePassword(encodedPassword);
+    }
+
+    @Transactional
     public void deleteUser(String userId) {
         User deleteUser = UserServiceHelper.findUser(UUID.fromString(userId), userRepository);
         userRepository.delete(deleteUser);
@@ -80,7 +94,24 @@ public class UserService {
                 });
     }
 
+    @Transactional(readOnly = true)
     public Boolean canUseUsername(String username) {
         return userRepository.existsByUsername(username);
+    }
+
+    @Transactional(readOnly = true)
+    public String findUsername(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(EntityNotFoundException::new);
+        return user.getUsername();
+    }
+
+    @Transactional
+    public void saveVerificationCode(UserDto.PasswordResetEmail dto) {
+        User user = userRepository.findByUsername(dto.email()).orElseThrow(EntityNotFoundException::new);
+        PasswordResetCode resetCode = PasswordResetCode.builder()
+                .userId(user.getId().toString())
+                .code(dto.verificationCode())
+                .build();
+        PasswordResetCode entity = resetCodeRepository.save(resetCode);
     }
 }

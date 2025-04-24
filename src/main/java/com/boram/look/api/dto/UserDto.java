@@ -3,7 +3,6 @@ package com.boram.look.api.dto;
 import com.boram.look.domain.user.constants.Gender;
 import com.boram.look.domain.user.entity.Agreed;
 import com.boram.look.domain.user.entity.User;
-import com.boram.look.domain.user.entity.UserRole;
 import com.boram.look.global.security.oauth.OAuth2RegistrationId;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
@@ -86,4 +85,23 @@ public class UserDto {
         private Gender gender;
     }
 
+    @Builder
+    @Schema(name = "UserDto.Password", description = "패스워드 변경 DTO")
+    public record PasswordResetEmail(
+            @Schema(description = "유저 로그인 id", example = "username")
+            String username,
+            @Schema(description = "email", example = "ondolook@ondolook.click")
+            String email,
+            @Schema(description = "콜백 url")
+            String callbackUrl,
+            @Schema(description = "식별용 코드 uuid로 하나 보내주세요")
+            String verificationCode
+    ) {
+    }
+
+    public record PasswordResetRequest(
+            String code,
+            String newPassword
+    ) {
+    }
 }

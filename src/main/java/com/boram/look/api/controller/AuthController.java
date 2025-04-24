@@ -2,12 +2,14 @@ package com.boram.look.api.controller;
 
 import com.boram.look.api.dto.OAuthJwtDto;
 import com.boram.look.api.dto.OIDCTokenResponse;
+import com.boram.look.api.dto.UserDto;
 import com.boram.look.global.util.ResponseUtil;
 import com.boram.look.global.ex.NoExistRegistrationException;
 import com.boram.look.global.security.JwtProvider;
 import com.boram.look.global.security.oauth.OAuth2RegistrationId;
 import com.boram.look.global.security.oauth.OidcTokenCacheService;
 import com.boram.look.service.auth.EmailVerificationService;
+import com.boram.look.service.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -31,6 +33,7 @@ public class AuthController {
     private final JwtProvider jwtProvider;
     private final OidcTokenCacheService oidcTokenCacheService;
     private final EmailVerificationService verificationService;
+    private final UserService userService;
 
     @Operation(
             summary = "oauth 로그인 호출",
@@ -97,4 +100,34 @@ public class AuthController {
         }
         return ResponseEntity.ok("이메일 인증 완료");
     }
+
+    @Operation(summary = "아이디 찾기 이메일 보내기")
+    @PostMapping("/api/v1/auth/username")
+    public ResponseEntity<?> findUsername(
+            @RequestBody String email
+    ) {
+        String username = userService.findUsername(email);
+        verificationService.sendUsernameEmail(email, username);
+        return ResponseEntity.ok("이메일 인증 완료");
+    }
+
+    @Operation(summary = "비밀번호 재설정 이메일 보내기")
+    @PostMapping("/api/v1/auth/username")
+    public ResponseEntity<?> sendResetPasswordEmail(
+            @RequestBody UserDto.PasswordResetEmail dto
+    ) {
+        userService.saveVerificationCode(dto);
+        verificationService.sendResetPasswordEmail(dto);
+        return ResponseEntity.ok("이메일 전송 완료");
+    }
+
+    @Operation(summary = "비밀번호 재설정 코드로 비밀번호 변경")
+    @PostMapping("/api/v1/auth/username")
+    public ResponseEntity<?> resetPassword(
+            @RequestBody UserDto.PasswordResetRequest dto
+    ) {
+        userService.resetUserPassword(dto);
+        return ResponseEntity.ok("비밀번호 재설정 완료");
+    }
+
 }
