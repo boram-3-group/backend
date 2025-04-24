@@ -4,13 +4,15 @@ import com.boram.look.domain.outfit.TemperatureRange;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
+import java.math.BigDecimal;
+
 public class TemperatureRangeDto {
 
     @Builder
     @Schema(name = "TemperatureRangeDto.Save", description = "삽입시 사용")
     public record Save(
-            float min,
-            float max
+            BigDecimal min,
+            BigDecimal max
     ) {
         public TemperatureRange toEntity() {
             return TemperatureRange.builder()
@@ -24,8 +26,8 @@ public class TemperatureRangeDto {
     @Schema(name = "TemperatureRangeDto.Copy", description = "조회, 수정시 사용")
     public record Copy(
             Integer id,
-            float min,
-            float max
+            BigDecimal min,
+            BigDecimal max
     ) {
     }
 }

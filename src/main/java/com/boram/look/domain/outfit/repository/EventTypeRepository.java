@@ -9,6 +9,4 @@ import java.util.Optional;
 public interface EventTypeRepository extends JpaRepository<EventType, Integer> {
     List<EventType> findByIdIn(List<Integer> idList);
 
-    Optional<EventType> findByCategoryName(String eventTypeStr);
-
 }

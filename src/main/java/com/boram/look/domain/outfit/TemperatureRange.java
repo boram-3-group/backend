@@ -5,6 +5,8 @@ import com.boram.look.domain.AuditingFields;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,10 +18,12 @@ public class TemperatureRange extends AuditingFields {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private float min;
-    private float max;
+    @Column(precision = 5, scale = 2)
+    private BigDecimal min;
+    @Column(precision = 5, scale = 2)
+    private BigDecimal max;
 
-    public void update(float min, float max) {
+    public void update(BigDecimal min, BigDecimal max) {
         this.max = max;
         this.min = min;
     }
