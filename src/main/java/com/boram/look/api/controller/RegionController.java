@@ -46,6 +46,8 @@ public class RegionController {
         return ResponseEntity.created(URI.create("/api/v1/region/" + firstId)).body("행정 구역 정보 업로드 완료");
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @Hidden
     @PostMapping("/merge-sido")
     public ResponseEntity<?> mergeSidoRegions() {
         regionService.mergeSidoRegions();
@@ -65,8 +67,8 @@ public class RegionController {
     )
     @GetMapping
     public ResponseEntity<?> getRegionsFromPoint(
-            @Parameter(description = "위도 (Latitude)") @RequestParam double lat,
-            @Parameter(description = "경도 (Longitude)") @RequestParam double lon
+            @Parameter(description = "위도 (Latitude)",example = "37.5665") @RequestParam double lat,
+            @Parameter(description = "경도 (Longitude)", example = "126.9780") @RequestParam double lon
     ) {
         SiGunGuRegion region = regionCacheService.findRegionByLocation(lat, lon)
                 .orElseThrow(EntityNotFoundException::new);
