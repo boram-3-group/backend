@@ -2,6 +2,7 @@ package com.boram.look.domain.outfit;
 
 import com.boram.look.api.dto.FileDto;
 import com.boram.look.api.dto.OutfitDto;
+import com.boram.look.api.dto.outfit.OutfitImageDto;
 import com.boram.look.domain.condition.EventType;
 import com.boram.look.domain.condition.TemperatureRange;
 import com.boram.look.domain.user.constants.Gender;
@@ -47,7 +48,7 @@ public class Outfit {
         this.gender = gender;
     }
 
-    public OutfitDto.Transfer toDto(List<FileDto> images) {
+    public OutfitDto.Transfer toDto(List<OutfitImageDto> images) {
         return OutfitDto.Transfer.builder()
                 .id(this.id)
                 .eventType(this.eventType.getCategoryName())

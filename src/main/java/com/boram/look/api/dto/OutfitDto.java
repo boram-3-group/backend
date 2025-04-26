@@ -1,5 +1,6 @@
 package com.boram.look.api.dto;
 
+import com.boram.look.api.dto.outfit.OutfitImageDto;
 import com.boram.look.domain.user.constants.Gender;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -17,6 +18,7 @@ public class OutfitDto {
     }
 
     public record Image(
+            String title,
             String description
     ) {
     }
@@ -31,7 +33,7 @@ public class OutfitDto {
             @Schema(description = "온도 범위 문자열")
             String temperatureRange,
             @Schema(description = "코디 이미지 정보")
-            List<FileDto> fileMetadata
+            List<OutfitImageDto> fileMetadata
     ) {
     }
 

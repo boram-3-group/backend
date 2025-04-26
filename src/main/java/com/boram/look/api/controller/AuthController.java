@@ -3,6 +3,7 @@ package com.boram.look.api.controller;
 import com.boram.look.api.dto.OAuthJwtDto;
 import com.boram.look.api.dto.OIDCTokenResponse;
 import com.boram.look.api.dto.UserDto;
+import com.boram.look.domain.auth.PasswordResetCode;
 import com.boram.look.global.util.ResponseUtil;
 import com.boram.look.global.ex.NoExistRegistrationException;
 import com.boram.look.global.security.JwtProvider;
@@ -79,26 +80,53 @@ public class AuthController {
         return ResponseEntity.ok(OIDCTokenResponse.builder().access(issuedToken).build());
     }
 
-    @Operation(summary = "이메일 인증코드 전송")
+    @Deprecated
+    @Operation(
+            summary = "이메일 인증코드 전송 v1",
+            description = "쿼리 스트링 사용으로 인해 v2로 변경 요청드립니다."
+    )
     @PostMapping("/api/v1/auth/send-code")
-    public ResponseEntity<?> sendEmailCode(
+    public ResponseEntity<?> sendEmailCode_v1(
             @RequestParam String email
     ) {
         verificationService.sendVerificationCode(email);
         return ResponseEntity.ok("인증 코드 전송 완료");
     }
 
-    @Operation(summary = "이메일 인증 코드 확인")
+    @Operation(summary = "이메일 인증코드 전송 v2")
+    @PostMapping("/api/v2/auth/send-code")
+    public ResponseEntity<?> sendEmailCode_v2(
+            @RequestBody String email
+    ) {
+        verificationService.sendVerificationCode(email);
+        return ResponseEntity.ok("인증 코드 전송 완료");
+    }
+
+    @Operation(summary = "아이디 찾기 이메일 인증 코드 확인")
     @PostMapping("/api/v1/auth/verify-code")
-    public ResponseEntity<?> verifyEmailCode(
+    public ResponseEntity<?> verifyEmailCode_v1(
             @RequestParam String email,
             @RequestParam String code
     ) {
         boolean isValid = verificationService.verifyCode(email, code);
-        if (!isValid) {
-            return ResponseEntity.badRequest().body("인증 실패");
+        if (isValid) {
+            String username = userService.findUsername(email);
+            return ResponseEntity.ok(username);
         }
-        return ResponseEntity.ok("이메일 인증 완료");
+        return ResponseEntity.badRequest().body("인증 실패");
+    }
+
+    @Operation(summary = "아이디 찾기 이메일 인증 코드 확인")
+    @PostMapping("/api/v2/auth/verify-code")
+    public ResponseEntity<?> verifyEmailCode_v2(
+            @RequestBody UserDto.FindUsername dto
+    ) {
+        boolean isValid = verificationService.verifyCode(dto.email(), dto.code());
+        if (isValid) {
+            String username = userService.findUsername(dto.email());
+            return ResponseEntity.ok(username);
+        }
+        return ResponseEntity.badRequest().body("인증 실패");
     }
 
     @Operation(summary = "아이디 찾기 이메일 보내기")
@@ -116,8 +144,8 @@ public class AuthController {
     public ResponseEntity<?> sendResetPasswordEmail(
             @RequestBody UserDto.PasswordResetEmail dto
     ) {
-        userService.saveVerificationCode(dto);
-        verificationService.sendResetPasswordEmail(dto);
+        PasswordResetCode verificationCode = userService.saveVerificationCode(dto);
+        verificationService.sendResetPasswordEmail(dto, verificationCode);
         return ResponseEntity.ok("이메일 전송 완료");
     }
 

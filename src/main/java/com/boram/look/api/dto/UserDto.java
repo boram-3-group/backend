@@ -86,21 +86,26 @@ public class UserDto {
     }
 
     @Builder
-    @Schema(name = "UserDto.Password", description = "패스워드 변경 DTO")
+    public record FindUsername(String email, String code) {
+    }
+
+    @Builder
+    @Schema(name = "UserDto.PasswordResetEmail", description = "비밀번호 재설정 email 요청 DTO")
     public record PasswordResetEmail(
             @Schema(description = "유저 로그인 id", example = "username")
             String username,
-            @Schema(description = "email", example = "ondolook@ondolook.click")
-            String email,
-            @Schema(description = "콜백 url")
-            String callbackUrl,
-            @Schema(description = "식별용 코드 uuid로 하나 보내주세요")
-            String verificationCode
+            @Schema(description = "콜백 url - 이메일에서 해당 url을 사용하여 비밀번호 재설정 링크로 이동하게 할 url")
+            String callbackUrl
     ) {
     }
 
+    @Schema(name = "UserDto.PasswordResetRequest", description = "패스워드 변경 DTO")
     public record PasswordResetRequest(
-            String code,
+            @Schema(description = "이메일로부터 진입한 사용자의 쿼리스트링에 있는 verification code")
+            String verificationCode,
+            @Schema(description = "로그인 id")
+            String username,
+            @Schema(description = "새로운 비밀번호")
             String newPassword
     ) {
     }

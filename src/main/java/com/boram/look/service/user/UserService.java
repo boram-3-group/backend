@@ -60,10 +60,9 @@ public class UserService {
 
     @Transactional
     public void resetUserPassword(UserDto.PasswordResetRequest dto) {
-        PasswordResetCode resetCode = resetCodeRepository.findByCode(dto.code())
+        User user = userRepository.findByUsername(dto.username()).orElseThrow(EntityNotFoundException::new);
+        PasswordResetCode resetCode = resetCodeRepository.findByCodeAndEmail(dto.verificationCode(), user.getEmail())
                 .orElseThrow(EntityNotFoundException::new);
-        UUID userId = UUID.fromString(resetCode.getUserId());
-        User user = UserServiceHelper.findUser(userId, userRepository);
         String encodedPassword = passwordEncoder.encode(dto.newPassword());
         user.updatePassword(encodedPassword);
         resetCodeRepository.delete(resetCode);
@@ -107,12 +106,13 @@ public class UserService {
     }
 
     @Transactional
-    public void saveVerificationCode(UserDto.PasswordResetEmail dto) {
+    public PasswordResetCode saveVerificationCode(UserDto.PasswordResetEmail dto) {
+        String verificationCode = UUID.randomUUID().toString();
         User user = userRepository.findByUsername(dto.username()).orElseThrow(EntityNotFoundException::new);
         PasswordResetCode resetCode = PasswordResetCode.builder()
-                .userId(user.getId().toString())
-                .code(dto.verificationCode())
+                .email(user.getEmail())
+                .code(verificationCode)
                 .build();
-        PasswordResetCode entity = resetCodeRepository.save(resetCode);
+        return resetCodeRepository.save(resetCode);
     }
 }

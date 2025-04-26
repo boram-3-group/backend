@@ -1,6 +1,5 @@
 package com.boram.look.domain.outfit;
 
-import com.boram.look.api.dto.FileDto;
 import com.boram.look.domain.s3.FileMetadata;
 import jakarta.persistence.*;
 import lombok.*;
@@ -19,6 +18,8 @@ public class OutfitImage {
 
     @ManyToOne
     private Outfit outfit;
+    private String title;
+    private String description;
 
     @ManyToOne
     private FileMetadata fileMetadata;

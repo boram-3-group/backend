@@ -19,5 +19,5 @@ public class PasswordResetCode {
     private Long id;
 
     private String code;
-    private String userId;
+    private String email;
 }

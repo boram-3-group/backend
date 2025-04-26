@@ -1,6 +1,7 @@
 package com.boram.look.service.auth;
 
 import com.boram.look.api.dto.UserDto;
+import com.boram.look.domain.auth.PasswordResetCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -56,10 +57,13 @@ public class EmailVerificationService {
         sesClient.sendEmail(request);
     }
 
-    public void sendResetPasswordEmail(UserDto.PasswordResetEmail dto) {
+    public void sendResetPasswordEmail(
+            UserDto.PasswordResetEmail dto,
+            PasswordResetCode verificationCode
+    ) {
         String subject = "Ondolook 비밀번호 재설정";
         String content = "비밀번호를 재설정하시려면 아래의 링크를 눌러주세요.\n" +
-                dto.callbackUrl();
-        this.sendEmail(dto.email(), subject, content);
+                dto.callbackUrl() + "?verification-code=" + verificationCode.getCode();
+        this.sendEmail(verificationCode.getEmail(), subject, content);
     }
 }

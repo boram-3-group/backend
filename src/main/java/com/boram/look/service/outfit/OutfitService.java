@@ -2,6 +2,7 @@ package com.boram.look.service.outfit;
 
 import com.boram.look.api.dto.FileDto;
 import com.boram.look.api.dto.OutfitDto;
+import com.boram.look.api.dto.outfit.OutfitImageDto;
 import com.boram.look.domain.condition.EventType;
 import com.boram.look.domain.outfit.Outfit;
 import com.boram.look.domain.outfit.OutfitImage;
@@ -76,7 +77,8 @@ public class OutfitService {
                 .mapToObj(i -> OutfitImage.builder()
                         .fileMetadata(imageMetadataList.get(i))
                         .outfit(outfit)
-                        //.description(dtos.get(i).description())
+                        .title(dtos.get(i).title())
+                        .description(dtos.get(i).description())
                         .build())
                 .toList();
 
@@ -106,8 +108,15 @@ public class OutfitService {
         EventType eventType = eventTypeRepository.findById(eventTypeId).orElseThrow(ResourceNotFoundException::new);
         TemperatureRange temperatureRange = temperatureRangeRepository.findByTemperature(averageTemperature).orElseThrow(ResourceNotFoundException::new);
         Outfit outfit = outfitRepository.findByEventTypeAndTemperatureRangeAndGender(eventType, temperatureRange, gender).orElseThrow(ResourceNotFoundException::new);
-        List<FileDto> images = outfit.getImages().stream()
-                .map(image -> fileFacade.buildFileDto(image.getFileMetadata()))
+        List<OutfitImageDto> images = outfit.getImages().stream()
+                .map(image -> {
+                    FileDto dto = fileFacade.buildFileDto(image.getFileMetadata());
+                    return OutfitImageDto.builder()
+                            .title(image.getTitle())
+                            .description(image.getDescription())
+                            .metadata(dto)
+                            .build();
+                })
                 .toList();
         return outfit.toDto(images);
     }
