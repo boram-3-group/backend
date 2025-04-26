@@ -6,10 +6,10 @@ import java.time.format.DateTimeFormatter;
 public class TimeUtil {
     public static LocalDateTime roundToNearestHour(LocalDateTime now) {
         int minute = now.getMinute();
-        if (minute < 30) {
+        if (minute > 20) {
             return now.withMinute(0).withSecond(0).withNano(0);
         } else {
-            return now.plusHours(1).withMinute(0).withSecond(0).withNano(0);
+            return now.minusHours(1).withMinute(0).withSecond(0).withNano(0);
         }
     }
 

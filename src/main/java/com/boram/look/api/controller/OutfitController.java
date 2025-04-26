@@ -3,7 +3,7 @@ package com.boram.look.api.controller;
 import com.boram.look.api.dto.OutfitDto;
 import com.boram.look.domain.region.cache.SiGunGuRegion;
 import com.boram.look.domain.user.constants.Gender;
-import com.boram.look.domain.forecast.Forecast;
+import com.boram.look.domain.weather.forecast.Forecast;
 import com.boram.look.global.ex.ResourceNotFoundException;
 import com.boram.look.global.security.authentication.PrincipalDetails;
 import com.boram.look.service.outfit.OutfitService;
@@ -80,7 +80,6 @@ public class OutfitController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(value = "/{outfitId}/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Hidden
     public ResponseEntity<?> insertOutfitImages(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
             @RequestPart(value = "images", required = false) List<MultipartFile> images,
@@ -93,7 +92,7 @@ public class OutfitController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{outfitId}")
-    @Hidden
+    @Hidden()
     public ResponseEntity<?> updateOutfit(
             @PathVariable Long outfitId
     ) {

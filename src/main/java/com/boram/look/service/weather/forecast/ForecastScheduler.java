@@ -1,8 +1,8 @@
 package com.boram.look.service.weather.forecast;
 
 import com.boram.look.domain.region.cache.SiGunGuRegion;
-import com.boram.look.domain.forecast.Forecast;
-import com.boram.look.domain.forecast.entity.ForecastFetchFailure;
+import com.boram.look.domain.weather.forecast.Forecast;
+import com.boram.look.domain.weather.forecast.entity.ForecastFetchFailure;
 import com.boram.look.service.region.RegionCacheService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,7 @@ public class ForecastScheduler {
     @Scheduled(cron = "0 15 2,5,8,11,14,17,20,23 * * *") // 매일 02:15, 05:15, ... 실행
     public void runForecastBatch() {
         Map<Long, List<Forecast>> weatherMap = forecastService.fetchAllWeather(regionCacheService.regionCache());
-        forecastCacheService.updateWeatherCache(weatherMap);
+        forecastCacheService.updateForecastCache(weatherMap);
     }
 
     @Scheduled(fixedDelay = 10 * 60 * 1000) // 10분마다

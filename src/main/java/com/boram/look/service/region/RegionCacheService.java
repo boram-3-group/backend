@@ -39,8 +39,9 @@ public class RegionCacheService {
         return sidoCache;
     }
 
-    @PostConstruct
     public void loadRegionMap() {
+        this.regionCache.clear();
+        this.sidoCache.clear();
         this.initSiGunGuCache();
         this.initSidoCache();
     }

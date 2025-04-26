@@ -1,4 +1,4 @@
-package com.boram.look.domain.forecast.entity;
+package com.boram.look.domain.weather.forecast.entity;
 
 
 import jakarta.persistence.Entity;

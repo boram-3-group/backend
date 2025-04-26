@@ -1,17 +1,24 @@
 package com.boram.look.service.weather.air;
 
 import com.boram.look.api.dto.AirQualityDto;
-import com.boram.look.domain.air.AirQualityCache;
+import com.boram.look.domain.condition.repository.AirQualityRange;
+import com.boram.look.domain.condition.repository.AirQualityRangeRepository;
+import com.boram.look.domain.weather.air.AirQualityCache;
+import com.boram.look.domain.weather.air.AirQualityFetchFailedEvent;
 import com.boram.look.global.ex.APIFetchException;
+import com.boram.look.global.util.TimeUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -22,6 +29,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -34,6 +42,8 @@ public class AirQualityService {
     private String serviceKey;
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper;
+    private final AirQualityRangeRepository rangeRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public void fetchAirQuality(String itemType) {
         URI requestUri = this.buildAirQualityRequestUrl(itemType);
@@ -53,22 +63,25 @@ public class AirQualityService {
         }
     }
 
-    //TODO: 메세지와 아이콘 매핑하기
-    public AirQualityDto buildAirQualityDto(Integer airQualityValue) {
-        return AirQualityDto.builder()
-                .airQuality(airQualityValue)
-                .message("asd")
-                .iconUrl("asd")
-                .build();
-    }
-
-    public Integer getAirQualityValue(String apiKey, String itemCode, String dataTimeKey) {
+    @Transactional(readOnly = true)
+    public AirQualityDto getAirQuality(String apiKey, String itemCode) {
+        String dataTimeKey = this.buildDateTimeKey();
         String redisKey = String.format("airquality:%s:%s", itemCode, dataTimeKey);
         Map<String, Object> cached = (Map<String, Object>) redisTemplate.opsForValue().get(redisKey);
-        if (cached == null) return null;
-        Object value = cached.get(apiKey);
-        return value != null ? Integer.parseInt(value.toString()) : null;
+        if (cached.isEmpty()) {
+            return null;
+        }
+        Integer currentValue = Integer.parseInt(cached.get(apiKey).toString());
+        AirQualityRange range = rangeRepository.getByCurrentQuality(currentValue).orElseThrow(EntityNotFoundException::new);
+        return range.toDto(currentValue);
     }
+
+    private String buildDateTimeKey() {
+        LocalDateTime roundedTime = TimeUtil.roundToNearestHour(LocalDateTime.now());
+        DateTimeFormatter outputFormat = DateTimeFormatter.ofPattern("yyyyMMddHH");
+        return TimeUtil.formatTimeToString(roundedTime, outputFormat);
+    }
+
 
     private List<AirQualityCache> parseAirQualityItems(JsonNode jsonNode) {
         JsonNode items = jsonNode.path("response").path("body").path("items");
@@ -111,6 +124,7 @@ public class AirQualityService {
         try {
             return objectMapper.readTree(responseBody);
         } catch (JsonProcessingException | NullPointerException e) {
+            eventPublisher.publishEvent(new AirQualityFetchFailedEvent(this));
             throw new APIFetchException();
         }
     }

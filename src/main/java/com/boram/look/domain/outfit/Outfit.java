@@ -2,7 +2,8 @@ package com.boram.look.domain.outfit;
 
 import com.boram.look.api.dto.FileDto;
 import com.boram.look.api.dto.OutfitDto;
-import com.boram.look.domain.s3.FileMetadata;
+import com.boram.look.domain.condition.EventType;
+import com.boram.look.domain.condition.TemperatureRange;
 import com.boram.look.domain.user.constants.Gender;
 import jakarta.persistence.*;
 import lombok.*;

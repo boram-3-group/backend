@@ -2,10 +2,10 @@ package com.boram.look.service.outfit;
 
 import com.boram.look.api.dto.EventTypeDto;
 import com.boram.look.api.dto.TemperatureRangeDto;
-import com.boram.look.domain.outfit.EventType;
-import com.boram.look.domain.outfit.TemperatureRange;
-import com.boram.look.domain.outfit.repository.EventTypeRepository;
-import com.boram.look.domain.outfit.repository.TemperatureRangeRepository;
+import com.boram.look.domain.condition.EventType;
+import com.boram.look.domain.condition.TemperatureRange;
+import com.boram.look.domain.condition.repository.EventTypeRepository;
+import com.boram.look.domain.condition.repository.TemperatureRangeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;

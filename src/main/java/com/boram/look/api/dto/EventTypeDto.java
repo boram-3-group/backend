@@ -1,6 +1,6 @@
 package com.boram.look.api.dto;
 
-import com.boram.look.domain.outfit.EventType;
+import com.boram.look.domain.condition.EventType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 

@@ -1,4 +1,4 @@
-package com.boram.look.domain.air;
+package com.boram.look.domain.weather.air;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

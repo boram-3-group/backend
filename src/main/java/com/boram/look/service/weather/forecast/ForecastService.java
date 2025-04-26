@@ -3,9 +3,10 @@ package com.boram.look.service.weather.forecast;
 import com.boram.look.api.dto.WeatherForecastDto;
 import com.boram.look.common.constants.WeatherConstants;
 import com.boram.look.domain.region.cache.SiGunGuRegion;
-import com.boram.look.domain.forecast.Forecast;
-import com.boram.look.domain.forecast.ForecastBase;
-import com.boram.look.domain.forecast.ForecastMapper;
+import com.boram.look.domain.weather.forecast.Forecast;
+import com.boram.look.domain.weather.forecast.ForecastBase;
+import com.boram.look.domain.weather.forecast.ForecastMapper;
+import com.boram.look.domain.weather.forecast.entity.ForecastIcon;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -111,8 +112,8 @@ public class ForecastService {
         }
 
         for (Forecast f : timeMap.values()) {
-            f.setIcon(ForecastMapper.getWeatherIcon(f.getPty(), f.getSky()));
-            f.setMessage(ForecastMapper.getMessage(f.getPty(), f.getSky()));
+            ForecastIcon icon = ForecastMapper.getWeatherIcon(f.getTime(), f.getPty(), f.getSky());
+            f.withForecastIcon(icon);
         }
 
         return new ArrayList<>(timeMap.values());

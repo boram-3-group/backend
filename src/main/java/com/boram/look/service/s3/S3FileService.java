@@ -26,12 +26,20 @@ public class S3FileService {
     private String bucket;
 
     public String upload(MultipartFile file, String keyPrefix) {
-        String filename = keyPrefix + UUID.randomUUID();
+        String originalFilename = file.getOriginalFilename();
+        String extension = "";
+
+        if (originalFilename.contains(".")) {
+            extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        }
+
+        String filename = keyPrefix + UUID.randomUUID() + extension;
 
         try {
             PutObjectRequest request = PutObjectRequest.builder()
                     .bucket(bucket)
                     .key(filename)
+                    .contentType(file.getContentType())
                     .build();
             s3Client.putObject(request, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
             return filename;
@@ -39,6 +47,7 @@ public class S3FileService {
             throw new RuntimeException(e);
         }
     }
+
 
     public void delete(String key) {
         DeleteObjectRequest request = DeleteObjectRequest.builder()

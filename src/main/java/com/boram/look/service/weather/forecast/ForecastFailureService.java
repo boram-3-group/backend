@@ -1,7 +1,7 @@
 package com.boram.look.service.weather.forecast;
 
-import com.boram.look.domain.forecast.entity.ForecastFetchFailure;
-import com.boram.look.domain.forecast.repository.ForecastFetchFailureRepository;
+import com.boram.look.domain.weather.forecast.entity.ForecastFetchFailure;
+import com.boram.look.domain.weather.forecast.repository.ForecastFetchFailureRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

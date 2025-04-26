@@ -3,12 +3,10 @@ package com.boram.look.api.controller;
 import com.boram.look.api.dto.AirQualityDto;
 import com.boram.look.api.dto.WeatherDto;
 import com.boram.look.domain.region.cache.SiGunGuRegion;
-import com.boram.look.domain.region.cache.SidoRegionCache;
-import com.boram.look.domain.forecast.Forecast;
-import com.boram.look.global.util.TimeUtil;
+import com.boram.look.domain.weather.forecast.Forecast;
+import com.boram.look.service.region.RegionCacheService;
 import com.boram.look.service.weather.WeatherFacade;
 import com.boram.look.service.weather.air.AirQualityService;
-import com.boram.look.service.region.RegionCacheService;
 import com.boram.look.service.weather.forecast.ForecastCacheService;
 import com.boram.look.service.weather.forecast.ForecastService;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -17,14 +15,11 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -39,16 +34,21 @@ public class WeatherController {
 
 
     private final AirQualityService airQualityService;
+
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/air")
+    @Hidden
     public ResponseEntity<?> fetchAir() {
         airQualityService.fetchAirQuality("PM10");
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/air-get")
+    @Hidden
     public ResponseEntity<?> getAir() {
-        airQualityService.getAirQualityValue("seoul", "PM10", "2025042220");
-        return ResponseEntity.ok().build();
+        AirQualityDto airDto = airQualityService.getAirQuality("seoul", "PM10");
+        return ResponseEntity.ok(airDto);
     }
 
     // chunk: 5분 38.34초
@@ -60,7 +60,7 @@ public class WeatherController {
     public ResponseEntity<?> fetchDailyWeather() {
         Map<Long, SiGunGuRegion> regionMap = regionCacheService.regionCache();
         Map<Long, List<Forecast>> weatherMap = forecastService.fetchAllWeather(regionMap);
-        forecastCacheService.updateWeatherCache(weatherMap);
+        forecastCacheService.updateForecastCache(weatherMap);
         return ResponseEntity.ok(weatherMap);
     }
 
@@ -84,8 +84,8 @@ public class WeatherController {
     )
     @GetMapping("/position")
     public ResponseEntity<?> getWeatherByPosition(
-            @Parameter(description = "경도 (Longitude)") @RequestParam double lat,
-            @Parameter(description = "위도 (Latitude)") @RequestParam double lon
+            @Parameter(description = "위도 (Latitude)", example = "37.5665") @RequestParam double lat,
+            @Parameter(description = "경도 (Longitude)", example = "126.9780") @RequestParam double lon
     ) {
         WeatherDto dto = weatherFacade.getWeather(lat, lon);
         return ResponseEntity.ok(dto);

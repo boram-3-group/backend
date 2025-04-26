@@ -1,4 +1,4 @@
-package com.boram.look.domain.outfit;
+package com.boram.look.domain.condition;
 
 import com.boram.look.api.dto.TemperatureRangeDto;
 import com.boram.look.domain.AuditingFields;

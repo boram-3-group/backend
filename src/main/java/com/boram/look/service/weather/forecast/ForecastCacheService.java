@@ -1,6 +1,6 @@
 package com.boram.look.service.weather.forecast;
 
-import com.boram.look.domain.forecast.Forecast;
+import com.boram.look.domain.weather.forecast.Forecast;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,7 +20,7 @@ public class ForecastCacheService {
     private final ObjectMapper objectMapper;
     private final RedisTemplate<String, String> redisTemplate;
 
-    public void updateWeatherCache(Map<Long, List<Forecast>> weatherMap) {
+    public void updateForecastCache(Map<Long, List<Forecast>> weatherMap) {
         for (Map.Entry<Long, List<Forecast>> entry : weatherMap.entrySet()) {
             // 연계 실패한 날씨 정보는 일단 있는 캐시 사용
             if (entry.getValue().isEmpty()) {
