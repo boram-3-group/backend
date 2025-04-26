@@ -1,9 +1,7 @@
 package com.boram.look.api.controller;
 
-import com.boram.look.api.dto.UserDto;
-import com.boram.look.global.security.authentication.PrincipalDetails;
+import com.boram.look.api.dto.user.UserDto;
 import com.boram.look.service.user.UserService;
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -14,11 +12,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor

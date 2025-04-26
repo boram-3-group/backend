@@ -1,4 +1,4 @@
-package com.boram.look.api.dto;
+package com.boram.look.api.dto.user;
 
 import lombok.Builder;
 import lombok.Getter;

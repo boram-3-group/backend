@@ -144,7 +144,13 @@ public class ForecastService {
 
         List<Future<Void>> futures = regionMap.entrySet().stream()
                 .map(entry -> executor.submit(((Callable<Void>) () -> {
-                    runWithThrottle(entry.getKey(), entry.getValue(), weatherMap, limiter, count);
+                    runWithThrottle(
+                            entry.getKey(),
+                            entry.getValue(),
+                            weatherMap,
+                            limiter,
+                            count
+                    );
                     return null;
                 }))).toList();
 

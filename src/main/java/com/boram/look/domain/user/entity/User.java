@@ -1,6 +1,6 @@
 package com.boram.look.domain.user.entity;
 
-import com.boram.look.api.dto.UserDto;
+import com.boram.look.api.dto.user.UserDto;
 import com.boram.look.domain.AuditingFields;
 import com.boram.look.domain.user.constants.Gender;
 import com.boram.look.global.security.oauth.OAuth2RegistrationId;

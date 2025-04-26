@@ -1,6 +1,6 @@
 package com.boram.look.service.user;
 
-import com.boram.look.api.dto.UserDto;
+import com.boram.look.api.dto.user.UserDto;
 import com.boram.look.domain.auth.PasswordResetCode;
 import com.boram.look.domain.auth.repository.PasswordResetCodeRepository;
 import com.boram.look.domain.user.entity.Agreed;

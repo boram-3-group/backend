@@ -1,4 +1,4 @@
-package com.boram.look.api.dto;
+package com.boram.look.api.dto.user;
 
 import com.boram.look.domain.user.constants.Gender;
 import com.boram.look.domain.user.entity.Agreed;

@@ -1,6 +1,6 @@
 package com.boram.look.api.dto;
 
-import com.boram.look.domain.weather.air.AirQualityGrade;
+import com.boram.look.domain.weather.uv.UvGrade;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +9,9 @@ import lombok.Data;
 @Data
 @Builder
 @AllArgsConstructor
-@Schema(name = "AirQualityDto", description = "미세먼지 DTO")
-public class AirQualityDto {
+@Schema(name = "UvIndexDto", description = "자외선 예보 DTO")
+public class UvIndexDto {
+
     @Schema(description = "PM10 미세먼지 지수", example = "30")
     private Integer airQuality;
     @Schema(
@@ -21,5 +22,5 @@ public class AirQualityDto {
     @Schema(description = "아이콘을 출력해야 되는지 여부")
     private Boolean iconFlag;
     @Schema(description = "ondolook에서 정한 미세먼지 등급")
-    private AirQualityGrade grade;
+    private UvGrade grade;
 }

@@ -1,6 +1,6 @@
 package com.boram.look.service.auth;
 
-import com.boram.look.api.dto.UserDto;
+import com.boram.look.api.dto.user.UserDto;
 import com.boram.look.domain.auth.PasswordResetCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;

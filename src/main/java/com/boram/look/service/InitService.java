@@ -6,6 +6,7 @@ import com.boram.look.service.region.RegionCacheService;
 import com.boram.look.service.weather.air.AirQualityService;
 import com.boram.look.service.weather.forecast.ForecastCacheService;
 import com.boram.look.service.weather.forecast.ForecastService;
+import com.boram.look.service.weather.uv.UvIndexService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,7 @@ public class InitService {
     private final ForecastService forecastService;
     private final ForecastCacheService forecastCacheService;
     private final AirQualityService airQualityService;
+    private final UvIndexService uvIndexService;
 
     @PostConstruct
     public void initServer() {
@@ -31,6 +33,7 @@ public class InitService {
         Map<Long, List<Forecast>> weatherMap = forecastService.fetchAllWeather(regionMap);
         forecastCacheService.updateForecastCache(weatherMap);
         airQualityService.fetchAirQuality("PM10");
+        uvIndexService.updateUvIndexCache();
         log.info("init server end.");
     }
 
