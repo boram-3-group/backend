@@ -12,15 +12,18 @@ import lombok.Data;
 @Schema(name = "UvIndexDto", description = "자외선 예보 DTO")
 public class UvIndexDto {
 
-    @Schema(description = "PM10 미세먼지 지수", example = "30")
-    private Integer airQuality;
+    @Schema(description = "자외선 지수", example = "30")
+    private Integer uvIndex;
+
     @Schema(
-            description = "미세먼지 지수에 해당하는 메세지\n" +
+            description = "자외선 지수에 해당하는 메세지\n" +
                     "지수가 나쁨 이상이면 예시 메세지 출력, 미만이면 공백을 출력함",
-            example = "오늘은 공기질이 나빠요, 마스크 꼭 챙기기!")
+            example = "오늘은 공기질이 나빠요, 마스크 꼭 챙기기!"
+    )
     private String message;
+
     @Schema(description = "아이콘을 출력해야 되는지 여부")
     private Boolean iconFlag;
-    @Schema(description = "ondolook에서 정한 미세먼지 등급")
+    @Schema(description = "ondolook에서 정한 자외선 등급")
     private UvGrade grade;
 }

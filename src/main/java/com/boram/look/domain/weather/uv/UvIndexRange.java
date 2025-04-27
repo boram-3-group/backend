@@ -27,7 +27,7 @@ public class UvIndexRange {
 
     public UvIndexDto toDto(Integer currentValue) {
         return UvIndexDto.builder()
-                .airQuality(currentValue)
+                .uvIndex(currentValue)
                 .message(this.message)
                 .iconFlag(this.iconFlag)
                 .grade(this.grade)

@@ -1,13 +1,21 @@
 package com.boram.look.service.weather.uv;
 
+import com.boram.look.api.dto.UvIndexDto;
+import com.boram.look.domain.condition.repository.AirQualityRange;
 import com.boram.look.domain.region.cache.SidoRegionCache;
 import com.boram.look.domain.weather.air.AirQualityFetchFailedEvent;
+import com.boram.look.domain.weather.uv.UvIndexRange;
+import com.boram.look.domain.weather.uv.entity.UvFetchFailure;
+import com.boram.look.domain.weather.uv.repository.UvFetchFailureRepository;
 import com.boram.look.domain.weather.uv.UvIndexCache;
+import com.boram.look.domain.weather.uv.event.UvIndexFetchFailedEvent;
+import com.boram.look.domain.weather.uv.repository.UvRangeRepository;
 import com.boram.look.global.util.TimeUtil;
 import com.boram.look.service.region.RegionCacheService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,12 +24,14 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -29,38 +39,64 @@ import java.util.concurrent.CompletableFuture;
 @Service
 @Slf4j
 public class UvIndexService {
-    private final RedisTemplate<String, Object> redisTemplate;
     private final RegionCacheService regionCacheService;
+    private final UvFetchFailureRepository failureRepository;
+    private final UvRangeRepository rangeRepository;
 
     @Value("${weather.service-key}")
     private String serviceKey;
 
+    private final RedisTemplate<String, Object> redisTemplate;
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper;
     private final ApplicationEventPublisher eventPublisher;
 
     public void updateUvIndexCache() {
         Map<Long, SidoRegionCache> regionMap = regionCacheService.sidoCache();
-        regionMap.entrySet().forEach(this::fetchUvIndexAsync);
+        regionMap.forEach((key, value) -> this.fetchUvIndexAsync(value.sido()));
     }
 
     @Async
-    public void fetchUvIndexAsync(Map.Entry<Long, SidoRegionCache> entry) {
-        fetchUvIndex(entry);
+    public void fetchUvIndexAsync(String sido) {
+        fetchUvIndex(sido);
         CompletableFuture.completedFuture(null);
     }
 
-    private void fetchUvIndex(Map.Entry<Long, SidoRegionCache> entry) {
-        SidoRegionCache cache = entry.getValue();
-        String areaNo = cache.sido() + "00000000";
+    public UvIndexDto getUvIndex(String sido) {
+        String dateTimeKey = TimeUtil.getNearestPastThreeHour(LocalDateTime.now());
+        String redisKey = String.format("uvindex:%s:%s", sido, dateTimeKey);
+        Map<String, Object> cached = (Map<String, Object>) redisTemplate.opsForValue().get(redisKey);
+        if (cached.isEmpty()) {
+            return null;
+        }
+
+        Integer currentValue = Integer.parseInt(cached.get("h0").toString());
+        UvIndexRange range = rangeRepository.getByCurrentQuality(currentValue).orElseThrow(EntityNotFoundException::new);
+        return range.toDto(currentValue);
+    }
+
+    @Transactional
+    public void saveFailure(String sido) {
+        failureRepository.save(UvFetchFailure.builder()
+                .sido(sido)
+                .build());
+    }
+
+    @Transactional(readOnly = true)
+    public List<UvFetchFailure> findAllFailure() {
+        return failureRepository.findAll();
+    }
+
+    private void fetchUvIndex(String sido) {
+        String areaNo = sido + "00000000";
         String time = TimeUtil.getNearestPastThreeHour(LocalDateTime.now());
         URI requestUri = this.buildUvIndexRequestUrl(areaNo, time);
         ResponseEntity<?> response = restTemplate.getForEntity(requestUri, String.class);
-        JsonNode jsonNode = this.getUvIndexJsonNode(response.getBody().toString());
+        JsonNode jsonNode = this.getUvIndexJsonNode(response.getBody().toString(), sido);
         if (jsonNode == null) {
             return;
         }
-        UvIndexCache uvIndex = this.parseUvIndexItems(jsonNode, cache.sido());
+        UvIndexCache uvIndex = this.parseUvIndexItems(jsonNode, sido, time);
         this.saveUvIndex(uvIndex, time);
     }
 
@@ -70,26 +106,26 @@ public class UvIndexService {
             return;
         }
 
-        String key = String.format("uvindex:%s%s", uvIndex.sido(), time);
+        String key = String.format("uvindex:%s:%s", uvIndex.sido(), time);
         redisTemplate.opsForValue().set(key, uvIndex, Duration.ofHours(4));
     }
 
-    private UvIndexCache parseUvIndexItems(JsonNode jsonNode, String sido) {
-        JsonNode items = jsonNode.path("response").path("body").path("items");
+    private UvIndexCache parseUvIndexItems(JsonNode jsonNode, String sido, String time) {
+        JsonNode items = jsonNode.path("response").path("body").path("items").path("item").get(0);
         return UvIndexCache.builder()
-                .h0(items.get("h0").asInt())
-                .h3(items.get("h3").asInt())
-                .h6(items.get("h6").asInt())
-                .fetchedTime(LocalDateTime.now())
+                .h0(Integer.parseInt(items.get("h0").asText()))
+                .h3(Integer.parseInt(items.get("h3").asText()))
+                .h6(Integer.parseInt(items.get("h6").asText()))
+                .fetchedTime(time)
                 .sido(sido)
                 .build();
     }
 
-    private JsonNode getUvIndexJsonNode(String response) {
+    private JsonNode getUvIndexJsonNode(String response, String sido) {
         try {
             return objectMapper.readTree(response);
         } catch (JsonProcessingException e) {
-            eventPublisher.publishEvent(new AirQualityFetchFailedEvent(this));
+            eventPublisher.publishEvent(new UvIndexFetchFailedEvent(this, sido));
             return null;
         }
     }
@@ -107,6 +143,7 @@ public class UvIndexService {
                 .toUriString();
         return URI.create(resultUrl);
     }
+
 }
 
 

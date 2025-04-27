@@ -3,13 +3,11 @@ package com.boram.look.domain.weather.uv;
 import java.util.Arrays;
 
 public enum UvGrade {
-    GOOD("좋음"),
-
-    MODERATE("보통"),
-
-    BAD("나쁨"),
-
-    VERY_BAD("매우나쁨");
+    LOW("낮음"),        // 0~3
+    MODERATE("보통"),   // 3~6
+    HIGH("높음"),       // 6~8
+    VERY_HIGH("매우높음"),  // 8~10
+    EXTREME("위험");    // 11+
 
     private final String label;
 

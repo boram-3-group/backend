@@ -13,4 +13,5 @@ import java.util.List;
 public class WeatherDto {
     private List<Forecast> forecasts;
     private AirQualityDto airQuality;
+    private UvIndexDto uvIndex;
 }
