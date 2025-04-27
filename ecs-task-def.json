@@ -165,8 +165,8 @@
   "requiresCompatibilities": [
     "EC2"
   ],
-  "cpu": "900",
-  "memory": "900",
+  "cpu": "1024",
+  "memory": "1024",
   "runtimePlatform": {
     "cpuArchitecture": "X86_64",
     "operatingSystemFamily": "LINUX"

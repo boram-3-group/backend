@@ -1,14 +1,13 @@
 package com.boram.look.service.weather.uv;
 
 import com.boram.look.api.dto.UvIndexDto;
-import com.boram.look.domain.condition.repository.AirQualityRange;
 import com.boram.look.domain.region.cache.SidoRegionCache;
 import com.boram.look.domain.weather.air.AirQualityFetchFailedEvent;
+import com.boram.look.domain.weather.uv.UvIndexCache;
 import com.boram.look.domain.weather.uv.UvIndexRange;
 import com.boram.look.domain.weather.uv.entity.UvFetchFailure;
-import com.boram.look.domain.weather.uv.repository.UvFetchFailureRepository;
-import com.boram.look.domain.weather.uv.UvIndexCache;
 import com.boram.look.domain.weather.uv.event.UvIndexFetchFailedEvent;
+import com.boram.look.domain.weather.uv.repository.UvFetchFailureRepository;
 import com.boram.look.domain.weather.uv.repository.UvRangeRepository;
 import com.boram.look.global.util.TimeUtil;
 import com.boram.look.service.region.RegionCacheService;
