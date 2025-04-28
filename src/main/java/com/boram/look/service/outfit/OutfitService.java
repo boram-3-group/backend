@@ -1,7 +1,7 @@
 package com.boram.look.service.outfit;
 
 import com.boram.look.api.dto.FileDto;
-import com.boram.look.api.dto.OutfitDto;
+import com.boram.look.api.dto.outfit.OutfitDto;
 import com.boram.look.api.dto.outfit.OutfitImageDto;
 import com.boram.look.domain.condition.EventType;
 import com.boram.look.domain.outfit.Outfit;

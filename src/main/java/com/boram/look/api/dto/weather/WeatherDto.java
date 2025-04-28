@@ -1,4 +1,4 @@
-package com.boram.look.api.dto;
+package com.boram.look.api.dto.weather;
 
 import com.boram.look.domain.weather.forecast.Forecast;
 import lombok.AllArgsConstructor;

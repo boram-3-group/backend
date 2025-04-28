@@ -56,6 +56,9 @@ public class User extends AuditingFields {
     @Builder.Default
     private UserRole role = UserRole.USER;
 
+    @OneToMany(mappedBy = "user")
+    private List<Bookmark> bookmarks;
+
     public List<UserRole> getRoles() {
         return List.of(role);
     }

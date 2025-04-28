@@ -1,7 +1,7 @@
 package com.boram.look.service.outfit;
 
-import com.boram.look.api.dto.EventTypeDto;
-import com.boram.look.api.dto.TemperatureRangeDto;
+import com.boram.look.api.dto.outfit.EventTypeDto;
+import com.boram.look.api.dto.outfit.TemperatureRangeDto;
 import com.boram.look.domain.condition.EventType;
 import com.boram.look.domain.condition.TemperatureRange;
 import com.boram.look.domain.condition.repository.EventTypeRepository;

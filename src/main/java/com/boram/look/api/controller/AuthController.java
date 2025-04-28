@@ -1,7 +1,7 @@
 package com.boram.look.api.controller;
 
-import com.boram.look.api.dto.user.OAuthJwtDto;
-import com.boram.look.api.dto.user.OIDCTokenResponse;
+import com.boram.look.api.dto.auth.OAuthJwtDto;
+import com.boram.look.api.dto.auth.OIDCTokenResponse;
 import com.boram.look.api.dto.user.UserDto;
 import com.boram.look.domain.auth.PasswordResetCode;
 import com.boram.look.global.util.ResponseUtil;

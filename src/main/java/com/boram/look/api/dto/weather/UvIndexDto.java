@@ -1,4 +1,4 @@
-package com.boram.look.api.dto;
+package com.boram.look.api.dto.weather;
 
 import com.boram.look.domain.weather.uv.UvGrade;
 import io.swagger.v3.oas.annotations.media.Schema;

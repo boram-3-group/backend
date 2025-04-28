@@ -1,6 +1,6 @@
 package com.boram.look.api.controller;
 
-import com.boram.look.api.dto.RegionDto;
+import com.boram.look.api.dto.region.RegionDto;
 import com.boram.look.domain.region.cache.SiGunGuRegion;
 import com.boram.look.service.region.GeoJsonRegionMapper;
 import com.boram.look.service.region.RegionCacheService;

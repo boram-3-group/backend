@@ -1,4 +1,4 @@
-package com.boram.look.api.dto;
+package com.boram.look.api.dto.region;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;

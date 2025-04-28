@@ -1,6 +1,6 @@
 package com.boram.look.domain.weather.uv;
 
-import com.boram.look.api.dto.UvIndexDto;
+import com.boram.look.api.dto.weather.UvIndexDto;
 import jakarta.persistence.*;
 import lombok.*;
 

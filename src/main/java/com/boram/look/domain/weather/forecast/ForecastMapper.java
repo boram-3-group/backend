@@ -1,15 +1,15 @@
 package com.boram.look.domain.weather.forecast;
 
-import com.boram.look.api.dto.WeatherForecastDto;
+import com.boram.look.api.dto.weather.WeatherForecastDto;
 import com.boram.look.domain.weather.forecast.entity.ForecastIcon;
 
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-import static com.boram.look.common.constants.WeatherConstants.KMA_TEMP_3H;
-import static com.boram.look.common.constants.WeatherConstants.KMA_PRECIPITATION_PROBABILITY;
-import static com.boram.look.common.constants.WeatherConstants.KMA_PRECIPITATION_TYPE;
-import static com.boram.look.common.constants.WeatherConstants.KMA_SKY_CONDITION;
+import static com.boram.look.global.constant.WeatherConstants.KMA_TEMP_3H;
+import static com.boram.look.global.constant.WeatherConstants.KMA_PRECIPITATION_PROBABILITY;
+import static com.boram.look.global.constant.WeatherConstants.KMA_PRECIPITATION_TYPE;
+import static com.boram.look.global.constant.WeatherConstants.KMA_SKY_CONDITION;
 
 public class ForecastMapper {
     private static final Map<String, BiConsumer<Forecast, String>> CATEGORY_APPLIERS = Map.of(

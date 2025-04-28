@@ -1,4 +1,4 @@
-package com.boram.look.common.constants;
+package com.boram.look.global.constant;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;

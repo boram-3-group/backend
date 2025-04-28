@@ -1,8 +1,8 @@
 package com.boram.look.service.weather;
 
-import com.boram.look.api.dto.AirQualityDto;
-import com.boram.look.api.dto.UvIndexDto;
-import com.boram.look.api.dto.WeatherDto;
+import com.boram.look.api.dto.weather.AirQualityDto;
+import com.boram.look.api.dto.weather.UvIndexDto;
+import com.boram.look.api.dto.weather.WeatherDto;
 import com.boram.look.domain.region.cache.SiGunGuRegion;
 import com.boram.look.domain.region.cache.SidoRegionCache;
 import com.boram.look.domain.weather.forecast.Forecast;

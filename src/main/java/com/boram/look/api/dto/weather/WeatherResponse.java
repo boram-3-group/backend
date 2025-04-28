@@ -1,4 +1,4 @@
-package com.boram.look.api.dto;
+package com.boram.look.api.dto.weather;
 
 import lombok.Data;
 

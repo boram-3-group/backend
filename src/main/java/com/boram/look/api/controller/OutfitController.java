@@ -1,6 +1,6 @@
 package com.boram.look.api.controller;
 
-import com.boram.look.api.dto.OutfitDto;
+import com.boram.look.api.dto.outfit.OutfitDto;
 import com.boram.look.domain.region.cache.SiGunGuRegion;
 import com.boram.look.domain.user.constants.Gender;
 import com.boram.look.domain.weather.forecast.Forecast;

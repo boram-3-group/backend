@@ -62,7 +62,8 @@ public class UserController {
     @ApiResponse(
             responseCode = "200",
             description = "회원 프로필",
-            content = @Content(schema = @Schema(implementation = UserDto.Profile.class)))
+            content = @Content(schema = @Schema(implementation = UserDto.Profile.class))
+    )
     public ResponseEntity<?> getUserProfile(@PathVariable String userId) {
         log.info("UserController.getUserProfile is called.\nuserId:{}", userId);
         UserDto.Profile profile = userService.getUserProfile(userId);
@@ -70,13 +71,14 @@ public class UserController {
     }
 
     @PreAuthorize("#userId == authentication.principal.user.id.toString()")
-    @DeleteMapping("/{userId}")
+    @DeleteMapping("/{userId}/reason-id/{reason-id}")
     @Operation(summary = "회원 탈퇴")
     public ResponseEntity<?> deleteUser(
-            @Parameter(description = "탈퇴할 유저 id") @PathVariable String userId
+            @Parameter(description = "탈퇴할 유저 id") @PathVariable String userId,
+            @Parameter(description = "탈퇴 사유 id") @PathVariable(name = "reason-id") Long reasonId
     ) {
         log.info("UserController.deleteUser is called.\nuserId:{}", userId);
-        userService.deleteUser(userId);
+        userService.deleteUser(userId, reasonId);
         return ResponseEntity.ok("회원 삭제 완료");
     }
 

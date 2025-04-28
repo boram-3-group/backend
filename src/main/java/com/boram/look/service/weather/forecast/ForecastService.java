@@ -1,7 +1,7 @@
 package com.boram.look.service.weather.forecast;
 
-import com.boram.look.api.dto.WeatherForecastDto;
-import com.boram.look.common.constants.WeatherConstants;
+import com.boram.look.api.dto.weather.WeatherForecastDto;
+import com.boram.look.global.constant.WeatherConstants;
 import com.boram.look.domain.region.cache.SiGunGuRegion;
 import com.boram.look.domain.weather.forecast.Forecast;
 import com.boram.look.domain.weather.forecast.ForecastBase;

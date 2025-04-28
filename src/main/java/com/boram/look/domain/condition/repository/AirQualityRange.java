@@ -1,6 +1,6 @@
 package com.boram.look.domain.condition.repository;
 
-import com.boram.look.api.dto.AirQualityDto;
+import com.boram.look.api.dto.weather.AirQualityDto;
 import com.boram.look.domain.weather.air.AirQualityGrade;
 import jakarta.persistence.*;
 import lombok.*;

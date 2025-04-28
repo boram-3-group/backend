@@ -3,9 +3,9 @@ package com.boram.look.service.user;
 import com.boram.look.api.dto.user.UserDto;
 import com.boram.look.domain.auth.PasswordResetCode;
 import com.boram.look.domain.auth.repository.PasswordResetCodeRepository;
-import com.boram.look.domain.user.entity.Agreed;
-import com.boram.look.domain.user.entity.User;
-import com.boram.look.domain.user.entity.UserRole;
+import com.boram.look.domain.user.entity.*;
+import com.boram.look.domain.user.repository.DeleteReasonRepository;
+import com.boram.look.domain.user.repository.UserDeleteHistoryRepository;
 import com.boram.look.domain.user.repository.UserRepository;
 import com.boram.look.global.ex.ResourceNotFoundException;
 import com.boram.look.global.security.oauth.OAuth2Response;
@@ -27,6 +27,8 @@ import java.util.UUID;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final DeleteReasonRepository deleteReasonRepository;
+    private final UserDeleteHistoryRepository deleteHistoryRepository;
     private final PasswordEncoder passwordEncoder;
     private final PasswordResetCodeRepository resetCodeRepository;
 
@@ -69,8 +71,15 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteUser(String userId) {
+    public void deleteUser(String userId, Long reasonId) {
         User deleteUser = UserServiceHelper.findUser(UUID.fromString(userId), userRepository);
+        DeleteReason reason = deleteReasonRepository.findById(reasonId).orElseThrow(EntityNotFoundException::new);
+        UserDeleteHistory history = UserDeleteHistory.builder()
+                .deleteReason(reason)
+                .userId(deleteUser.getId())
+                .username(deleteUser.getUsername())
+                .build();
+        deleteHistoryRepository.save(history);
         userRepository.delete(deleteUser);
     }
 

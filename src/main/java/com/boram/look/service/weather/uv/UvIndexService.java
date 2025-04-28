@@ -1,6 +1,6 @@
 package com.boram.look.service.weather.uv;
 
-import com.boram.look.api.dto.UvIndexDto;
+import com.boram.look.api.dto.weather.UvIndexDto;
 import com.boram.look.domain.region.cache.SidoRegionCache;
 import com.boram.look.domain.weather.air.AirQualityFetchFailedEvent;
 import com.boram.look.domain.weather.uv.UvIndexCache;

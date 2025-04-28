@@ -9,6 +9,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class OutfitImageDto {
+    private Long id;
     private String title;
     private String description;
     private final FileDto metadata;

@@ -1,6 +1,6 @@
 package com.boram.look.service.weather.air;
 
-import com.boram.look.api.dto.AirQualityDto;
+import com.boram.look.api.dto.weather.AirQualityDto;
 import com.boram.look.domain.condition.repository.AirQualityRange;
 import com.boram.look.domain.condition.repository.AirQualityRangeRepository;
 import com.boram.look.domain.weather.air.AirQualityCache;
@@ -29,7 +29,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service

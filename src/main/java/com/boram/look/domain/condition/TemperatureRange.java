@@ -1,6 +1,6 @@
 package com.boram.look.domain.condition;
 
-import com.boram.look.api.dto.TemperatureRangeDto;
+import com.boram.look.api.dto.outfit.TemperatureRangeDto;
 import com.boram.look.domain.AuditingFields;
 import jakarta.persistence.*;
 import lombok.*;

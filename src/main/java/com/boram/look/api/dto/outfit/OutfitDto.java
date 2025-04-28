@@ -1,6 +1,5 @@
-package com.boram.look.api.dto;
+package com.boram.look.api.dto.outfit;
 
-import com.boram.look.api.dto.outfit.OutfitImageDto;
 import com.boram.look.domain.user.constants.Gender;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
