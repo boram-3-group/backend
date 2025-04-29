@@ -9,8 +9,10 @@ public record SidoRegionCache(
         Long id,
         String sido,
         String sidonm,
-        //TODO: api 의 시도 이름 키
+        // 미세먼지 api 의 시도 이름 키
         String apiKey,
+        String midTemperatureKey,
+        String midFcstKey,
         Coordinate center,
         Geometry polygon
 ) {

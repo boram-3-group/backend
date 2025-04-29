@@ -81,6 +81,8 @@ public class RegionCacheService {
                         .sido(e.getSido())
                         .center(new Coordinate(e.getLon(), e.getLat()))
                         .apiKey(e.getApiKey())
+                        .midTemperatureKey(e.getMidTemperatureKey())
+                        .midFcstKey(e.getMidFcstKey())
                         .polygon(geom)
                         .build();
                 sidoCache.put(e.getId(), sidoRegion);

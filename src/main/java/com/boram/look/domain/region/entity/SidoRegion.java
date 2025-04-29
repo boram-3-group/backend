@@ -26,6 +26,11 @@ public class SidoRegion {
     @Column(name = "api_key")
     private String apiKey;
 
+    @Column(name = "mid_temperature_key")
+    private String midTemperatureKey;
+    @Column(name = "mid_fcst_key")
+    private String midFcstKey;
+
     private double lat;  // 중심 위도
 
     private double lon;  // 중심 경도

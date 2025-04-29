@@ -36,6 +36,7 @@ public class OutfitConditionController {
                     schema = @Schema(implementation = TemperatureRangeDto.Copy.class)
             )
     )
+    @Hidden
     @GetMapping("/temperatures")
     public ResponseEntity<?> getTemperatureRanges(Pageable pageable) {
         Page<TemperatureRangeDto.Copy> pages = conditionService.findTemperatureRanges(pageable);

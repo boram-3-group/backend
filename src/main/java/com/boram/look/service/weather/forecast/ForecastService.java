@@ -1,12 +1,14 @@
 package com.boram.look.service.weather.forecast;
 
 import com.boram.look.api.dto.weather.WeatherForecastDto;
+import com.boram.look.domain.region.cache.SidoRegionCache;
 import com.boram.look.global.constant.WeatherConstants;
 import com.boram.look.domain.region.cache.SiGunGuRegion;
 import com.boram.look.domain.weather.forecast.Forecast;
 import com.boram.look.domain.weather.forecast.ForecastBase;
 import com.boram.look.domain.weather.forecast.ForecastMapper;
 import com.boram.look.domain.weather.forecast.entity.ForecastIcon;
+import com.boram.look.global.util.TimeUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,6 +1,7 @@
 package com.boram.look.global.util;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
 public class TimeUtil {
@@ -35,4 +36,12 @@ public class TimeUtil {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHH");
         return forecastTime.format(formatter);
     }
+
+    public static String getToday6AmTime() {
+        LocalDateTime todayAtSixAM = LocalDateTime.now()
+                .with(LocalTime.of(6, 0)).minusDays(1);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHH");
+        return todayAtSixAM.format(formatter);
+    }
+
 }
