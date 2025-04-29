@@ -12,7 +12,14 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedMethods("HEAD", "GET", "PUT", "POST", "OPTIONS", "DELETE")
-                .allowedOrigins("http://localhost:3000", "https://api.ondolook.click", "http://api.ondolook.click")
+                .allowedOrigins("http://localhost:3000",
+                        "https://api.ondolook.click",
+                        "http://api.ondolook.click",
+                        "https://www.ondolook.click",
+                        "http://www.ondolook.click",
+                        "https://ondolook.click",
+                        "http://ondolook.click"
+                )
                 .allowedHeaders("X-DEVICE-ID", "X-Requested-With", "Origin", "Content-Type", "Accept", "Authorization")
                 .exposedHeaders(String.valueOf(Arrays.asList("Access-Control-Allow-Headers", "Authorization", "x-xsrf-token", "Access-Control-Allow-Headers", "Origin", "Accept", "X-Requested-With", "Content-Type", "Access-Control-Request-Method", "Access-Control-Request-Headers")))
                 .allowCredentials(true);

@@ -21,7 +21,11 @@ public class SecurityBeans {
         config.setAllowedOriginPatterns(List.of(
                 "http://localhost:3000",
                 "https://api.ondolook.click",
-                "http://api.ondolook.click"
+                "http://api.ondolook.click",
+                "https://www.ondolook.click",
+                "http://www.ondolook.click",
+                "https://ondolook.click",
+                "http://ondolook.click"
         ));
         config.setAllowedMethods(List.of("HEAD", "GET", "PUT", "POST", "OPTIONS", "DELETE"));
         config.setAllowedHeaders(List.of(
