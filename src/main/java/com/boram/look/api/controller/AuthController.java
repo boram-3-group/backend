@@ -78,7 +78,11 @@ public class AuthController {
         String issuedToken = jwtProvider.createAccessToken(dto.username(), dto.userId(), dto.roleString());
         String refreshToken = jwtProvider.createRefreshToken(dto.username(), dto.userId(), deviceId);
         ResponseUtil.responseRefreshToken(response, this.jwtProvider, refreshToken);
-        return ResponseEntity.ok(OIDCTokenResponse.builder().access(issuedToken).build());
+        UserDto.Profile profile = userService.getUserProfile(dto.userId());
+        return ResponseEntity.ok(OIDCTokenResponse.builder()
+                .access(issuedToken)
+                .profile(profile)
+                .build());
     }
 
     @Operation(summary = "아이디 찾기 이메일 인증코드 전송")

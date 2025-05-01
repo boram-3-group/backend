@@ -1,5 +1,6 @@
 package com.boram.look.api.dto.auth;
 
+import com.boram.look.api.dto.user.UserDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,4 +15,5 @@ public class OIDCTokenResponse {
     @Schema(description = "발급된 액세스 토큰", example = "eyJhbGciOiJIUzI1NiIsInR...")
     private String access;
 
+    private UserDto.Profile profile;
 }
