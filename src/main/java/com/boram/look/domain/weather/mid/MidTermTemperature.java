@@ -1,5 +1,6 @@
-package com.boram.look.domain.weather.forecast.entity;
+package com.boram.look.domain.weather.mid;
 
+import com.boram.look.domain.AuditingFields;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,7 +13,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 @Table(name = "mid_term_temperature")
-public class MidTermTemperature {
+public class MidTermTemperature extends AuditingFields {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,25 +25,16 @@ public class MidTermTemperature {
     @Column(nullable = false)
     private LocalDate forecastDate; // 예보 날짜 (오늘 + n일)
 
-    @Column
+    @Column(name = "min_temperature")
     private Integer minTemperature; // 최저기온
 
-    @Column
+    @Column(name = "max_temperature")
     private Integer maxTemperature; // 최고기온
 
-    @Column(nullable = false, updatable = false)
-    private LocalDate createdAt;
-
-    @Column(nullable = false)
-    private LocalDate updatedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = this.updatedAt = LocalDate.now();
+    public void update(LocalDate date, Integer min, Integer max) {
+        this.forecastDate = date;
+        this.minTemperature = min;
+        this.maxTemperature = max;
     }
 
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDate.now();
-    }
 }

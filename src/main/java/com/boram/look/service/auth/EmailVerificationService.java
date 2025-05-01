@@ -18,23 +18,16 @@ public class EmailVerificationService {
     private final SesClient sesClient;
     private static final Duration EXPIRE_TIME = Duration.ofMinutes(4);
 
-    public void sendVerificationCode(String email) {
+    public void sendVerificationCode(String email, String key, String type) {
         String code = generateCode();
         String subject = "Ondolook 이메일 인증 번호";
         String content = "인증번호는 " + code + "입니다.";
-        redisTemplate.opsForValue().set("email_verify:" + email, code, EXPIRE_TIME);
+        redisTemplate.opsForValue().set("verify:" + type + ":" + code, key, EXPIRE_TIME);
         this.sendEmail(email, subject, content);
     }
 
-    public void sendUsernameEmail(String email, String username) {
-        String subject = "로그인 아이디입니다.";
-        String content = "당신의 아이디는 " + username + "입니다.";
-        this.sendEmail(email, subject, content);
-    }
-
-    public boolean verifyCode(String email, String inputCode) {
-        String savedCode = redisTemplate.opsForValue().get("email_verify:" + email);
-        return savedCode.isEmpty() && savedCode.equals(inputCode);
+    public String verifyCode(String type, String inputCode) {
+        return redisTemplate.opsForValue().get("verify:" + type + ":" + inputCode);
     }
 
     private String generateCode() {
@@ -57,13 +50,4 @@ public class EmailVerificationService {
         sesClient.sendEmail(request);
     }
 
-    public void sendResetPasswordEmail(
-            UserDto.PasswordResetEmail dto,
-            PasswordResetCode verificationCode
-    ) {
-        String subject = "Ondolook 비밀번호 재설정";
-        String content = "비밀번호를 재설정하시려면 아래의 링크를 눌러주세요.\n" +
-                dto.callbackUrl() + "?verification-code=" + verificationCode.getCode();
-        this.sendEmail(verificationCode.getEmail(), subject, content);
-    }
 }

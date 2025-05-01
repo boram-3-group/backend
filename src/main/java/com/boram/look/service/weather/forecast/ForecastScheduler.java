@@ -2,6 +2,7 @@ package com.boram.look.service.weather.forecast;
 
 import com.boram.look.domain.region.cache.SiGunGuRegion;
 import com.boram.look.domain.weather.forecast.Forecast;
+import com.boram.look.domain.weather.forecast.ForecastBase;
 import com.boram.look.domain.weather.forecast.entity.ForecastFetchFailure;
 import com.boram.look.service.region.RegionCacheService;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +45,8 @@ public class ForecastScheduler {
                 continue;
             }
 
-            List<Forecast> forecasts = forecastService.fetchWeatherForRegion(region.grid().nx(), region.grid().ny(), region.id());
+            ForecastBase base = forecastService.getNearestForecastBase(LocalDate.now(), LocalTime.now());
+            List<Forecast> forecasts = forecastService.fetchWeatherForRegion(base, region.grid().nx(), region.grid().ny(), region.id());
             // forecasts가 빈 리스트이면 연계가 실패한 것으로 간주
             if (forecasts.isEmpty()) {
                 forecastFailureService.updateFailureTime(failure.getRegionId());

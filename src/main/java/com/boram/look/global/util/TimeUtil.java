@@ -39,7 +39,7 @@ public class TimeUtil {
 
     public static String getToday6AmTime() {
         LocalDateTime todayAtSixAM = LocalDateTime.now()
-                .with(LocalTime.of(6, 0)).minusDays(1);
+                .with(LocalTime.of(6, 0));
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHH");
         return todayAtSixAM.format(formatter);
     }

@@ -40,8 +40,7 @@ public class ForecastService {
     @Value("${weather.service-key}")
     private String serviceKey;
 
-    public List<WeatherForecastDto> callWeather(int nx, int ny, Long regionId) {
-        ForecastBase base = this.getNearestForecastBase();
+    public List<WeatherForecastDto> callWeather(ForecastBase base, int nx, int ny, Long regionId) {
         String url = this.buildWeatherRequestUrl(base, nx, ny);
 
         JsonNode root = this.getWeatherJsonNode(url, regionId);
@@ -96,8 +95,8 @@ public class ForecastService {
     }
 
 
-    public List<Forecast> fetchWeatherForRegion(int nx, int ny, Long regionId) {
-        List<WeatherForecastDto> res = this.callWeather(nx, ny, regionId);
+    public List<Forecast> fetchWeatherForRegion(ForecastBase base, int nx, int ny, Long regionId) {
+        List<WeatherForecastDto> res = this.callWeather(base, nx, ny, regionId);
         return this.mergeForecasts(res);
     }
 
@@ -121,10 +120,7 @@ public class ForecastService {
         return new ArrayList<>(timeMap.values());
     }
 
-    public ForecastBase getNearestForecastBase() {
-        LocalTime now = LocalTime.now();
-        LocalDate today = LocalDate.now();
-
+    public ForecastBase getNearestForecastBase(LocalDate today, LocalTime now) {
         for (int i = WeatherConstants.BASE_TIME_LIST.size() - 1; i >= 0; i--) {
             String time = WeatherConstants.BASE_TIME_LIST.get(i);
             LocalTime baseTime = LocalTime.parse(time, WeatherConstants.TIME_FORMATTER);
@@ -183,7 +179,9 @@ public class ForecastService {
                 Thread.sleep(1000); // TPS 제한
             }
 
+            ForecastBase base = this.getNearestForecastBase(LocalDate.now(), LocalTime.now());
             List<Forecast> forecasts = this.fetchWeatherForRegion(
+                    base,
                     region.grid().nx(),
                     region.grid().ny(),
                     region.id()

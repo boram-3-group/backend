@@ -7,6 +7,7 @@ import com.boram.look.domain.user.entity.*;
 import com.boram.look.domain.user.repository.DeleteReasonRepository;
 import com.boram.look.domain.user.repository.UserDeleteHistoryRepository;
 import com.boram.look.domain.user.repository.UserRepository;
+import com.boram.look.global.ex.EmailAndUsernameNotEqualException;
 import com.boram.look.global.ex.ResourceNotFoundException;
 import com.boram.look.global.security.oauth.OAuth2Response;
 import com.boram.look.service.user.helper.UserServiceHelper;
@@ -18,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -61,13 +63,10 @@ public class UserService {
     }
 
     @Transactional
-    public void resetUserPassword(UserDto.PasswordResetRequest dto) {
-        User user = userRepository.findByUsername(dto.username()).orElseThrow(EntityNotFoundException::new);
-        PasswordResetCode resetCode = resetCodeRepository.findByCodeAndEmail(dto.verificationCode(), user.getEmail())
-                .orElseThrow(EntityNotFoundException::new);
-        String encodedPassword = passwordEncoder.encode(dto.newPassword());
+    public void resetUserPassword(String username, String newPassword) {
+        User user = userRepository.findByUsername(username).orElseThrow(EntityNotFoundException::new);
+        String encodedPassword = passwordEncoder.encode(newPassword);
         user.updatePassword(encodedPassword);
-        resetCodeRepository.delete(resetCode);
     }
 
     @Transactional
@@ -114,14 +113,12 @@ public class UserService {
         return user.getUsername();
     }
 
-    @Transactional
-    public PasswordResetCode saveVerificationCode(UserDto.PasswordResetEmail dto) {
-        String verificationCode = UUID.randomUUID().toString();
+    public String getUserEmail(UserDto.PasswordResetEmail dto) {
         User user = userRepository.findByUsername(dto.username()).orElseThrow(EntityNotFoundException::new);
-        PasswordResetCode resetCode = PasswordResetCode.builder()
-                .email(user.getEmail())
-                .code(verificationCode)
-                .build();
-        return resetCodeRepository.save(resetCode);
+        if (Objects.equals(dto.email(), user.getEmail())) {
+            throw new EmailAndUsernameNotEqualException("이메일, 유저네임 불일치");
+        }
+        return user.getEmail();
     }
+
 }
