@@ -115,7 +115,7 @@ public class UserService {
 
     public String getUserEmail(UserDto.PasswordResetEmail dto) {
         User user = userRepository.findByUsername(dto.username()).orElseThrow(EntityNotFoundException::new);
-        if (Objects.equals(dto.email(), user.getEmail())) {
+        if (!Objects.equals(dto.email(), user.getEmail())) {
             throw new EmailAndUsernameNotEqualException("이메일, 유저네임 불일치");
         }
         return user.getEmail();
