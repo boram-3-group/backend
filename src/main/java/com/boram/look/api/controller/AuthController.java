@@ -106,7 +106,7 @@ public class AuthController {
             @RequestBody UserDto.PasswordResetEmail dto
     ) {
         String email = userService.getUserEmail(dto);
-        verificationService.sendVerificationCode(email, "password", dto.username());
+        verificationService.sendVerificationCode(email, dto.username(), "password");
         return ResponseEntity.ok("이메일 전송 완료");
     }
 

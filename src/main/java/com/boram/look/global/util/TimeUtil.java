@@ -38,10 +38,16 @@ public class TimeUtil {
     }
 
     public static String getToday6AmTime() {
-        LocalDateTime todayAtSixAM = LocalDateTime.now()
-                .with(LocalTime.of(6, 0));
+        LocalDateTime result;
+        if (LocalTime.now().isAfter(LocalTime.of(6, 0))) {
+            result = LocalDateTime.now()
+                    .with(LocalTime.of(6, 0));
+        } else {
+            result = LocalDateTime.now().minusDays(1)
+                    .with(LocalTime.of(6, 0));
+        }
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHH");
-        return todayAtSixAM.format(formatter);
+        return result.format(formatter);
     }
 
 }
