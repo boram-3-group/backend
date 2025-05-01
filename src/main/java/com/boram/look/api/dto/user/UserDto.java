@@ -85,17 +85,10 @@ public class UserDto {
         private Gender gender;
     }
 
-    @Builder
-    public record FindUsername(String email, String code) {
-    }
-
-    @Builder
-    @Schema(name = "UserDto.PasswordResetEmail", description = "비밀번호 재설정 email 요청 DTO")
+    @Schema(name = "UserDto.PasswordResetEmail")
     public record PasswordResetEmail(
-            @Schema(description = "유저 로그인 id", example = "username")
             String username,
-            @Schema(description = "콜백 url - 이메일에서 해당 url을 사용하여 비밀번호 재설정 링크로 이동하게 할 url")
-            String callbackUrl
+            String email
     ) {
     }
 

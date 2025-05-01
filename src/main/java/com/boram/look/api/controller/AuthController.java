@@ -81,67 +81,23 @@ public class AuthController {
         return ResponseEntity.ok(OIDCTokenResponse.builder().access(issuedToken).build());
     }
 
-    @Deprecated
-    @Operation(
-            summary = "이메일 인증코드 전송 v1",
-            description = "쿼리 스트링 사용으로 인해 v2로 변경 요청드립니다."
-    )
-    @Hidden
-    @PostMapping("/api/v1/auth/send-code")
-    public ResponseEntity<?> sendEmailCode_v1(
-            @RequestParam String email
-    ) {
-        verificationService.sendVerificationCode(email);
-        return ResponseEntity.ok("인증 코드 전송 완료");
-    }
-
-    @Operation(summary = "이메일 인증코드 전송 v2")
+    @Operation(summary = "아이디 찾기 이메일 인증코드 전송")
     @PostMapping("/api/v2/auth/send-code")
-    @Hidden
-    public ResponseEntity<?> sendEmailCode_v2(
+    public ResponseEntity<?> sendUsernameEmailCode(
             @RequestBody String email
     ) {
-        verificationService.sendVerificationCode(email);
+        verificationService.sendVerificationCode(email, email, "username");
         return ResponseEntity.ok("인증 코드 전송 완료");
     }
 
     @Operation(summary = "아이디 찾기 이메일 인증 코드 확인")
     @PostMapping("/api/v1/auth/verify-code")
-    @Hidden
-    public ResponseEntity<?> verifyEmailCode_v1(
-            @RequestParam String email,
-            @RequestParam String code
+    public ResponseEntity<?> verifyEmailCode(
+            @RequestBody String code
     ) {
-        boolean isValid = verificationService.verifyCode(email, code);
-        if (isValid) {
-            String username = userService.findUsername(email);
-            return ResponseEntity.ok(username);
-        }
-        return ResponseEntity.badRequest().body("인증 실패");
-    }
-
-    @Operation(summary = "아이디 찾기 이메일 인증 코드 확인")
-    @PostMapping("/api/v2/auth/verify-code")
-    @Hidden
-    public ResponseEntity<?> verifyEmailCode_v2(
-            @RequestBody UserDto.FindUsername dto
-    ) {
-        boolean isValid = verificationService.verifyCode(dto.email(), dto.code());
-        if (isValid) {
-            String username = userService.findUsername(dto.email());
-            return ResponseEntity.ok(username);
-        }
-        return ResponseEntity.badRequest().body("인증 실패");
-    }
-
-    @Operation(summary = "아이디 찾기 이메일 보내기")
-    @PostMapping("/api/v1/auth/username")
-    public ResponseEntity<?> findUsername(
-            @RequestBody String email
-    ) {
+        String email = verificationService.verifyCode("username", code);
         String username = userService.findUsername(email);
-        verificationService.sendUsernameEmail(email, username);
-        return ResponseEntity.ok("이메일 전송 완료");
+        return ResponseEntity.ok(username);
     }
 
     @Operation(summary = "비밀번호 재설정 이메일 보내기")
@@ -149,8 +105,8 @@ public class AuthController {
     public ResponseEntity<?> sendResetPasswordEmail(
             @RequestBody UserDto.PasswordResetEmail dto
     ) {
-        PasswordResetCode verificationCode = userService.saveVerificationCode(dto);
-        verificationService.sendResetPasswordEmail(dto, verificationCode);
+        String email = userService.getUserEmail(dto);
+        verificationService.sendVerificationCode(email, "password", dto.username());
         return ResponseEntity.ok("이메일 전송 완료");
     }
 
@@ -159,7 +115,8 @@ public class AuthController {
     public ResponseEntity<?> resetPassword(
             @RequestBody UserDto.PasswordResetRequest dto
     ) {
-        userService.resetUserPassword(dto);
+        String username = verificationService.verifyCode("password", dto.verificationCode());
+        userService.resetUserPassword(username, dto.newPassword());
         return ResponseEntity.ok("비밀번호 재설정 완료");
     }
 
