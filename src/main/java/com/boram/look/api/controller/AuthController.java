@@ -11,6 +11,7 @@ import com.boram.look.global.security.oauth.OAuth2RegistrationId;
 import com.boram.look.global.security.oauth.OidcTokenCacheService;
 import com.boram.look.service.auth.EmailVerificationService;
 import com.boram.look.service.user.UserService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -85,6 +86,7 @@ public class AuthController {
             summary = "이메일 인증코드 전송 v1",
             description = "쿼리 스트링 사용으로 인해 v2로 변경 요청드립니다."
     )
+    @Hidden
     @PostMapping("/api/v1/auth/send-code")
     public ResponseEntity<?> sendEmailCode_v1(
             @RequestParam String email
@@ -95,6 +97,7 @@ public class AuthController {
 
     @Operation(summary = "이메일 인증코드 전송 v2")
     @PostMapping("/api/v2/auth/send-code")
+    @Hidden
     public ResponseEntity<?> sendEmailCode_v2(
             @RequestBody String email
     ) {
@@ -104,6 +107,7 @@ public class AuthController {
 
     @Operation(summary = "아이디 찾기 이메일 인증 코드 확인")
     @PostMapping("/api/v1/auth/verify-code")
+    @Hidden
     public ResponseEntity<?> verifyEmailCode_v1(
             @RequestParam String email,
             @RequestParam String code
@@ -118,6 +122,7 @@ public class AuthController {
 
     @Operation(summary = "아이디 찾기 이메일 인증 코드 확인")
     @PostMapping("/api/v2/auth/verify-code")
+    @Hidden
     public ResponseEntity<?> verifyEmailCode_v2(
             @RequestBody UserDto.FindUsername dto
     ) {

@@ -66,4 +66,5 @@ public class EmailVerificationService {
                 dto.callbackUrl() + "?verification-code=" + verificationCode.getCode();
         this.sendEmail(verificationCode.getEmail(), subject, content);
     }
+
 }

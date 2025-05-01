@@ -6,7 +6,7 @@ import com.boram.look.service.region.RegionCacheService;
 import com.boram.look.service.weather.air.AirQualityService;
 import com.boram.look.service.weather.forecast.ForecastCacheService;
 import com.boram.look.service.weather.forecast.ForecastService;
-import com.boram.look.service.weather.forecast.MidForecastAPIService;
+import com.boram.look.service.weather.mid.MidForecastAPIService;
 import com.boram.look.service.weather.uv.UvIndexService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -32,12 +32,14 @@ public class InitService {
         log.info("init server start.");
         regionCacheService.loadRegionMap();
         Map<Long, SiGunGuRegion> regionMap = regionCacheService.regionCache();
+        regionCacheService.sidoCache().forEach((id, sido) -> midForecastAPIService.fetchMidTemperature(sido));
+        regionCacheService.sidoCache().forEach((id, sido) -> midForecastAPIService.fetchMidForecast(sido));
+        regionCacheService.sidoCache().forEach((id, sido) -> midForecastAPIService.fetch3DaysTermsForecastAndTemperature(sido));
         Map<Long, List<Forecast>> weatherMap = forecastService.fetchAllWeather(regionMap);
         forecastCacheService.updateForecastCache(weatherMap);
         airQualityService.fetchAirQuality("PM10");
         uvIndexService.updateUvIndexCache();
-        regionCacheService.sidoCache().forEach((id, sido) -> midForecastAPIService.getMidTemperature(sido));
-        regionCacheService.sidoCache().forEach((id, sido) -> midForecastAPIService.getMidForecast(sido));
+
 
         log.info("init server end.");
     }
