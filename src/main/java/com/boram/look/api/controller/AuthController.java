@@ -114,14 +114,14 @@ public class AuthController {
         return ResponseEntity.ok("이메일 전송 완료");
     }
 
-    @Operation(summary = "아이디 찾기 이메일 인증 코드 확인")
+    @Operation(summary = "비밀번호 재설정 이메일 인증 코드 확인")
     @PostMapping("/api/v1/auth/verify-code/password")
     public ResponseEntity<?> verifyEmailCode(
             @RequestBody UserDto.VerifyPasswordEmail dto
     ) {
         String username = verificationService.verifyCode("password", dto.code());
-        if(username == null) {
-            ResponseEntity.badRequest().body("인증코드와 유저ID가 일치하지 않습니다.");
+        if (username == null) {
+            return ResponseEntity.badRequest().body("인증코드와 유저ID가 일치하지 않습니다.");
         }
         return ResponseEntity.ok(username);
     }

@@ -87,14 +87,18 @@ public class UserDto {
 
     @Schema(name = "UserDto.PasswordResetEmail")
     public record PasswordResetEmail(
+            @Schema(description = "로그인시 유저 ID")
             String username,
+            @Schema(description = "유저 이메일")
             String email
     ) {
     }
 
     @Schema(name = "UserDto.VerifyPasswordEmail")
     public record VerifyPasswordEmail(
+            @Schema(description = "로그인시 유저 ID")
             String username,
+            @Schema(description = "유저 이메일")
             String code
     ) {
     }

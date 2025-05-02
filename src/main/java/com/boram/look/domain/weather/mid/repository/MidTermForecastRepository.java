@@ -24,6 +24,7 @@ public interface MidTermForecastRepository extends JpaRepository<MidTermForecast
             FROM MidTermForecast f
             JOIN MidTermTemperature t ON f.regId = t.regId AND f.forecastDate = t.forecastDate
             WHERE f.regId = :regId AND f.forecastDate BETWEEN :start AND :end
+            ORDER BY f.forecastDate ASC
             """)
     List<MidTermForecastDto> find10DaysMidTermForecasts(
             @Param("regId") String tempKey,
