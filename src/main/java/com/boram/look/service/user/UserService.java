@@ -123,6 +123,6 @@ public class UserService {
     }
 
     public void canUseEmail(String email) {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new DuplicateEmailUseException("중복"));
+        userRepository.findByEmail(email).orElseThrow(() -> new DuplicateEmailUseException("중복"));
     }
 }
