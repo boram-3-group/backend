@@ -9,8 +9,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Data
 @AllArgsConstructor
@@ -21,10 +23,15 @@ public class WeatherDto {
     private UvIndexDto uvIndex;
     private String weatherMessage;
 
+
     public void buildWeatherMessage() {
-        Forecast currentForecast = forecasts.getFirst();
-        if (isRainOrSnow()) {
-            this.weatherMessage = currentForecast.getIconMessage();
+        Optional<Forecast> ptyForecast = forecasts.stream().filter(forecast -> forecast.getPty() > 0).findFirst();
+        if (ptyForecast.isPresent()) {
+            if (Objects.equals(ptyForecast.get().getIcon(), ForecastIcon.SNOW)) {
+                this.weatherMessage = "오늘 " + ptyForecast.get().getTime() + "부터 눈 예보, 미끄럼 주의!";
+            } else {
+                this.weatherMessage = "오늘 " + ptyForecast.get().getTime() + "부터 비 예보, 우산 필요!";
+            }
         } else if (Objects.equals(airQuality.getGrade(), AirQualityGrade.VERY_BAD)) {
             this.weatherMessage = airQuality.getMessage();
         } else if (Objects.equals(uvIndex.getGrade(), UvGrade.EXTREME)) {
@@ -39,18 +46,12 @@ public class WeatherDto {
             this.weatherMessage = uvIndex.getMessage();
         } else if (Objects.equals(uvIndex.getGrade(), UvGrade.MODERATE)) {
             this.weatherMessage = uvIndex.getMessage();
-        } else if (currentForecast.getPty() == 0 && currentForecast.getSky() > 2) {
+        } else if (forecasts.getFirst().getSky() > 2) {
             this.weatherMessage = "오늘은 흐린 날이에요";
         } else {
             this.weatherMessage = "오늘은 맑고 화창해요";
         }
 
-    }
-
-    private boolean isRainOrSnow() {
-        return Objects.equals(forecasts.getFirst().getIcon(), ForecastIcon.RAIN) ||
-                Objects.equals(forecasts.getFirst().getIcon(), ForecastIcon.SNOW) ||
-                Objects.equals(forecasts.getFirst().getIcon(), ForecastIcon.RAIN_AND_SNOW);
     }
 
 }
