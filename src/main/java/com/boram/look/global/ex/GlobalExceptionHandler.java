@@ -20,6 +20,17 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(e.getMessage());
     }
 
+    @ExceptionHandler(DuplicateEmailUseException.class)
+    public ResponseEntity<?> handleDuplicateEmailUseException(DuplicateEmailUseException e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
+    }
+
+    @ExceptionHandler(EmailNotVerifiedException.class)
+    public ResponseEntity<?> handleEmailNotVerifiedException(EmailNotVerifiedException e) {
+        String message = "email not verified.\nemail: " + e.getEmail();
+        return ResponseEntity.badRequest().body(message);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<String> handleValidationException(MethodArgumentNotValidException e) {
         String errorMessage = e.getBindingResult().getAllErrors()

@@ -37,13 +37,17 @@ public class UserDto {
         private LocalDate birthDate;
 
         @Schema(description = "닉네임 - 외부로 보여질 이름")
-        @Size(min = 1, max = 7, message = "비밀번호는 1~7자로 해주세요.")
-        @Pattern(regexp = "^[^\\s]+$", message = "아이디에는 공백을 포함할 수 없습니다.")
+        @Size(min = 1, max = 7, message = "닉네임은 1~7자로 해주세요.")
+        @Pattern(regexp = "^[^\\s]+$", message = "닉네임에는 공백을 포함할 수 없습니다.")
         private String nickname;
 
         @Schema(description = "이메일")
         @Email
         private String email;
+
+        @Schema(description = "이메일 인증 코드")
+        private String verificationCode;
+
         @Schema(description = "이용약관 동의 여부")
         private Boolean agreedToTerms;
         @Schema(description = "개인정보처리방침 동의 여부")
@@ -111,6 +115,13 @@ public class UserDto {
             String username,
             @Schema(description = "새로운 비밀번호")
             String newPassword
+    ) {
+    }
+
+    @Schema(name = "UserDto.JoinEmailVerify")
+    public record JoinEmailVerify(
+            String email,
+            String code
     ) {
     }
 }

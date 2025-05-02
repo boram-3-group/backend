@@ -7,6 +7,7 @@ import com.boram.look.domain.user.entity.*;
 import com.boram.look.domain.user.repository.DeleteReasonRepository;
 import com.boram.look.domain.user.repository.UserDeleteHistoryRepository;
 import com.boram.look.domain.user.repository.UserRepository;
+import com.boram.look.global.ex.DuplicateEmailUseException;
 import com.boram.look.global.ex.EmailAndUsernameNotEqualException;
 import com.boram.look.global.ex.ResourceNotFoundException;
 import com.boram.look.global.security.oauth.OAuth2Response;
@@ -121,4 +122,7 @@ public class UserService {
         return user.getEmail();
     }
 
+    public void canUseEmail(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new DuplicateEmailUseException("중복"));
+    }
 }

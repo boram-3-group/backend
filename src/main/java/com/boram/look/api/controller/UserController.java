@@ -1,6 +1,8 @@
 package com.boram.look.api.controller;
 
 import com.boram.look.api.dto.user.UserDto;
+import com.boram.look.domain.auth.constants.VerificationConstants;
+import com.boram.look.service.auth.EmailVerificationService;
 import com.boram.look.service.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -15,6 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.Objects;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,11 +26,37 @@ import java.net.URI;
 public class UserController {
 
     private final UserService userService;
+    private final EmailVerificationService emailVerificationService;
+
+    @Operation(summary = "회원가입시 이메일 인증 요청")
+    @PostMapping("/email/send-mail")
+    public ResponseEntity<?> sendVerifyEmail(
+            @RequestBody String email
+    ) {
+        userService.canUseEmail(email);
+        emailVerificationService.sendVerificationCode(email, email, VerificationConstants.JOIN_TYPE_KEY);
+        return ResponseEntity.ok("이메일 전송 성공");
+    }
+
+    @Operation(summary = "회원가입시 이메일 인증")
+    @PostMapping("/email/verify")
+    public ResponseEntity<?> receiveVerificationCode(
+            @RequestBody UserDto.JoinEmailVerify dto
+    ) {
+        String email = emailVerificationService.verifyCode(VerificationConstants.JOIN_TYPE_KEY, dto.code());
+        if (!Objects.equals(email, dto.email())) {
+            return ResponseEntity.badRequest().body("코드가 유효하지 않음");
+        }
+
+        emailVerificationService.saveEmailVerificationHistory(email);
+        return ResponseEntity.ok("인증 성공");
+    }
 
     @Operation(summary = "회원 가입")
     @PostMapping
     public ResponseEntity<?> joinUser(@RequestBody @Valid UserDto.Save dto) {
         log.info("UserController.joinUser is called.\ndto:{}", dto);
+        emailVerificationService.isVerifiedEmail(dto.getEmail());
         String userId = userService.joinUser(dto);
         URI uri = URI.create("/api/v1/user/" + userId);
         return ResponseEntity.created(uri).body("회원 가입 완료");

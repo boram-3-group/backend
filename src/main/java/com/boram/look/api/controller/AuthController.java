@@ -4,6 +4,7 @@ import com.boram.look.api.dto.auth.OAuthJwtDto;
 import com.boram.look.api.dto.auth.OIDCTokenResponse;
 import com.boram.look.api.dto.user.UserDto;
 import com.boram.look.domain.auth.PasswordResetCode;
+import com.boram.look.domain.auth.constants.VerificationConstants;
 import com.boram.look.global.util.ResponseUtil;
 import com.boram.look.global.ex.NoExistRegistrationException;
 import com.boram.look.global.security.JwtProvider;
@@ -90,7 +91,7 @@ public class AuthController {
     public ResponseEntity<?> sendUsernameEmailCode(
             @RequestBody String email
     ) {
-        verificationService.sendVerificationCode(email, email, "username");
+        verificationService.sendVerificationCode(email, email, VerificationConstants.FIND_USERNAME_TYPE_KEY);
         return ResponseEntity.ok("인증 코드 전송 완료");
     }
 
@@ -99,7 +100,7 @@ public class AuthController {
     public ResponseEntity<?> verifyEmailCode(
             @RequestBody String code
     ) {
-        String email = verificationService.verifyCode("username", code);
+        String email = verificationService.verifyCode(VerificationConstants.FIND_USERNAME_TYPE_KEY, code);
         String username = userService.findUsername(email);
         return ResponseEntity.ok(username);
     }
@@ -110,7 +111,7 @@ public class AuthController {
             @RequestBody UserDto.PasswordResetEmail dto
     ) {
         String email = userService.getUserEmail(dto);
-        verificationService.sendVerificationCode(email, dto.username(), "password");
+        verificationService.sendVerificationCode(email, dto.username(), VerificationConstants.RESET_PASSWORD_TYPE_KEY);
         return ResponseEntity.ok("이메일 전송 완료");
     }
 
@@ -119,7 +120,7 @@ public class AuthController {
     public ResponseEntity<?> verifyEmailCode(
             @RequestBody UserDto.VerifyPasswordEmail dto
     ) {
-        String username = verificationService.verifyCode("password", dto.code());
+        String username = verificationService.verifyCode(VerificationConstants.RESET_PASSWORD_TYPE_KEY, dto.code());
         if (username == null) {
             return ResponseEntity.badRequest().body("인증코드와 유저ID가 일치하지 않습니다.");
         }
@@ -131,7 +132,7 @@ public class AuthController {
     public ResponseEntity<?> resetPassword(
             @RequestBody UserDto.PasswordResetRequest dto
     ) {
-        String username = verificationService.verifyCode("password", dto.verificationCode());
+        String username = verificationService.verifyCode(VerificationConstants.RESET_PASSWORD_TYPE_KEY, dto.verificationCode());
         userService.resetUserPassword(username, dto.newPassword());
         return ResponseEntity.ok("비밀번호 재설정 완료");
     }
