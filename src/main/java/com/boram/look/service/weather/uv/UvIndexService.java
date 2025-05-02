@@ -67,7 +67,7 @@ public class UvIndexService {
         String dateTimeKey = TimeUtil.getNearestPastThreeHour(LocalDateTime.now());
         String redisKey = String.format("uvindex:%s:%s", sido, dateTimeKey);
         Map<String, Object> cached = (Map<String, Object>) redisTemplate.opsForValue().get(redisKey);
-        if (cached.isEmpty()) {
+        if (cached == null || cached.isEmpty()) {
             String spareTimeKey = this.buildDateMinus1HourTimeKey();
             redisKey = String.format("uvindex:%s:%s", sido, spareTimeKey);
             cached = (Map<String, Object>) redisTemplate.opsForValue().get(redisKey);
