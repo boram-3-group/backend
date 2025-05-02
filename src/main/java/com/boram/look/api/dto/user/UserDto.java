@@ -92,6 +92,13 @@ public class UserDto {
     ) {
     }
 
+    @Schema(name = "UserDto.VerifyPasswordEmail")
+    public record VerifyPasswordEmail(
+            String username,
+            String code
+    ) {
+    }
+
     @Schema(name = "UserDto.PasswordResetRequest", description = "패스워드 변경 DTO")
     public record PasswordResetRequest(
             @Schema(description = "이메일로부터 진입한 사용자의 쿼리스트링에 있는 verification code")
