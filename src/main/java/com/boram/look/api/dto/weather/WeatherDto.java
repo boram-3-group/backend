@@ -25,12 +25,18 @@ public class WeatherDto {
 
 
     public void buildWeatherMessage() {
-        Optional<Forecast> ptyForecast = forecasts.stream().filter(forecast -> forecast.getPty() > 0).findFirst();
-        if (ptyForecast.isPresent()) {
-            if (Objects.equals(ptyForecast.get().getIcon(), ForecastIcon.SNOW)) {
-                this.weatherMessage = "오늘 " + ptyForecast.get().getTime() + "부터 눈 예보, 미끄럼 주의!";
+        Optional<Forecast> firstRain = forecasts.stream().filter(forecast -> {
+            int time = Integer.parseInt(forecast.getTime());
+            return time >= 700 && time <= 900 && forecast.getPty() > 0;
+        }).findFirst();
+        if (firstRain.isPresent()) {
+            int hour = Integer.parseInt(firstRain.get().getTime()) / 100;
+            String period = hour < 12 ? "오전" : "오후";
+            int hour12 = hour <= 12 ? hour : hour - 12;
+            if (Objects.equals(firstRain.get().getIcon(), ForecastIcon.SNOW)) {
+                this.weatherMessage = "오늘 " + period + " " + hour12 + "시부터 눈 예보, 미끄럼 주의!";
             } else {
-                this.weatherMessage = "오늘 " + ptyForecast.get().getTime() + "부터 비 예보, 우산 필요!";
+                this.weatherMessage = "오늘 " + period + " " + hour12 + "시부터 비 예보, 우산 필요!";
             }
         } else if (Objects.equals(airQuality.getGrade(), AirQualityGrade.VERY_BAD)) {
             this.weatherMessage = airQuality.getMessage();
