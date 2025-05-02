@@ -35,11 +35,13 @@ public class WeatherFacade {
                 .orElseThrow(EntityNotFoundException::new);
         AirQualityDto airDto = airQualityService.getAirQuality(sidoRegionCache.apiKey(), "PM10");
         UvIndexDto uvIndexDto = uvIndexService.getUvIndex(sidoRegionCache.sido());
-        return WeatherDto.builder()
+        WeatherDto dto = WeatherDto.builder()
                 .forecasts(forecasts)
                 .airQuality(airDto)
                 .uvIndex(uvIndexDto)
                 .build();
+        dto.buildWeatherMessage();
+        return dto;
     }
 
 

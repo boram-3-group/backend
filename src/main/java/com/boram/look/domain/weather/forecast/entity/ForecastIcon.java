@@ -21,8 +21,8 @@ public enum ForecastIcon {
     THUNDERSTORM(18, "천둥번개"),
     FOG(19, "안개"),
     YELLOW_DUST(20, "황사");
-    private String iconMessage;
-    private Integer iconNumber;
+    private final String iconMessage;
+    private final Integer iconNumber;
 
     ForecastIcon(Integer iconNumber, String iconMessage) {
         this.iconNumber = iconNumber;
