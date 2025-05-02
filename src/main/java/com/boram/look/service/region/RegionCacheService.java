@@ -10,6 +10,7 @@ import com.boram.look.domain.region.repository.RegionRepository;
 import com.boram.look.domain.region.repository.SidoRegionRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -24,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class RegionCacheService {
 
     private final RegionRepository regionRepository;
@@ -40,6 +42,7 @@ public class RegionCacheService {
     }
 
     public void loadRegionMap() {
+        log.info("Loading region map...");
         this.regionCache.clear();
         this.sidoCache.clear();
         this.initSiGunGuCache();
@@ -47,6 +50,7 @@ public class RegionCacheService {
     }
 
     public void initSiGunGuCache() {
+        log.info("initSiGunGuCache is started.");
         WKTReader reader = new WKTReader();
         for (Region e : regionRepository.findAll()) {
             try {
@@ -72,6 +76,7 @@ public class RegionCacheService {
     }
 
     public void initSidoCache() {
+        log.info("initSidoCache is started.");
         WKTReader reader = new WKTReader();
         for (SidoRegion e : sidoRegionRepository.findAll()) {
             try {

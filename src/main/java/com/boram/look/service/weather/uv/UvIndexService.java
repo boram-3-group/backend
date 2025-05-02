@@ -51,6 +51,7 @@ public class UvIndexService {
     private final ApplicationEventPublisher eventPublisher;
 
     public void updateUvIndexCache() {
+        log.info("update uv index cache....");
         Map<Long, SidoRegionCache> regionMap = regionCacheService.sidoCache();
         regionMap.forEach((key, value) -> this.fetchUvIndexAsync(value.sido()));
     }

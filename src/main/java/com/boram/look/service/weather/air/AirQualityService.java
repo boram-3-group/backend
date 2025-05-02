@@ -45,6 +45,7 @@ public class AirQualityService {
     private final ApplicationEventPublisher eventPublisher;
 
     public void fetchAirQuality(String itemType) {
+        log.info("fetch air quality....");
         URI requestUri = this.buildAirQualityRequestUrl(itemType);
         ResponseEntity<?> response = restTemplate.getForEntity(requestUri, String.class);
         JsonNode jsonNode = this.getAirQualityJsonNode(response.getBody().toString());

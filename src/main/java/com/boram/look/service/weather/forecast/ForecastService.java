@@ -135,6 +135,7 @@ public class ForecastService {
     }
 
     public Map<Long, List<Forecast>> fetchAllWeather(Map<Long, SiGunGuRegion> regionMap) {
+        log.info("fetch all forecast....");
         ExecutorService executor = Executors.newFixedThreadPool(10);
         Semaphore limiter = new Semaphore(30);
         Map<Long, List<Forecast>> weatherMap = new ConcurrentHashMap<>();
