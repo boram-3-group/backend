@@ -123,6 +123,9 @@ public class UserService {
     }
 
     public void canUseEmail(String email) {
-        userRepository.findByEmail(email).orElseThrow(() -> new DuplicateEmailUseException("중복"));
+        Optional<User> user = userRepository.findByEmail(email);
+        if (user.isPresent()) {
+            throw new DuplicateEmailUseException("중복");
+        }
     }
 }

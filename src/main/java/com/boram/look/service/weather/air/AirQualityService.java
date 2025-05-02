@@ -68,8 +68,10 @@ public class AirQualityService {
         String dataTimeKey = this.buildDateTimeKey();
         String redisKey = String.format("airquality:%s:%s", itemCode, dataTimeKey);
         Map<String, Object> cached = (Map<String, Object>) redisTemplate.opsForValue().get(redisKey);
-        if (cached.isEmpty()) {
-            return null;
+        if (cached == null || cached.isEmpty()) {
+            String spareTimeKey = this.buildDateMinus1HourTimeKey();
+            redisKey = String.format("airquality:%s:%s", itemCode, spareTimeKey);
+            cached = (Map<String, Object>) redisTemplate.opsForValue().get(redisKey);
         }
         Integer currentValue = Integer.parseInt(cached.get(apiKey).toString());
         AirQualityRange range = rangeRepository.getByCurrentQuality(currentValue).orElseThrow(EntityNotFoundException::new);
@@ -78,6 +80,12 @@ public class AirQualityService {
 
     private String buildDateTimeKey() {
         LocalDateTime roundedTime = TimeUtil.roundToNearestHour(LocalDateTime.now());
+        DateTimeFormatter outputFormat = DateTimeFormatter.ofPattern("yyyyMMddHH");
+        return TimeUtil.formatTimeToString(roundedTime, outputFormat);
+    }
+
+    private String buildDateMinus1HourTimeKey() {
+        LocalDateTime roundedTime = LocalDateTime.now().minusHours(1).withMinute(0).withSecond(0).withNano(0);
         DateTimeFormatter outputFormat = DateTimeFormatter.ofPattern("yyyyMMddHH");
         return TimeUtil.formatTimeToString(roundedTime, outputFormat);
     }
