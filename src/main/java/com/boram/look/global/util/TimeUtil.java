@@ -29,9 +29,15 @@ public class TimeUtil {
 
         // 3시간 단위로 내림
         int forecastHour = (currentHour / 3) * 3;
+        int currentMinute = time.getMinute();
 
-        // 예보 기준 시간 만들기
         LocalDateTime forecastTime = time.withHour(forecastHour).withMinute(0).withSecond(0).withNano(0);
+        if (currentMinute <= 11 && currentHour != 0) {
+            forecastHour -= 3;
+            forecastTime = time.withHour(forecastHour).withMinute(0).withSecond(0).withNano(0);
+        } else if (currentHour == 0 && currentMinute <= 11) {
+            forecastTime = time.minusDays(1).withHour(21).withMinute(0).withSecond(0).withNano(0);
+        }
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHH");
         return forecastTime.format(formatter);

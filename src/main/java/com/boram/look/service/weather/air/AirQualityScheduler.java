@@ -32,6 +32,7 @@ public class AirQualityScheduler {
 
     @Scheduled(cron = "0 */10 * * * *")
     public void retryFetchIfNeeded() {
+        log.info("whether air quality fetch is needed: {}", this.isFailed);
         if (isFailed) {
             log.info("[AirQuality] Scheduled retry started.");
             try {
@@ -43,6 +44,21 @@ public class AirQualityScheduler {
                 // 실패했으면 계속 failed = true
                 log.error("[AirQuality] Scheduled retry failed.", e);
             }
+        }
+    }
+
+    @Scheduled(cron = "0 10 * * * *")
+    public void runAirQualityBatch() {
+        log.info("run air quality batch.");
+        log.info("[AirQuality] Scheduled retry started.");
+        try {
+            airQualityService.fetchAirQuality("PM10");
+            log.info("[AirQuality] Scheduled retry successful.");
+            // 성공하면 실패 상태 해제
+            isFailed = false;
+        } catch (Exception e) {
+            // 실패했으면 계속 failed = true
+            log.error("[AirQuality] Scheduled retry failed.", e);
         }
     }
 }

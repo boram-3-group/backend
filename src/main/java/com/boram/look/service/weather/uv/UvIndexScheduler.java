@@ -2,6 +2,7 @@ package com.boram.look.service.weather.uv;
 
 import com.boram.look.domain.weather.uv.entity.UvFetchFailure;
 import com.boram.look.domain.weather.uv.event.UvIndexFetchFailedEvent;
+import com.boram.look.service.region.RegionCacheService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -16,6 +17,7 @@ import java.util.List;
 public class UvIndexScheduler {
 
     private final UvIndexService uvIndexService;
+    private final RegionCacheService regionCacheService;
 
     @EventListener
     public void onFetchFailed(UvIndexFetchFailedEvent event) {
@@ -31,7 +33,7 @@ public class UvIndexScheduler {
         }
     }
 
-    @Scheduled(cron = "0 10 0,3,6,9,12,15,18,21 * * *")
+    @Scheduled(cron = "0 10 * * * *")
     public void retryFetchIfNeeded() {
         List<UvFetchFailure> failures = uvIndexService.findAllFailure();
         if (failures.isEmpty()) {
@@ -40,6 +42,11 @@ public class UvIndexScheduler {
         }
 
         failures.forEach(failure -> uvIndexService.fetchUvIndexAsync(failure.getSido()));
+    }
+
+    @Scheduled(cron = "0 10 0,3,6,9,12,15,18,21 * * *")
+    public void runUvIndexBatch() {
+        regionCacheService.sidoCache().forEach((id, sido) -> uvIndexService.fetchUvIndexAsync(sido.sido()));
     }
 
 }

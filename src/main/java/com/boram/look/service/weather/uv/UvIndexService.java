@@ -67,21 +67,9 @@ public class UvIndexService {
         String dateTimeKey = TimeUtil.getNearestPastThreeHour(LocalDateTime.now());
         String redisKey = String.format("uvindex:%s:%s", sido, dateTimeKey);
         Map<String, Object> cached = (Map<String, Object>) redisTemplate.opsForValue().get(redisKey);
-        if (cached == null || cached.isEmpty()) {
-            String spareTimeKey = this.buildDateMinus1HourTimeKey();
-            redisKey = String.format("uvindex:%s:%s", sido, spareTimeKey);
-            cached = (Map<String, Object>) redisTemplate.opsForValue().get(redisKey);
-        }
-
         Integer currentValue = Integer.parseInt(cached.get("h0").toString());
         UvIndexRange range = rangeRepository.getByCurrentQuality(currentValue).orElseThrow(EntityNotFoundException::new);
         return range.toDto(currentValue);
-    }
-
-    private String buildDateMinus1HourTimeKey() {
-        LocalDateTime roundedTime = LocalDateTime.now().minusHours(1).withMinute(0).withSecond(0).withNano(0);
-        DateTimeFormatter outputFormat = DateTimeFormatter.ofPattern("yyyyMMddHH");
-        return TimeUtil.formatTimeToString(roundedTime, outputFormat);
     }
 
     @Transactional
