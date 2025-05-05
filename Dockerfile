@@ -48,6 +48,7 @@ WORKDIR /app
 COPY --from=builder-jre /jre $JAVA_HOME
 COPY --chown=1000:1000 --from=build /app/build/libs/*.jar /app/app.jar
 
+RUN apk add --no-cache tzdata
 ENV TZ=Asia/Seoul
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
