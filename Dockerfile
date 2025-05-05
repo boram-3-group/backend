@@ -48,5 +48,8 @@ WORKDIR /app
 COPY --from=builder-jre /jre $JAVA_HOME
 COPY --chown=1000:1000 --from=build /app/build/libs/*.jar /app/app.jar
 
-ENTRYPOINT ["java","-Xmx512m" ,"-Xms256m", "-Dspring.profiles.active=prod", "-jar", "app.jar"]
+ENV TZ=Asia/Seoul
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+ENTRYPOINT ["java","-Xmx512m" ,"-Duser.timezone=Asia/Seoul","-Xms256m", "-Dspring.profiles.active=prod", "-jar", "app.jar"]
 EXPOSE 8080

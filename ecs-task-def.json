@@ -170,5 +170,11 @@
   "runtimePlatform": {
     "cpuArchitecture": "X86_64",
     "operatingSystemFamily": "LINUX"
-  }
+  },
+  "environment": [
+    {
+      "name": "TZ",
+      "value": "Asia/Seoul"
+    }
+  ]
 }
