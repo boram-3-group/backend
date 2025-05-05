@@ -10,6 +10,7 @@ import com.boram.look.domain.user.repository.UserRepository;
 import com.boram.look.global.ex.DuplicateEmailUseException;
 import com.boram.look.global.ex.EmailAndUsernameNotEqualException;
 import com.boram.look.global.ex.ResourceNotFoundException;
+import com.boram.look.global.security.authentication.PrincipalDetails;
 import com.boram.look.global.security.oauth.OAuth2Response;
 import com.boram.look.service.user.helper.UserServiceHelper;
 import jakarta.persistence.EntityNotFoundException;
@@ -89,6 +90,13 @@ public class UserService {
         return user.toDto();
     }
 
+    @Transactional(readOnly = true)
+    public UserDto.Profile getLoginUserProfile(PrincipalDetails principalDetails) {
+        UUID userId = principalDetails.getUser().getId();
+        User user = userRepository.findById(userId).orElseThrow(ResourceNotFoundException::new);
+        return user.toDto();
+    }
+
     @Transactional
     public User findOrCreateUser(OAuth2Response oAuth2Response) {
         String username = oAuth2Response.registrationId().getRegistrationId() + "_" + oAuth2Response.id();
@@ -114,6 +122,7 @@ public class UserService {
         return user.getUsername();
     }
 
+    @Transactional(readOnly = true)
     public String getUserEmail(UserDto.PasswordResetEmail dto) {
         User user = userRepository.findByUsername(dto.username()).orElseThrow(EntityNotFoundException::new);
         if (!Objects.equals(dto.email(), user.getEmail())) {
