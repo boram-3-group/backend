@@ -38,19 +38,27 @@ FROM alpine:3.18
 ENV JAVA_HOME=/jre
 ENV PATH="$JAVA_HOME/bin:$PATH"
 
+# 루트에서 tzdata 먼저 설치
+RUN apk add --no-cache tzdata && \
+    ln -snf /usr/share/zoneinfo/Asia/Seoul /etc/localtime && \
+    echo "Asia/Seoul" > /etc/timezone
+
+# 사용자 생성 및 권한 설정
 ARG APPLICATION_USER=appuser
 RUN adduser --no-create-home -u 1000 -D $APPLICATION_USER && \
     mkdir /app && chown -R $APPLICATION_USER /app
 
-USER 1000
-WORKDIR /app
-
+# JRE 및 앱 복사
 COPY --from=builder-jre /jre $JAVA_HOME
 COPY --chown=1000:1000 --from=build /app/build/libs/*.jar /app/app.jar
 
-RUN apk add --no-cache tzdata
+# 환경변수 설정
 ENV TZ=Asia/Seoul
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-ENTRYPOINT ["java","-Xmx512m" ,"-Duser.timezone=Asia/Seoul","-Xms256m", "-Dspring.profiles.active=prod", "-jar", "app.jar"]
+# 권한 전환
+USER 1000
+WORKDIR /app
+
+# 실행
+ENTRYPOINT ["java", "-Xmx512m", "-Xms256m", "-Duser.timezone=Asia/Seoul", "-Dspring.profiles.active=prod", "-jar", "app.jar"]
 EXPOSE 8080
