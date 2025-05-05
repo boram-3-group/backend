@@ -5,6 +5,12 @@
       "name": "onthelook",
       "image": "789909227789.dkr.ecr.ap-northeast-2.amazonaws.com/on-the-look:latest",
       "cpu": 0,
+      "environment": [
+        {
+          "name": "TZ",
+          "value": "Asia/Seoul"
+        }
+      ],
       "portMappings": [
         {
           "name": "onthelook-spring-8080",
@@ -170,11 +176,5 @@
   "runtimePlatform": {
     "cpuArchitecture": "X86_64",
     "operatingSystemFamily": "LINUX"
-  },
-  "environment": [
-    {
-      "name": "TZ",
-      "value": "Asia/Seoul"
-    }
-  ]
+  }
 }
