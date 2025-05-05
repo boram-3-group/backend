@@ -66,6 +66,7 @@ public class UvIndexService {
     public UvIndexDto getUvIndex(String sido) {
         String dateTimeKey = TimeUtil.getNearestPastThreeHour(LocalDateTime.now());
         String redisKey = String.format("uvindex:%s:%s", sido, dateTimeKey);
+        log.info("redis key: {}", redisKey);
         Map<String, Object> cached = (Map<String, Object>) redisTemplate.opsForValue().get(redisKey);
         Integer currentValue = Integer.parseInt(cached.get("h0").toString());
         UvIndexRange range = rangeRepository.getByCurrentQuality(currentValue).orElseThrow(EntityNotFoundException::new);

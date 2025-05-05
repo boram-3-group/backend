@@ -67,10 +67,12 @@ public class AirQualityService {
     public AirQualityDto getAirQuality(String apiKey, String itemCode) {
         String dataTimeKey = this.buildDateTimeKey();
         String redisKey = String.format("airquality:%s:%s", itemCode, dataTimeKey);
+        log.info("redis key: {}", redisKey);
         Map<String, Object> cached = (Map<String, Object>) redisTemplate.opsForValue().get(redisKey);
         if (cached == null || cached.isEmpty()) {
             String spareTimeKey = this.buildDateMinus1HourTimeKey();
             redisKey = String.format("airquality:%s:%s", itemCode, spareTimeKey);
+            log.info("spare redis key: {}", redisKey);
             cached = (Map<String, Object>) redisTemplate.opsForValue().get(redisKey);
         }
         Integer currentValue = Integer.parseInt(cached.get(apiKey).toString());
