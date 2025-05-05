@@ -5,6 +5,7 @@ import com.boram.look.api.dto.auth.OIDCTokenResponse;
 import com.boram.look.api.dto.user.UserDto;
 import com.boram.look.domain.auth.PasswordResetCode;
 import com.boram.look.domain.auth.constants.VerificationConstants;
+import com.boram.look.global.security.authentication.PrincipalDetails;
 import com.boram.look.global.util.ResponseUtil;
 import com.boram.look.global.ex.NoExistRegistrationException;
 import com.boram.look.global.security.JwtProvider;
@@ -22,6 +23,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -135,6 +137,13 @@ public class AuthController {
         String username = verificationService.verifyCode(VerificationConstants.RESET_PASSWORD_TYPE_KEY, dto.verificationCode());
         userService.resetUserPassword(username, dto.newPassword());
         return ResponseEntity.ok("비밀번호 재설정 완료");
+    }
+
+    @Operation(summary = "로그인한 유저의 프로필 조회")
+    @GetMapping("/api/v1/auth/profile")
+    public ResponseEntity<?> getLoginUserProfile(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+        UserDto.Profile profile = userService.getLoginUserProfile(principalDetails);
+        return ResponseEntity.ok(profile);
     }
 
 }
