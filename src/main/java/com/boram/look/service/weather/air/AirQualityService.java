@@ -65,12 +65,12 @@ public class AirQualityService {
 
     @Transactional(readOnly = true)
     public AirQualityDto getAirQuality(String apiKey, String itemCode) {
-        String dataTimeKey = this.buildDateTimeKey();
+        String dataTimeKey = this.buildDateMinus1HourTimeKey();
         String redisKey = String.format("airquality:%s:%s", itemCode, dataTimeKey);
         log.info("redis key: {}", redisKey);
         Map<String, Object> cached = (Map<String, Object>) redisTemplate.opsForValue().get(redisKey);
         if (cached == null || cached.isEmpty()) {
-            String spareTimeKey = this.buildDateMinus1HourTimeKey();
+            String spareTimeKey = this.buildDateMinus2HourTimeKey();
             redisKey = String.format("airquality:%s:%s", itemCode, spareTimeKey);
             log.info("spare redis key: {}", redisKey);
             cached = (Map<String, Object>) redisTemplate.opsForValue().get(redisKey);
@@ -80,14 +80,14 @@ public class AirQualityService {
         return range.toDto(currentValue);
     }
 
-    private String buildDateTimeKey() {
-        LocalDateTime roundedTime = TimeUtil.roundToNearestHour(LocalDateTime.now());
+    private String buildDateMinus1HourTimeKey() {
+        LocalDateTime roundedTime = LocalDateTime.now().minusHours(1).withMinute(0).withSecond(0).withNano(0);
         DateTimeFormatter outputFormat = DateTimeFormatter.ofPattern("yyyyMMddHH");
         return TimeUtil.formatTimeToString(roundedTime, outputFormat);
     }
 
-    private String buildDateMinus1HourTimeKey() {
-        LocalDateTime roundedTime = LocalDateTime.now().minusHours(1).withMinute(0).withSecond(0).withNano(0);
+    private String buildDateMinus2HourTimeKey() {
+        LocalDateTime roundedTime = LocalDateTime.now().minusHours(2).withMinute(0).withSecond(0).withNano(0);
         DateTimeFormatter outputFormat = DateTimeFormatter.ofPattern("yyyyMMddHH");
         return TimeUtil.formatTimeToString(roundedTime, outputFormat);
     }
