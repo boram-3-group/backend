@@ -1,9 +1,12 @@
 package com.boram.look.global.util;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
+@Slf4j
 public class TimeUtil {
     public static LocalDateTime roundToNearestHour(LocalDateTime now) {
         int minute = now.getMinute();
@@ -29,6 +32,7 @@ public class TimeUtil {
 
         // 3시간 단위로 내림
         int forecastHour = (currentHour / 3) * 3;
+        log.info("fetch time: {}", forecastHour);
         int currentMinute = time.getMinute();
 
         LocalDateTime forecastTime = time.withHour(forecastHour).withMinute(0).withSecond(0).withNano(0);
@@ -39,6 +43,18 @@ public class TimeUtil {
             forecastTime = time.minusDays(1).withHour(21).withMinute(0).withSecond(0).withNano(0);
         }
 
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHH");
+        return forecastTime.format(formatter);
+    }
+
+    public static String getNearestFetchThreeHour(LocalDateTime time) {
+        int currentHour = time.getHour();
+
+        // 3시간 단위로 내림
+        int forecastHour = (currentHour / 3) * 3;
+        log.info("fetch time: {}", forecastHour);
+
+        LocalDateTime forecastTime = time.withHour(forecastHour).withMinute(0).withSecond(0).withNano(0);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHH");
         return forecastTime.format(formatter);
     }

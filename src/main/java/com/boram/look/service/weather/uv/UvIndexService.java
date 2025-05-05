@@ -87,7 +87,8 @@ public class UvIndexService {
 
     private void fetchUvIndex(String sido) {
         String areaNo = sido + "00000000";
-        String time = TimeUtil.getNearestPastThreeHour(LocalDateTime.now());
+        String time = TimeUtil.getNearestFetchThreeHour(LocalDateTime.now());
+        log.info("uv index fetch time: {}", time);
         URI requestUri = this.buildUvIndexRequestUrl(areaNo, time);
         ResponseEntity<?> response = restTemplate.getForEntity(requestUri, String.class);
         JsonNode jsonNode = this.getUvIndexJsonNode(response.getBody().toString(), sido);
