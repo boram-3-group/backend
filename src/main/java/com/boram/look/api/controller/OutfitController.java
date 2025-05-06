@@ -85,7 +85,7 @@ public class OutfitController {
     @PostMapping(value = "/{outfitId}/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> insertOutfitImages(
             @AuthenticationPrincipal PrincipalDetails principalDetails,
-            @RequestPart(value = "images", required = false) List<MultipartFile> images,
+            @RequestPart(name = "images", value = "images", required = false) List<MultipartFile> images,
             @RequestPart(value = "dtos") List<OutfitDto.Image> dtos,
             @PathVariable Long outfitId
     ) {

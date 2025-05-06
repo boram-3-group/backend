@@ -70,7 +70,7 @@ public class OutfitService {
         List<FileMetadata> imageMetadataList = new ArrayList<>();
 
         for (MultipartFile imageFile : images) {
-            FileMetadata metadata = fileFacade.uploadAndGetEntity(imageFile, "/outfit-images", user.getId());
+            FileMetadata metadata = fileFacade.uploadAndGetEntity(imageFile, "/outfit-images/", user.getId());
             imageMetadataList.add(metadata);
         }
 
