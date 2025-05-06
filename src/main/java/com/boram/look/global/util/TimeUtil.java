@@ -21,12 +21,6 @@ public class TimeUtil {
         return dateTime.format(outputFormat);
     }
 
-    public static String buildYyyyMMddhhTime() {
-        LocalDateTime time = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHH");
-        return time.format(formatter);
-    }
-
     public static String getNearestPastThreeHour(LocalDateTime time) {
         int currentHour = time.getHour();
 
@@ -35,12 +29,15 @@ public class TimeUtil {
         log.info("fetch time: {}", forecastHour);
         int currentMinute = time.getMinute();
 
-        LocalDateTime forecastTime = time.withHour(forecastHour).withMinute(0).withSecond(0).withNano(0);
-        if (currentMinute <= 11 && currentHour != 0) {
-            forecastHour -= 3;
+        LocalDateTime forecastTime;
+        if (currentMinute <= 11) {
+            if (forecastHour == 0) {
+                forecastTime = time.minusDays(1).withHour(21).withMinute(0).withSecond(0).withNano(0);
+            } else {
+                forecastTime = time.withHour(forecastHour - 3).withMinute(0).withSecond(0).withNano(0);
+            }
+        } else {
             forecastTime = time.withHour(forecastHour).withMinute(0).withSecond(0).withNano(0);
-        } else if (currentHour == 0 && currentMinute <= 11) {
-            forecastTime = time.minusDays(1).withHour(21).withMinute(0).withSecond(0).withNano(0);
         }
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHH");
