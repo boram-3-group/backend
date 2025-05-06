@@ -26,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/outfit")
@@ -51,11 +52,13 @@ public class OutfitController {
             @Parameter(description = "경도 (Longitude)") @RequestParam(name = "longitude") float longitude,
             @Parameter(description = "위도 (Latitude)") @RequestParam(name = "latitude") float latitude,
             @Parameter(description = "이벤트 유형 ID") @RequestParam(name = "event-type-id") Integer eventTypeId,
-            @Parameter(description = "성별 (MALE / FEMALE / NONE)") @RequestParam(name = "gender") Gender gender
+            @Parameter(description = "성별 (MALE / FEMALE / NONE)") @RequestParam(name = "gender") Gender gender,
+            @AuthenticationPrincipal PrincipalDetails principal // null 가능
     ) {
+        UUID userId = principal != null ? principal.getUser().getId() : null;
         SiGunGuRegion region = regionCacheService.findRegionByLocation(latitude, longitude).orElseThrow(ResourceNotFoundException::new);
         List<Forecast> forecasts = forecastCacheService.getForecast(region.id());
-        OutfitDto.Transfer dto = outfitService.matchOutfit(eventTypeId, forecasts, gender);
+        OutfitDto.Transfer dto = outfitService.matchOutfit(eventTypeId, forecasts, gender, userId);
         return ResponseEntity.ok(dto);
     }
 

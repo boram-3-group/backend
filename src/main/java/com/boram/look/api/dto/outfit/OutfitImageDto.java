@@ -13,4 +13,5 @@ public class OutfitImageDto {
     private String title;
     private String description;
     private final FileDto metadata;
+    private boolean bookmarked;
 }

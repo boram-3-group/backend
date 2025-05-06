@@ -14,6 +14,7 @@ import com.boram.look.domain.condition.repository.TemperatureRangeRepository;
 import com.boram.look.domain.s3.FileMetadata;
 import com.boram.look.domain.user.constants.Gender;
 import com.boram.look.domain.user.entity.User;
+import com.boram.look.domain.user.repository.BookmarkRepository;
 import com.boram.look.domain.weather.forecast.Forecast;
 import com.boram.look.global.ex.ResourceNotFoundException;
 import com.boram.look.global.security.authentication.PrincipalDetails;
@@ -24,8 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.IntStream;
 
 @Service
@@ -37,6 +37,7 @@ public class OutfitService {
     private final OutfitImageRepository outfitImageRepository;
     private final TemperatureRangeRepository temperatureRangeRepository;
     private final EventTypeRepository eventTypeRepository;
+    private final BookmarkRepository bookmarkRepository;
     private final FileFacade fileFacade;
 
     @Transactional
@@ -99,7 +100,7 @@ public class OutfitService {
     }
 
     @Transactional(readOnly = true)
-    public OutfitDto.Transfer matchOutfit(Integer eventTypeId, List<Forecast> forecasts, Gender gender) {
+    public OutfitDto.Transfer matchOutfit(Integer eventTypeId, List<Forecast> forecasts, Gender gender, UUID userId) {
         float averageTemperature = (float) forecasts.stream()
                 .mapToDouble(Forecast::getTemperature)
                 .average()
@@ -108,13 +109,25 @@ public class OutfitService {
         EventType eventType = eventTypeRepository.findById(eventTypeId).orElseThrow(ResourceNotFoundException::new);
         TemperatureRange temperatureRange = temperatureRangeRepository.findByTemperature(averageTemperature).orElseThrow(ResourceNotFoundException::new);
         Outfit outfit = outfitRepository.findByEventTypeAndTemperatureRangeAndGender(eventType, temperatureRange, gender).orElseThrow(ResourceNotFoundException::new);
+
+        Set<Long> bookmarkedImageIds;
+        if (userId != null) {
+            List<Long> imageIds = outfit.getImages().stream().map(OutfitImage::getId).toList();
+            bookmarkedImageIds = new HashSet<>(bookmarkRepository.findBookmarkedImageIds(userId, imageIds));
+        } else {
+            bookmarkedImageIds = Collections.emptySet();
+        }
+
         List<OutfitImageDto> images = outfit.getImages().stream()
                 .map(image -> {
                     FileDto dto = fileFacade.buildFileDto(image.getFileMetadata());
+                    boolean bookmarked = userId != null && bookmarkedImageIds.contains(image.getId());
                     return OutfitImageDto.builder()
+                            .id(image.getId())
                             .title(image.getTitle())
                             .description(image.getDescription())
                             .metadata(dto)
+                            .bookmarked(bookmarked)
                             .build();
                 })
                 .toList();
