@@ -35,6 +35,7 @@ public class Outfit {
     private TemperatureRange temperatureRange;
 
     @OneToMany(mappedBy = "outfit", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @Builder.Default
     private List<OutfitImage> images = new ArrayList<>();
 
     public void update(
