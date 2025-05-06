@@ -77,6 +77,10 @@ public class AuthController {
             @Parameter(description = "제공자 ID - kakao, google") @RequestHeader("X-DEVICE-ID") String deviceId
     ) {
         String token = oidcTokenCacheService.getOIDCAccessToken(stateId);
+        if (token == null) {
+            return ResponseEntity.badRequest().body("state id에 대한 토큰이 null");
+        }
+
         OAuthJwtDto dto = jwtProvider.buildDto(token);
         String issuedToken = jwtProvider.createAccessToken(dto.username(), dto.userId(), dto.roleString());
         String refreshToken = jwtProvider.createRefreshToken(dto.username(), dto.userId(), deviceId);
