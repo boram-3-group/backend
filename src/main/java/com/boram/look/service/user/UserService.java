@@ -39,13 +39,16 @@ public class UserService {
     @Transactional
     public String joinUser(UserDto.Save dto) {
         Optional<User> existUser = userRepository.findByUsername(dto.getUsername());
-        existUser.ifPresent(user -> new DuplicateKeyException("이미 사용 중인 아이디입니다."));
+        existUser.ifPresent(user -> {
+            throw new DuplicateKeyException("이미 사용 중인 아이디입니다.");
+        });
 
         String encodedPassword = passwordEncoder.encode(dto.getPassword());
         Agreed agreed = Agreed.builder()
                 .agreedToMarketing(dto.getAgreedToMarketing())
                 .agreedToPrivacy(dto.getAgreedToPrivacy())
                 .agreedToTerms(dto.getAgreedToTerms())
+                .agreedToLocation(dto.getAgreedToLocation())
                 .build();
         User user = dto.toEntity(encodedPassword, agreed);
         return userRepository.save(user).getId().toString();

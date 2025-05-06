@@ -13,4 +13,5 @@ public class Agreed {
     private Boolean agreedToTerms;
     private Boolean agreedToPrivacy;
     private Boolean agreedToMarketing;
+    private Boolean agreedToLocation;
 }

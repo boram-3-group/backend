@@ -54,6 +54,8 @@ public class UserDto {
         private Boolean agreedToPrivacy;
         @Schema(description = "마케팅 수신 동의 여부")
         private Boolean agreedToMarketing;
+        @Schema(description = "위치정보 활용 동의 여부")
+        private Boolean agreedToLocation;
 
         public User toEntity(String encodedPassword, Agreed agreed) {
             return User.builder()
