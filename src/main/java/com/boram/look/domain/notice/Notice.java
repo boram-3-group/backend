@@ -6,6 +6,8 @@ import com.boram.look.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 
 @Entity
 @AllArgsConstructor
@@ -24,6 +26,11 @@ public class Notice extends AuditingFields {
     @ManyToOne
     @JoinColumn(name = "writer_id")
     private User writer;
+
+    @OneToMany(fetch = FetchType.EAGER)
+    private List<NoticeImage> noticeImages;
+
+    private boolean isHide;
 
     public NoticeDto.Get toDto() {
         return NoticeDto.Get.builder()
