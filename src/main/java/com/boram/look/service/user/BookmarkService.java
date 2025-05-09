@@ -29,10 +29,12 @@ public class BookmarkService {
     public BookmarkDto insertBookmark(PrincipalDetails principalDetails, Long outfitImageId) {
         User loginUser = principalDetails.getUser();
         OutfitImage outfitImage = outfitImageRepository.findById(outfitImageId).orElseThrow(EntityNotFoundException::new);
-        Bookmark bookmark = Bookmark.builder()
-                .user(loginUser)
-                .outfitImage(outfitImage)
-                .build();
+        Bookmark bookmark = bookmarkRepository.findByUserAndOutfitImage(loginUser, outfitImage)
+                .orElseGet(() -> Bookmark.builder()
+                        .user(loginUser)
+                        .outfitImage(outfitImage)
+                        .build());
+
         Bookmark entity = bookmarkRepository.save(bookmark);
         FileDto fileDto = fileFacade.buildFileDto(outfitImage.getFileMetadata());
         return BookmarkDto.builder()

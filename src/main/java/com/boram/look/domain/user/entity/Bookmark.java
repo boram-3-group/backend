@@ -10,7 +10,10 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @ToString
-@Table(name = "bookmark")
+@Table(
+        name = "bookmark",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "outfit_image_id"})
+)
 public class Bookmark {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
