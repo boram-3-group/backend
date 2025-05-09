@@ -30,7 +30,9 @@ public class TimeUtil {
         int currentMinute = time.getMinute();
 
         LocalDateTime forecastTime;
-        if (currentMinute <= 11) {
+        boolean withinGracePeriod = currentMinute <= 11;
+        boolean isForecastStartHour = currentHour % 3 == 0;
+        if (withinGracePeriod && isForecastStartHour) {
             if (forecastHour == 0) {
                 forecastTime = time.minusDays(1).withHour(21).withMinute(0).withSecond(0).withNano(0);
             } else {
