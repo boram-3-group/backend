@@ -15,6 +15,7 @@ public class EmailVerification {
 
     private String code;
 
+    @Builder.Default
     private Duration expiresAt = Duration.ofMinutes(3);
 
     private boolean verified;
