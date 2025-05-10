@@ -97,6 +97,7 @@ public class AuthController {
     public ResponseEntity<?> sendUsernameEmailCode(
             @RequestBody String email
     ) {
+        userService.findByEmail(email);
         verificationService.sendVerificationCode(email, email, VerificationConstants.FIND_USERNAME_TYPE_KEY);
         return ResponseEntity.ok("인증 코드 전송 완료");
     }
