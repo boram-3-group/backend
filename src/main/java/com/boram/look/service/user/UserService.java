@@ -34,7 +34,6 @@ public class UserService {
     private final DeleteReasonRepository deleteReasonRepository;
     private final UserDeleteHistoryRepository deleteHistoryRepository;
     private final PasswordEncoder passwordEncoder;
-    private final PasswordResetCodeRepository resetCodeRepository;
 
     @Transactional
     public String joinUser(UserDto.Save dto) {
@@ -58,6 +57,9 @@ public class UserService {
     public void updateUserProfile(String userId, UserDto.Save dto) {
         User user = UserServiceHelper.findUser(UUID.fromString(userId), userRepository);
         user.update(dto);
+
+        Agreed agreed = user.getAgreed();
+        agreed.updateAgreed(dto);
     }
 
     @Transactional
@@ -135,10 +137,16 @@ public class UserService {
         return user.getEmail();
     }
 
+    @Transactional(readOnly = true)
     public void canUseEmail(String email) {
         Optional<User> user = userRepository.findByEmail(email);
         if (user.isPresent()) {
             throw new DuplicateEmailUseException("중복");
         }
+    }
+
+    @Transactional(readOnly = true)
+    public void findByEmail(String email) {
+        userRepository.findByEmail(email).orElseThrow(EntityNotFoundException::new);
     }
 }
