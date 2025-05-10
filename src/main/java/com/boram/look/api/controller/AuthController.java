@@ -4,7 +4,9 @@ import com.boram.look.api.dto.auth.OAuthJwtDto;
 import com.boram.look.api.dto.auth.OIDCTokenResponse;
 import com.boram.look.api.dto.user.UserDto;
 import com.boram.look.domain.auth.PasswordResetCode;
+import com.boram.look.domain.auth.RefreshTokenEntity;
 import com.boram.look.domain.auth.constants.VerificationConstants;
+import com.boram.look.domain.auth.repository.RefreshTokenEntityRepository;
 import com.boram.look.global.security.authentication.PrincipalDetails;
 import com.boram.look.global.util.ResponseUtil;
 import com.boram.look.global.ex.NoExistRegistrationException;
@@ -38,6 +40,7 @@ public class AuthController {
     private final JwtProvider jwtProvider;
     private final OidcTokenCacheService oidcTokenCacheService;
     private final EmailVerificationService verificationService;
+    private final RefreshTokenEntityRepository refreshTokenEntityRepository;
     private final UserService userService;
 
     @Operation(
@@ -84,6 +87,14 @@ public class AuthController {
         OAuthJwtDto dto = jwtProvider.buildDto(token);
         String issuedToken = jwtProvider.createAccessToken(dto.username(), dto.userId(), dto.roleString());
         String refreshToken = jwtProvider.createRefreshToken(dto.username(), dto.userId(), deviceId);
+
+        refreshTokenEntityRepository.save(RefreshTokenEntity.builder()
+                .userId(dto.userId())
+                .deviceId(deviceId)
+                .refreshTokenValue(refreshToken)
+                .roleString(dto.roleString())
+                .build());
+
         ResponseUtil.responseRefreshToken(response, this.jwtProvider, refreshToken);
         UserDto.Profile profile = userService.getUserProfile(dto.userId());
         return ResponseEntity.ok(OIDCTokenResponse.builder()

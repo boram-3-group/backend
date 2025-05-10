@@ -152,7 +152,8 @@ public class SecurityConfig {
                 new AntPathRequestMatcher("/api/v1/auth/verify-code/password", HttpMethod.POST.name()),
                 new AntPathRequestMatcher("/api/v1/auth/reset-email", HttpMethod.POST.name()),
                 new AntPathRequestMatcher("/api/v1/auth/reset-password", HttpMethod.POST.name()),
-                new AntPathRequestMatcher("/api/v1/weather/**")
+                new AntPathRequestMatcher("/api/v1/weather/**"),
+                new AntPathRequestMatcher("/api/v1/delete-reason/**")
         );
     }
 
