@@ -16,7 +16,10 @@ public class EventType extends AuditingFields {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    @Column(name = "category_name", nullable = false)
     private String categoryName;
+    @Column(name = "sequence", nullable = false)
+    private Integer sequence;
 
     public void update(String categoryName) {
         this.categoryName = categoryName;
@@ -26,6 +29,7 @@ public class EventType extends AuditingFields {
         return EventTypeDto.Copy.builder()
                 .id(this.id)
                 .categoryName(this.categoryName)
+                .sequence(this.sequence)
                 .build();
     }
 }

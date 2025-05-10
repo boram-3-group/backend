@@ -22,7 +22,9 @@ public class EventTypeDto {
             @Schema(description = "id")
             Integer id,
             @Schema(description = "타입 이름")
-            String categoryName
+            String categoryName,
+            @Schema(description = "정렬 순서")
+            Integer sequence
     ) {
     }
 

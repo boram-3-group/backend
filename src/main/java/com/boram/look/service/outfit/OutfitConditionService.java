@@ -28,7 +28,7 @@ public class OutfitConditionService {
 
     @Transactional(readOnly = true)
     public Page<EventTypeDto.Copy> findEventTypes(Pageable pageable) {
-        Page<EventType> eventTypes = eventTypeRepository.findAll(pageable);
+        Page<EventType> eventTypes = eventTypeRepository.findAllByOrderBySequence(pageable);
         return eventTypes.map(EventType::toDto);
     }
 
