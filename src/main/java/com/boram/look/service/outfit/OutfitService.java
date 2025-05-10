@@ -118,7 +118,15 @@ public class OutfitService {
             bookmarkedImageIds = Collections.emptySet();
         }
 
-        List<OutfitImageDto> images = outfit.getImages().stream()
+        List<OutfitImage> allImages = outfit.getImages();
+        Collections.shuffle(allImages); // 리스트를 무작위로 섞음
+
+        int imageLimit = (userId != null) ? 3 : 1;
+        List<OutfitImage> selectedImages = allImages.stream()
+                .limit(imageLimit)
+                .toList();
+
+        List<OutfitImageDto> images = selectedImages.stream()
                 .map(image -> {
                     FileDto dto = fileFacade.buildFileDto(image.getFileMetadata());
                     boolean bookmarked = userId != null && bookmarkedImageIds.contains(image.getId());
