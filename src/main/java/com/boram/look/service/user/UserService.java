@@ -109,6 +109,7 @@ public class UserService {
                     User joinUser = User.builder()
                             .username(username)
                             .role(UserRole.USER)
+                            .registrationId(oAuth2Response.registrationId())
                             .build();
                     return userRepository.save(joinUser);
                 });
