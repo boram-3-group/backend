@@ -4,6 +4,7 @@ import com.boram.look.api.dto.notice.NoticeDto;
 import com.boram.look.api.dto.notice.NoticeImageDto;
 import com.boram.look.global.security.authentication.PrincipalDetails;
 import com.boram.look.service.notice.NoticeService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +38,7 @@ import java.util.List;
                    1)             
                 """
 )
+@Hidden
 public class NoticeController {
     private final NoticeService noticeService;
 

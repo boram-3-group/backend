@@ -89,6 +89,8 @@ public class UserDto {
         private LocalDate birthDate;
         @Schema(description = "성별")
         private Gender gender;
+        @Schema(description = "OAUTH 출처")
+        private OAuth2RegistrationId registrationId;
     }
 
     @Schema(name = "UserDto.PasswordResetEmail")

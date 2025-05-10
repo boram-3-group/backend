@@ -1,5 +1,6 @@
 package com.boram.look.domain.user.entity;
 
+import com.boram.look.api.dto.DeleteReasonDto;
 import com.boram.look.domain.AuditingFields;
 import jakarta.persistence.*;
 import lombok.*;
@@ -19,4 +20,10 @@ public class DeleteReason extends AuditingFields {
 
     private String description;
 
+    public DeleteReasonDto.Get toDto() {
+        return DeleteReasonDto.Get.builder()
+                .id(this.id)
+                .description(this.description)
+                .build();
+    }
 }
