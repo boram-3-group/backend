@@ -25,10 +25,9 @@ public class WeatherDto {
 
 
     public void buildWeatherMessage() {
-        Optional<Forecast> firstRain = forecasts.stream().filter(forecast -> {
-            int time = Integer.parseInt(forecast.getTime());
-            return time >= 700 && time <= 900 && forecast.getPty() > 0;
-        }).findFirst();
+        Optional<Forecast> firstRain = forecasts.stream()
+                .filter(forecast -> forecast.getPty() > 0)
+                .findFirst();
         if (firstRain.isPresent()) {
             int hour = Integer.parseInt(firstRain.get().getTime()) / 100;
             String period = hour < 12 ? "오전" : "오후";

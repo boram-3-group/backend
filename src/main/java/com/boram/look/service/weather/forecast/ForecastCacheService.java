@@ -41,6 +41,7 @@ public class ForecastCacheService {
     }
 
     public void put(String regionId, List<Forecast> forecasts) {
+        String key = "weather:" + regionId; // ex) weather:110
         String value = null;
         try {
             value = objectMapper.writeValueAsString(forecasts);
@@ -49,7 +50,7 @@ public class ForecastCacheService {
         }
 
         assert value != null;
-        redisTemplate.opsForValue().set(regionId, value, Duration.ofHours(4));
+        redisTemplate.opsForValue().set(key, value, Duration.ofHours(4));
     }
 
     public List<Forecast> getForecast(Long regionId) {

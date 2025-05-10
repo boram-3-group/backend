@@ -7,6 +7,8 @@ import lombok.Data;
 @Data
 @Schema(name = "Forecast", description = "예보 DTO")
 public class Forecast {
+    @Schema(description = "예보날짜 yyyymmdd")
+    private String date;      // "0900"
     @Schema(description = "시간 hh:mm")
     private String time;      // "0900"
     @Schema(description = "기온")

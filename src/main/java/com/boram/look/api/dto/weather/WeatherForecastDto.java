@@ -13,6 +13,7 @@ import lombok.Builder;
 public record WeatherForecastDto(
         String fcstTime,
         String category,
-        String fcstValue
+        String fcstValue,
+        String fcstDate
 ) {
 }

@@ -67,7 +67,7 @@ public class ForecastService {
     private String buildWeatherRequestUrl(ForecastBase base, int nx, int ny) {
         return UriComponentsBuilder.fromUriString(this.vilageFcstUrl)
                 .queryParam("serviceKey", this.serviceKey)
-                .queryParam("numOfRows", 1000)
+                .queryParam("numOfRows", 290)
                 .queryParam("pageNo", 1)
                 .queryParam("dataType", "JSON")
                 .queryParam("base_date", base.baseDate())
@@ -87,6 +87,7 @@ public class ForecastService {
                     .fcstTime(item.get("fcstTime").asText())
                     .category(item.get("category").asText())
                     .fcstValue(item.get("fcstValue").asText())
+                    .fcstDate(item.get("fcstDate").asText())
                     .build();
             results.add(dto);
         }
@@ -104,9 +105,11 @@ public class ForecastService {
         Map<String, Forecast> timeMap = new TreeMap<>();
 
         for (WeatherForecastDto item : rawItems) {
-            Forecast forecast = timeMap.computeIfAbsent(item.fcstTime(), t -> {
+            String dateTimeKey = item.fcstDate() + item.fcstTime();
+            Forecast forecast = timeMap.computeIfAbsent(dateTimeKey, t -> {
                 Forecast f = new Forecast();
-                f.setTime(t);
+                f.setTime(item.fcstTime());
+                f.setDate(item.fcstDate());
                 return f;
             });
             ForecastMapper.apply(forecast, item);
