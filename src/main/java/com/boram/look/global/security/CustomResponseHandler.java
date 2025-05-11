@@ -57,18 +57,14 @@ public class CustomResponseHandler {
      * 지정된 HTTP 상태 코드와 함께 에러 코드 및 메시지를 포함합니다.
      * </p>
      *
-     * @param request    클라이언트의 HttpServletRequest 객체
      * @param response   클라이언트의 HttpServletResponse 객체
      * @param httpStatus 반환할 HTTP 상태 코드
-     * @param errorCode  에러 식별을 위한 코드 문자열
      * @param msg        에러 메시지
      * @throws IOException JSON 변환 또는 응답 작성 중 발생할 수 있는 I/O 예외
      */
     public void onFailure(
-            HttpServletRequest request,
             HttpServletResponse response,
             HttpStatus httpStatus,
-            String errorCode,
             String msg
     ) throws IOException {
         response.setContentType(APPLICATION_JSON_VALUE);
@@ -76,7 +72,7 @@ public class CustomResponseHandler {
         response.setStatus(httpStatus.value());
         response.getWriter().write(
                 objectMapper.writeValueAsString(
-                        ResponseEntity.status(HttpStatus.FORBIDDEN).build()
+                        ResponseEntity.status(httpStatus).body(msg)
                 )
         );
     }

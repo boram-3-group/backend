@@ -7,6 +7,7 @@ import com.boram.look.global.security.reissue.TokenReissueFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
@@ -14,7 +15,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Builder
 public class LoginConfigurer extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
 
@@ -23,7 +24,7 @@ public class LoginConfigurer extends SecurityConfigurerAdapter<DefaultSecurityFi
     private final JwtProvider jwtProvider;
     private final CustomResponseHandler customResponseHandler;
     private final AuthenticationManager authenticationManager;
-    private RefreshTokenEntityRepository refreshTokenEntityRepository;
+    private final RefreshTokenEntityRepository refreshTokenEntityRepository;
 
     @Override
     public void configure(HttpSecurity http) {
