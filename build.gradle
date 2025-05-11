@@ -41,6 +41,10 @@ dependencies {
     implementation 'org.locationtech.jts:jts-core:1.19.0'
     implementation 'org.locationtech.jts.io:jts-io-common:1.19.0'
 
+    implementation 'org.springframework.boot:spring-boot-starter-quartz'
+
+    implementation 'com.google.firebase:firebase-admin:9.2.0'
+
     implementation 'software.amazon.awssdk:ses:2.25.3'
     implementation 'software.amazon.awssdk:regions'
 
