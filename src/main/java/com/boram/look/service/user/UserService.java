@@ -44,10 +44,10 @@ public class UserService {
 
         String encodedPassword = passwordEncoder.encode(dto.getPassword());
         Agreed agreed = Agreed.builder()
-                .agreedToMarketing(dto.getAgreedToMarketing())
-                .agreedToPrivacy(dto.getAgreedToPrivacy())
-                .agreedToTerms(dto.getAgreedToTerms())
-                .agreedToLocation(dto.getAgreedToLocation())
+                .agreedToMarketing(dto.getAgreedToMarketing() != null && dto.getAgreedToMarketing())
+                .agreedToPrivacy(dto.getAgreedToPrivacy() != null && dto.getAgreedToPrivacy())
+                .agreedToTerms(dto.getAgreedToTerms() != null && dto.getAgreedToTerms())
+                .agreedToLocation(dto.getAgreedToLocation() != null && dto.getAgreedToLocation())
                 .build();
         User user = dto.toEntity(encodedPassword, agreed);
         return userRepository.save(user).getId().toString();
