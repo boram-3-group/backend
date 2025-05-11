@@ -1,34 +1,43 @@
 package com.boram.look.service.notification;
 
+import com.boram.look.domain.notification.UserNotificationSetting;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class NotificationSchedulerService {
 
     private final Scheduler scheduler;
 
-    public void scheduleUserNotification(UUID userId, int hour, int minute, String daysOfWeek) throws SchedulerException {
-        String jobName = "user_alarm_" + userId;
-        String triggerName = "trigger_" + userId;
+    @Transactional(readOnly = true)
+    public void scheduleUserNotification(UserNotificationSetting setting) {
+        String jobName = "user_alarm_" + setting.getId();
+        String triggerName = "trigger_" + setting.getId();
 
         JobDetail jobDetail = JobBuilder.newJob(SendNotificationJob.class)
                 .withIdentity(jobName, "user-alarms")
-                .usingJobData("userId", userId.toString())
+                .usingJobData("userSettingId", setting.getId())
                 .build();
 
-        String cron = toCronExpression(hour, minute, daysOfWeek); // 아래 설명
+        String cron = toCronExpression(setting.getHour(), setting.getMinute(), setting.getDayOfWeek().toString()); // 아래 설명
 
         CronTrigger trigger = TriggerBuilder.newTrigger()
                 .withIdentity(triggerName, "user-alarms")
                 .withSchedule(CronScheduleBuilder.cronSchedule(cron))
                 .build();
 
-        scheduler.scheduleJob(jobDetail, trigger);
+        try {
+            scheduler.scheduleJob(jobDetail, trigger);
+
+        } catch (SchedulerException e) {
+            log.error("scheduleUserNotification exception occur.");
+            e.printStackTrace();
+        }
     }
 
     public void deleteUserNotification(Long userId) throws SchedulerException {

@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserNotificationSettingService {
 
     private final UserNotificationSettingRepository settingRepository;
-
+    private final NotificationSchedulerService schedulerService;
 
     @Transactional
     public void saveNotificationSetting(PrincipalDetails principalDetails, UserNotificationSettingDto.Save dto) {
@@ -27,7 +27,12 @@ public class UserNotificationSettingService {
                 .minute(dto.minute())
                 .dayOfWeek(dto.dayOfWeek())
                 .enabled(dto.enabled())
+                .latitude(dto.latitude())
+                .longitude(dto.longitude())
+                .eventTypeId(dto.eventTypeId())
                 .build();
-        settingRepository.save(setting);
+        UserNotificationSetting entity = settingRepository.save(setting);
+        schedulerService.scheduleUserNotification(entity);
+
     }
 }

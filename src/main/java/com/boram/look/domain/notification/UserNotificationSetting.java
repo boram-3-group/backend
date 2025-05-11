@@ -1,6 +1,7 @@
 package com.boram.look.domain.notification;
 
 import com.boram.look.domain.AuditingFields;
+import com.boram.look.domain.user.constants.Gender;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -29,4 +30,9 @@ public class UserNotificationSetting extends AuditingFields {
     private NotificationDayOfWeek dayOfWeek;
 
     private Boolean enabled;
+
+    private Float latitude;
+    private Float longitude;
+    private Integer eventTypeId;
+    private Gender gender;
 }

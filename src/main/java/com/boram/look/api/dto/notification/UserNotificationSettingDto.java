@@ -7,7 +7,10 @@ public class UserNotificationSettingDto {
             Integer hour,
             Integer minute,
             NotificationDayOfWeek dayOfWeek,
-            Boolean enabled
+            Boolean enabled,
+            Float latitude,
+            Float longitude,
+            Integer eventTypeId
     ) {
     }
 

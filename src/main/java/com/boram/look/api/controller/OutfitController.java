@@ -6,6 +6,7 @@ import com.boram.look.domain.user.constants.Gender;
 import com.boram.look.domain.weather.forecast.Forecast;
 import com.boram.look.global.ex.ResourceNotFoundException;
 import com.boram.look.global.security.authentication.PrincipalDetails;
+import com.boram.look.service.outfit.OutfitFacade;
 import com.boram.look.service.outfit.OutfitService;
 import com.boram.look.service.region.RegionCacheService;
 import com.boram.look.service.weather.forecast.ForecastCacheService;
@@ -34,8 +35,7 @@ import java.util.UUID;
 @Slf4j
 public class OutfitController {
     private final OutfitService outfitService;
-    private final RegionCacheService regionCacheService;
-    private final ForecastCacheService forecastCacheService;
+    private final OutfitFacade outfitFacade;
 
     @Operation(
             summary = "코디 조회",
@@ -55,10 +55,7 @@ public class OutfitController {
             @Parameter(description = "성별 (MALE / FEMALE / NONE)") @RequestParam(name = "gender") Gender gender,
             @AuthenticationPrincipal PrincipalDetails principal // null 가능
     ) {
-        UUID userId = principal != null ? principal.getUser().getId() : null;
-        SiGunGuRegion region = regionCacheService.findRegionByLocation(latitude, longitude).orElseThrow(ResourceNotFoundException::new);
-        List<Forecast> forecasts = forecastCacheService.getForecast(region.id());
-        OutfitDto.Transfer dto = outfitService.matchOutfit(eventTypeId, forecasts, gender, userId);
+        OutfitDto.Transfer dto = outfitFacade.getOutfitByPosition(longitude, latitude, eventTypeId, gender, principal);
         return ResponseEntity.ok(dto);
     }
 

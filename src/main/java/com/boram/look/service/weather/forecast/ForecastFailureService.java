@@ -14,7 +14,7 @@ public class ForecastFailureService {
 
     private final ForecastFetchFailureRepository repository;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public void saveFailure(Long regionId) {
         repository.findById(regionId)
                 .ifPresentOrElse(
