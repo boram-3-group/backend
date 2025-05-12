@@ -47,7 +47,7 @@ public class UvIndexService {
     private String serviceKey;
 
     private final RedisTemplate<String, Object> redisTemplate;
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
     private final ApplicationEventPublisher eventPublisher;
 

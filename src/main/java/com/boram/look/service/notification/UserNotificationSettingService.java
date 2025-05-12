@@ -44,6 +44,8 @@ public class UserNotificationSettingService {
                 );
 
         UserNotificationSetting entity = settingRepository.save(setting);
+        // 유저의 이전 알림 세팅을 삭제한 후 재등록
+        schedulerService.deleteUserNotification(setting.getId());
         schedulerService.scheduleUserNotification(entity);
     }
 

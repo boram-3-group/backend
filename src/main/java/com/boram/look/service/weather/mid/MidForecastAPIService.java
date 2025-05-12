@@ -35,7 +35,7 @@ public class MidForecastAPIService {
     @Value("${weather.service-key}")
     private String serviceKey;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
     private final MidForecastService saverService;
@@ -95,7 +95,9 @@ public class MidForecastAPIService {
         }
 
         MidTemperatureRequest request = parseTemperatureRequest(root);
-        if(request == null) { return; }
+        if (request == null) {
+            return;
+        }
         saverService.saveMidTermTemperature(request);
     }
 
@@ -107,7 +109,9 @@ public class MidForecastAPIService {
         }
 
         MidForecastRequest request = parseForecastRequest(root);
-        if(request == null) { return; }
+        if (request == null) {
+            return;
+        }
         saverService.saveMidTermForecast(request);
     }
 
@@ -115,7 +119,7 @@ public class MidForecastAPIService {
     private MidForecastRequest parseForecastRequest(JsonNode root) {
         JsonNode item = root.path("response").path("body").path("items").path("item").get(0);
         if (item == null) {
-            log.error("error is occurred in parseForecastRequest.\n jsonNode: {} ",root.asText());
+            log.error("error is occurred in parseForecastRequest.\n jsonNode: {} ", root.asText());
             return null;
         }
 
@@ -133,7 +137,7 @@ public class MidForecastAPIService {
     private MidTemperatureRequest parseTemperatureRequest(JsonNode root) {
         JsonNode item = root.path("response").path("body").path("items").path("item").get(0);
         if (item == null) {
-            log.error("error is occurred in parseTemperatureRequest.\n jsonNode: {} ",root.asText());
+            log.error("error is occurred in parseTemperatureRequest.\n jsonNode: {} ", root.asText());
             return null;
         }
 

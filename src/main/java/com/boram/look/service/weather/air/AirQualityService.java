@@ -39,7 +39,7 @@ public class AirQualityService {
 
     @Value("${weather.service-key}")
     private String serviceKey;
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
     private final AirQualityRangeRepository rangeRepository;
     private final ApplicationEventPublisher eventPublisher;

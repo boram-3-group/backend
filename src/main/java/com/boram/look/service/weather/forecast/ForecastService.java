@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RequiredArgsConstructor
 @Slf4j
 public class ForecastService {
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
     private final ForecastFailureService failureService;
     private final ObjectMapper objectMapper;
 
