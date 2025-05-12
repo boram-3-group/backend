@@ -20,7 +20,8 @@ public class UserNotificationSetting extends AuditingFields {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", columnDefinition = "BINARY(16)", nullable = false, updatable = false)
+    // TODO: 유저 탈퇴시 알림 세팅, fcm-token 지워야 함.
+    @Column(name = "user_id", columnDefinition = "BINARY(16)", nullable = false, updatable = false, unique = true)
     private UUID userId;
 
     private Integer hour;

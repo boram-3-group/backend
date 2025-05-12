@@ -10,6 +10,5 @@ import lombok.Data;
 public class NotificationDto {
     private String title;
     private String content;
-    private String redirectUrl;
     private String targetToken;
 }

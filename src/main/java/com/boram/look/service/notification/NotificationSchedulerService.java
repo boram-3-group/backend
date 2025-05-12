@@ -1,11 +1,14 @@
 package com.boram.look.service.notification;
 
+import com.boram.look.domain.notification.NotificationDayOfWeek;
 import com.boram.look.domain.notification.UserNotificationSetting;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.DayOfWeek;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +27,7 @@ public class NotificationSchedulerService {
                 .usingJobData("userSettingId", setting.getId())
                 .build();
 
-        String cron = toCronExpression(setting.getHour(), setting.getMinute(), setting.getDayOfWeek().toString()); // 아래 설명
+        String cron = toCronExpression(setting.getHour(), setting.getMinute(), setting.getDayOfWeek().toString());
 
         CronTrigger trigger = TriggerBuilder.newTrigger()
                 .withIdentity(triggerName, "user-alarms")
@@ -40,13 +43,21 @@ public class NotificationSchedulerService {
         }
     }
 
-    public void deleteUserNotification(Long userId) throws SchedulerException {
-        JobKey jobKey = new JobKey("user_alarm_" + userId, "user-alarms");
-        scheduler.deleteJob(jobKey);
+    public void deleteUserNotification(Long settingId) {
+        JobKey jobKey = new JobKey("user_alarm_" + settingId, "user-alarms");
+        try {
+            scheduler.deleteJob(jobKey);
+        } catch (SchedulerException e) {
+            log.error(e.getMessage());
+        }
     }
 
     private String toCronExpression(int hour, int minute, String daysOfWeekCsv) {
         // 예: "MON,WED,FRI" → "MON,WED,FRI"
-        return String.format("0 %d %d ? * %s", minute, hour, daysOfWeekCsv);
+        String dayOfWeek = daysOfWeekCsv;
+        if (daysOfWeekCsv.equals(NotificationDayOfWeek.EVERYDAY.toString())) {
+            dayOfWeek = "*";
+        }
+        return String.format("0 %d %d ? * %s", minute, hour, dayOfWeek);
     }
 }
