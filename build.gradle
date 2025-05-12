@@ -54,6 +54,7 @@ dependencies {
     implementation "software.amazon.awssdk:auth"
 
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+    implementation 'org.apache.httpcomponents.client5:httpclient5:5.2.1'
 
     implementation 'com.auth0:java-jwt:4.4.0'
 
