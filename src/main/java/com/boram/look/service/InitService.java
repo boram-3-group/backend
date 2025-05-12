@@ -11,6 +11,7 @@ import com.boram.look.service.weather.uv.UvIndexService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,18 +33,23 @@ public class InitService {
         log.info("init server start.");
         regionCacheService.loadRegionMap();
         Map<Long, SiGunGuRegion> regionMap = regionCacheService.regionCache();
+        Map<Long, List<Forecast>> weatherMap = forecastService.fetchAllWeather(regionMap);
+        forecastCacheService.updateForecastCache(weatherMap);
+        airQualityService.fetchAirQuality("PM10");
+        uvIndexService.updateUvIndexCache();
+
+        this.asyncInit();
+        log.info("init server end.");
+    }
+
+    @Async
+    public void asyncInit() {
         log.info("fetch mid temperature....");
         regionCacheService.sidoCache().forEach((id, sido) -> midForecastAPIService.fetchMidTemperature(sido));
         log.info("fetch mid forecast....");
         regionCacheService.sidoCache().forEach((id, sido) -> midForecastAPIService.fetchMidForecast(sido));
         log.info("fetch mid 3days forecast....");
         regionCacheService.sidoCache().forEach((id, sido) -> midForecastAPIService.fetch3DaysTermsForecastAndTemperature(sido));
-
-        Map<Long, List<Forecast>> weatherMap = forecastService.fetchAllWeather(regionMap);
-        forecastCacheService.updateForecastCache(weatherMap);
-        airQualityService.fetchAirQuality("PM10");
-        uvIndexService.updateUvIndexCache();
-        log.info("init server end.");
     }
 
 }
