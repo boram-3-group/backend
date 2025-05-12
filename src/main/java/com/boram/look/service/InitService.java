@@ -32,18 +32,18 @@ public class InitService {
     public void initServer() {
         log.info("init server start.");
         regionCacheService.loadRegionMap();
-        Map<Long, SiGunGuRegion> regionMap = regionCacheService.regionCache();
-        Map<Long, List<Forecast>> weatherMap = forecastService.fetchAllWeather(regionMap);
-        forecastCacheService.updateForecastCache(weatherMap);
-        airQualityService.fetchAirQuality("PM10");
-        uvIndexService.updateUvIndexCache();
-
         this.asyncInit();
         log.info("init server end.");
     }
 
     @Async
     public void asyncInit() {
+        Map<Long, SiGunGuRegion> regionMap = regionCacheService.regionCache();
+        Map<Long, List<Forecast>> weatherMap = forecastService.fetchAllWeather(regionMap);
+        forecastCacheService.updateForecastCache(weatherMap);
+        airQualityService.fetchAirQuality("PM10");
+        uvIndexService.updateUvIndexCache();
+
         log.info("fetch mid temperature....");
         regionCacheService.sidoCache().forEach((id, sido) -> midForecastAPIService.fetchMidTemperature(sido));
         log.info("fetch mid forecast....");
