@@ -39,6 +39,7 @@ public class UserNotificationSetting extends AuditingFields {
     private Float latitude;
     private Float longitude;
     private Integer eventTypeId;
+    @Enumerated(EnumType.STRING)
     private Gender gender;
 
     public void update(UserNotificationSettingDto.Save dto) {
