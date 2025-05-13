@@ -19,6 +19,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -47,10 +48,15 @@ public class AirQualityService {
     public void fetchAirQuality(String itemType) {
         log.info("fetch air quality....");
         URI requestUri = this.buildAirQualityRequestUrl(itemType);
-        ResponseEntity<?> response = restTemplate.getForEntity(requestUri, String.class);
-        JsonNode jsonNode = this.getAirQualityJsonNode(response.getBody().toString());
-        List<AirQualityCache> cacheList = this.parseAirQualityItems(jsonNode);
-        this.cacheAirQuality(cacheList);
+        try {
+            ResponseEntity<?> response = restTemplate.getForEntity(requestUri, String.class);
+            JsonNode jsonNode = this.getAirQualityJsonNode(response.getBody().toString());
+            List<AirQualityCache> cacheList = this.parseAirQualityItems(jsonNode);
+            this.cacheAirQuality(cacheList);
+        } catch (JsonProcessingException | ResourceAccessException | NullPointerException e) {
+            eventPublisher.publishEvent(new AirQualityFetchFailedEvent(this));
+        }
+
     }
 
     public void cacheAirQuality(List<AirQualityCache> cacheList) {
@@ -130,13 +136,8 @@ public class AirQualityService {
         return results;
     }
 
-    private JsonNode getAirQualityJsonNode(String responseBody) {
-        try {
-            return objectMapper.readTree(responseBody);
-        } catch (JsonProcessingException | NullPointerException e) {
-            eventPublisher.publishEvent(new AirQualityFetchFailedEvent(this));
-            throw new APIFetchException();
-        }
+    private JsonNode getAirQualityJsonNode(String responseBody) throws JsonProcessingException {
+        return objectMapper.readTree(responseBody);
     }
 
     private URI buildAirQualityRequestUrl(String itemType) {
