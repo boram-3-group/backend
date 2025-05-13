@@ -14,9 +14,9 @@ public class UserNotificationSettingDto {
             NotificationDayOfWeek dayOfWeek,
             @Schema(description = "사용여부", example = "true")
             Boolean enabled,
-            @Schema(description = "현재 사용자의 위도")
+            @Schema(description = "현재 사용자의 위도", example = "37.5665")
             Float latitude,
-            @Schema(description = "현재 사용자의 경도")
+            @Schema(description = "현재 사용자의 경도", example = "126.978")
             Float longitude,
             @Schema(description = "알림 받고 싶은 일정의 id")
             Integer eventTypeId
