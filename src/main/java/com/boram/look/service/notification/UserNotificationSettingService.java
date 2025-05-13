@@ -30,18 +30,21 @@ public class UserNotificationSettingService {
     public void saveNotificationSetting(PrincipalDetails principalDetails, UserNotificationSettingDto.Save dto) {
         User loginUser = principalDetails.getUser();
         UserNotificationSetting setting = settingRepository.findByUserId(loginUser.getId())
-                .orElseGet(
-                        () -> UserNotificationSetting.builder()
-                                .userId(loginUser.getId())
-                                .hour(dto.hour())
-                                .minute(dto.minute())
-                                .dayOfWeek(dto.dayOfWeek())
-                                .enabled(dto.enabled())
-                                .latitude(dto.latitude())
-                                .longitude(dto.longitude())
-                                .eventTypeId(dto.eventTypeId())
-                                .build()
-                );
+                .map(existing -> {
+                    existing.update(dto);
+                    return existing;
+                })
+                .orElseGet(() -> UserNotificationSetting.builder()
+                        .userId(loginUser.getId())
+                        .hour(dto.hour())
+                        .minute(dto.minute())
+                        .dayOfWeek(dto.dayOfWeek())
+                        .enabled(dto.enabled())
+                        .latitude(dto.latitude())
+                        .longitude(dto.longitude())
+                        .eventTypeId(dto.eventTypeId())
+                        .gender(dto.gender())
+                        .build());
 
         UserNotificationSetting entity = settingRepository.save(setting);
         // 유저의 이전 알림 세팅을 삭제한 후 재등록

@@ -1,5 +1,6 @@
 package com.boram.look.domain.notification;
 
+import com.boram.look.api.dto.notification.UserNotificationSettingDto;
 import com.boram.look.domain.AuditingFields;
 import com.boram.look.domain.user.constants.Gender;
 import jakarta.persistence.*;
@@ -39,4 +40,15 @@ public class UserNotificationSetting extends AuditingFields {
     private Float longitude;
     private Integer eventTypeId;
     private Gender gender;
+
+    public void update(UserNotificationSettingDto.Save dto) {
+        this.hour = dto.hour();
+        this.minute = dto.minute();
+        this.dayOfWeek = dto.dayOfWeek();
+        this.enabled = dto.enabled();
+        this.latitude = dto.latitude();
+        this.longitude = dto.longitude();
+        this.eventTypeId = dto.eventTypeId();
+        this.gender = dto.gender();
+    }
 }

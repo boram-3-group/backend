@@ -1,6 +1,7 @@
 package com.boram.look.api.dto.notification;
 
 import com.boram.look.domain.notification.NotificationDayOfWeek;
+import com.boram.look.domain.user.constants.Gender;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public class UserNotificationSettingDto {
@@ -18,8 +19,10 @@ public class UserNotificationSettingDto {
             Float latitude,
             @Schema(description = "현재 사용자의 경도", example = "126.978")
             Float longitude,
-            @Schema(description = "알림 받고 싶은 일정의 id")
-            Integer eventTypeId
+            @Schema(description = "알림 받고 싶은 일정의 id", example = "1")
+            Integer eventTypeId,
+            @Schema(description = "성별", example = "MALE")
+            Gender gender
     ) {
     }
 
