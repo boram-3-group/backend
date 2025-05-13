@@ -63,6 +63,14 @@ public class User extends AuditingFields {
         return List.of(role);
     }
 
+    public void buildSocialJoinAgree() {
+        this.agreed = Agreed.builder()
+                .agreedToLocation(false)
+                .agreedToTerms(false)
+                .agreedToPrivacy(false)
+                .agreedToMarketing(false)
+                .build();
+    }
 
     public void update(UserDto.Save dto) {
         this.username = dto.getUsername();

@@ -113,6 +113,7 @@ public class UserService {
                             .role(UserRole.USER)
                             .registrationId(oAuth2Response.registrationId())
                             .build();
+                    joinUser.buildSocialJoinAgree();
                     return userRepository.save(joinUser);
                 });
     }
