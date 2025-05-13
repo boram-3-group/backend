@@ -24,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -90,13 +91,19 @@ public class UvIndexService {
         String time = TimeUtil.getNearestFetchThreeHour(LocalDateTime.now());
         log.info("uv index fetch time: {}", time);
         URI requestUri = this.buildUvIndexRequestUrl(areaNo, time);
-        ResponseEntity<?> response = restTemplate.getForEntity(requestUri, String.class);
-        JsonNode jsonNode = this.getUvIndexJsonNode(response.getBody().toString(), sido);
-        if (jsonNode == null) {
-            return;
+        try {
+
+            ResponseEntity<?> response = restTemplate.getForEntity(requestUri, String.class);
+
+            JsonNode jsonNode = this.getUvIndexJsonNode(response.getBody().toString(), sido);
+            if (jsonNode == null) {
+                return;
+            }
+            UvIndexCache uvIndex = this.parseUvIndexItems(jsonNode, sido, time);
+            this.saveUvIndex(uvIndex, time);
+        } catch (JsonProcessingException | ResourceAccessException e) {
+            eventPublisher.publishEvent(new UvIndexFetchFailedEvent(this, sido));
         }
-        UvIndexCache uvIndex = this.parseUvIndexItems(jsonNode, sido, time);
-        this.saveUvIndex(uvIndex, time);
     }
 
     private void saveUvIndex(UvIndexCache uvIndex, String time) {
@@ -120,13 +127,8 @@ public class UvIndexService {
                 .build();
     }
 
-    private JsonNode getUvIndexJsonNode(String response, String sido) {
-        try {
-            return objectMapper.readTree(response);
-        } catch (JsonProcessingException e) {
-            eventPublisher.publishEvent(new UvIndexFetchFailedEvent(this, sido));
-            return null;
-        }
+    private JsonNode getUvIndexJsonNode(String response, String sido) throws JsonProcessingException {
+        return objectMapper.readTree(response);
     }
 
     private URI buildUvIndexRequestUrl(String areaNo, String time) {

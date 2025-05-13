@@ -20,6 +20,7 @@ import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -49,6 +50,10 @@ public class MidForecastAPIService {
             Point centroid = cache.polygon().getCentroid();
             GridXY gridXY = GeoUtil.toGrid(centroid.getY(), centroid.getX());
             List<Forecast> forecasts = forecastService.fetchWeatherForRegion(base, gridXY.nx(), gridXY.ny(), cache.id());
+            if (forecasts.isEmpty()) {
+                return;
+            }
+
             float minTemp = forecasts.stream()
                     .map(Forecast::getTemperature)
                     .min(Float::compare)
@@ -154,22 +159,22 @@ public class MidForecastAPIService {
 
 
     private JsonNode getMidTemperatureJsonNode(String uri, Long regionId) {
-        ResponseEntity<String> response = restTemplate.getForEntity(URI.create(uri), String.class);
         try {
+            ResponseEntity<String> response = restTemplate.getForEntity(URI.create(uri), String.class);
             return objectMapper.readTree(response.getBody());
-        } catch (JsonProcessingException e) {
-            log.error("mid temperature fail region id: {}\nbody: {}", regionId, response.getBody());
-//            failureService.saveFailure(regionId);
+        } catch (JsonProcessingException | ResourceAccessException e) {
+            log.error("mid temperature fail region id: {}", regionId);
+            failureService.saveFailure(regionId);
             return null;
         }
     }
 
     private JsonNode getMidForecastJsonNode(String uri, Long regionId) {
-        ResponseEntity<String> response = restTemplate.getForEntity(URI.create(uri), String.class);
         try {
+            ResponseEntity<String> response = restTemplate.getForEntity(URI.create(uri), String.class);
             return objectMapper.readTree(response.getBody());
-        } catch (JsonProcessingException e) {
-            log.error("mid forecast fail region id: {}\nbody: {}", regionId, response.getBody());
+        } catch (JsonProcessingException | ResourceAccessException e) {
+            log.error("mid forecast fail region id: {}", regionId);
             failureService.saveFailure(regionId);
             return null;
         }

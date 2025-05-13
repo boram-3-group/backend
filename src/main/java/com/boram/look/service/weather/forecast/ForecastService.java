@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -43,22 +44,17 @@ public class ForecastService {
     public List<WeatherForecastDto> callWeather(ForecastBase base, int nx, int ny, Long regionId) {
         String url = this.buildWeatherRequestUrl(base, nx, ny);
 
-        JsonNode root = this.getWeatherJsonNode(url, regionId);
-        if (root == null) {
-            return Collections.emptyList();
-        }
-
-        return this.parseWeatherItems(root);
-    }
-
-    private JsonNode getWeatherJsonNode(String url, Long regionId) {
-        URI uri = URI.create(url);
-        ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
-
         try {
-            return objectMapper.readTree(response.getBody());
-        } catch (JsonProcessingException e) {
-            log.error("fail region id: {}\nbody: {}", regionId, response.getBody());
+            URI uri = URI.create(url);
+            ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
+            JsonNode root = objectMapper.readTree(response.getBody());
+            if (root == null) {
+                return Collections.emptyList();
+            }
+
+            return this.parseWeatherItems(root);
+        } catch (JsonProcessingException | ResourceAccessException e) {
+            log.error("fail region id: {}", regionId);
             failureService.saveFailure(regionId);
             return null;
         }
@@ -98,6 +94,9 @@ public class ForecastService {
 
     public List<Forecast> fetchWeatherForRegion(ForecastBase base, int nx, int ny, Long regionId) {
         List<WeatherForecastDto> res = this.callWeather(base, nx, ny, regionId);
+        if (res == null || res.isEmpty()) {
+            return Collections.emptyList();
+        }
         return this.mergeForecasts(res);
     }
 
@@ -160,7 +159,7 @@ public class ForecastService {
             try {
                 future.get(); // 예외 발생 시 throw 됨
             } catch (InterruptedException | ExecutionException e) {
-                throw new RuntimeException(e);
+                log.error(e.getMessage());
             }
         }
         executor.shutdown();
