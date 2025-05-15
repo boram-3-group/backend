@@ -6,6 +6,7 @@ import com.boram.look.api.dto.notification.UserNotificationSettingDto;
 import com.boram.look.global.security.authentication.PrincipalDetails;
 import com.boram.look.service.notification.FcmTokenService;
 import com.boram.look.service.notification.UserNotificationSettingService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,7 +48,7 @@ public class NotificationController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/fcm-token")
     public ResponseEntity<?> saveFcmToken(
-            FcmTokenDto.Save dto,
+            @RequestBody FcmTokenDto.Save dto,
             @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
         fcmTokenService.saveFcmToken(principalDetails, dto);
@@ -58,7 +59,7 @@ public class NotificationController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/notification-setting")
     public ResponseEntity<?> saveNotificationSetting(
-            UserNotificationSettingDto.Save dto,
+            @RequestBody UserNotificationSettingDto.Save dto,
             @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
         userSettingService.saveNotificationSetting(principalDetails, dto);
@@ -74,6 +75,7 @@ public class NotificationController {
         return ResponseEntity.noContent().build();
     }
 
+    @Hidden
     @PostMapping("/noti-test")
     public ResponseEntity<?> notiTest(@RequestBody NotificationDto dto) {
         userSettingService.sendNotification(dto);
