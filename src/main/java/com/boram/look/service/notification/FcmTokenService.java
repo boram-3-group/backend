@@ -19,11 +19,13 @@ public class FcmTokenService {
     @Transactional
     public void saveFcmToken(PrincipalDetails principalDetails, FcmTokenDto.Save dto) {
         User loginUser = principalDetails.getUser();
-        FcmToken token = FcmToken.builder()
-                .userId(loginUser.getId())
-                .fcmToken(dto.fcmToken())
-                .build();
-        fcmTokenRepository.save(token);
+        FcmToken fcmToken = fcmTokenRepository.findByUserIdAndFcmToken(loginUser.getId(), dto.fcmToken())
+                .orElseGet(() -> FcmToken.builder()
+                        .userId(loginUser.getId())
+                        .fcmToken(dto.fcmToken())
+                        .build()
+                );
+        fcmTokenRepository.save(fcmToken);
     }
 
 }

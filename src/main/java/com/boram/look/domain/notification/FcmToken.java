@@ -13,7 +13,13 @@ import java.util.UUID;
 @Builder
 @Getter
 @ToString
-@Table(name = "fcm_token")
+@Table(
+        name = "fcm_token",
+        uniqueConstraints = @UniqueConstraint(
+                columnNames = {"user_id", "fcm_token"}
+        )
+
+)
 public class FcmToken {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

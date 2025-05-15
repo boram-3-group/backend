@@ -9,19 +9,28 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.scheduling.quartz.SpringBeanJobFactory;
 
+import javax.sql.DataSource;
+import java.util.Properties;
+
 @Configuration
 public class QuartzConfig {
 
     @Bean
-    public SchedulerFactoryBean schedulerFactoryBean(ApplicationContext applicationContext) {
+    public SchedulerFactoryBean schedulerFactoryBean(ApplicationContext applicationContext, DataSource dataSource) {
         SchedulerFactoryBean factory = new SchedulerFactoryBean();
-
-        // 커스텀 JobFactory를 설정해서 Spring 빈 주입 가능하게 함
-        SpringBeanJobFactory jobFactory = new AutowiringSpringBeanJobFactory();
-        jobFactory.setApplicationContext(applicationContext);
-        factory.setJobFactory(jobFactory);
-
+        factory.setJobFactory(jobFactory(applicationContext));
+        factory.setDataSource(dataSource);
+        factory.setQuartzProperties(this.quartzProperties());
+        factory.setOverwriteExistingJobs(true);
+        factory.setWaitForJobsToCompleteOnShutdown(true);
         return factory;
+    }
+
+
+    private SpringBeanJobFactory jobFactory(ApplicationContext context) {
+        AutowiringSpringBeanJobFactory jobFactory = new AutowiringSpringBeanJobFactory();
+        jobFactory.setApplicationContext(context);
+        return jobFactory;
     }
 
     public static class AutowiringSpringBeanJobFactory extends SpringBeanJobFactory
@@ -39,5 +48,19 @@ public class QuartzConfig {
             beanFactory.autowireBean(job); // 의존성 주입 처리
             return job;
         }
+    }
+
+
+    private Properties quartzProperties() {
+        Properties props = new Properties();
+        props.setProperty("org.quartz.scheduler.instanceId", "AUTO");
+        props.setProperty("org.quartz.jobStore.class", "org.quartz.impl.jdbcjobstore.JobStoreTX");
+        props.setProperty("org.quartz.jobStore.driverDelegateClass", "org.quartz.impl.jdbcjobstore.StdJDBCDelegate");
+        props.setProperty("org.quartz.jobStore.tablePrefix", "QRTZ_");
+        props.setProperty("org.quartz.jobStore.isClustered", "false");
+        props.setProperty("org.quartz.threadPool.threadCount", "5");
+        props.setProperty("org.quartz.jobStore.dataSource", "quartzDataSource");
+
+        return props;
     }
 }
