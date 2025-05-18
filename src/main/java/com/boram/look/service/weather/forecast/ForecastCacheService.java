@@ -33,6 +33,7 @@ public class ForecastCacheService {
     }
 
     public void updateForecastCache(Map<Long, List<ForecastDto>> weatherMap) {
+        if (weatherMap.isEmpty()) return;
         for (Map.Entry<Long, List<ForecastDto>> entry : weatherMap.entrySet()) {
             // 연계 실패한 날씨 정보는 일단 있는 캐시 사용
             if (entry.getValue().isEmpty()) {

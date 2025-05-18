@@ -24,6 +24,7 @@ public class ForecastService {
 
     @Transactional
     public Map<Long, List<ForecastDto>> saveShortTermsForecast(Map<Long, List<ForecastDto>> weatherMap) {
+        if(weatherMap.isEmpty()) return new HashMap<>();
         Map<Long, List<ForecastDto>> resultMap = new HashMap<>();
         for (Map.Entry<Long, List<ForecastDto>> entry : weatherMap.entrySet()) {
             List<ForecastDto> dtos = entry.getValue();
