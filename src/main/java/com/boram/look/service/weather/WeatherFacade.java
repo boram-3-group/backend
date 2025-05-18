@@ -36,7 +36,7 @@ public class WeatherFacade {
         AirQualityDto airDto = airQualityService.getAirQuality(sidoRegionCache.apiKey(), "PM10");
         UvIndexDto uvIndexDto = uvIndexService.getUvIndex(sidoRegionCache.sido());
         WeatherDto dto = WeatherDto.builder()
-                .forecastDtos(forecastDtos)
+                .forecasts(forecastDtos)
                 .airQuality(airDto)
                 .uvIndex(uvIndexDto)
                 .build();

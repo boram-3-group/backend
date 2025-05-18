@@ -15,14 +15,14 @@ import java.util.Optional;
 @AllArgsConstructor
 @Builder
 public class WeatherDto {
-    private List<ForecastDto> forecastDtos;
+    private List<ForecastDto> forecasts;
     private AirQualityDto airQuality;
     private UvIndexDto uvIndex;
     private String weatherMessage;
 
 
     public void buildWeatherMessage() {
-        Optional<ForecastDto> firstRain = forecastDtos.stream()
+        Optional<ForecastDto> firstRain = forecasts.stream()
                 .filter(forecast -> forecast.getPty() > 0)
                 .findFirst();
         if (firstRain.isPresent()) {
@@ -48,7 +48,7 @@ public class WeatherDto {
             this.weatherMessage = uvIndex.getMessage();
         } else if (Objects.equals(uvIndex.getGrade(), UvGrade.MODERATE)) {
             this.weatherMessage = uvIndex.getMessage();
-        } else if (forecastDtos.getFirst().getSky() > 2) {
+        } else if (forecasts.getFirst().getSky() > 2) {
             this.weatherMessage = "오늘은 흐린 날이에요";
         } else {
             this.weatherMessage = "오늘은 맑고 화창해요";
