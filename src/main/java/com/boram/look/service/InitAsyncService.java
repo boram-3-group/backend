@@ -33,8 +33,8 @@ public class InitAsyncService {
     @Async
     public void asyncInit() {
         Map<Long, SiGunGuRegion> regionMap = regionCacheService.regionCache();
-        Map<Long, List<ForecastDto>> weatherMap = forecastAPIService.fetchAllWeather(regionMap);
-        forecastService.saveShortTermsForecast(weatherMap);
+//        Map<Long, List<ForecastDto>> weatherMap = forecastAPIService.fetchAllWeather(regionMap);
+//        forecastService.saveShortTermsForecast(weatherMap);
         regionMap.forEach((regionId, regionCache) -> forecastCacheService.initForecastCache(regionId));
         airQualityService.fetchAirQuality("PM10");
         uvIndexService.updateUvIndexCache();
