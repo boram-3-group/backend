@@ -65,6 +65,7 @@ public class ForecastService {
 
     @Transactional
     public List<ForecastDto> saveShortTermsForecastByRegion(List<ForecastDto> dtos, Long regionId) {
+        if(dtos.isEmpty()) return new ArrayList<>();
         forecastRepository.deleteByRegionId(regionId);
 
         // 지역 정보 조회

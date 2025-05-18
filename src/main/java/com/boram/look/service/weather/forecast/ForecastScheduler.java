@@ -56,6 +56,7 @@ public class ForecastScheduler {
             }
 
             List<ForecastDto> dailyList = forecastService.saveShortTermsForecastByRegion(forecastDtos, regionId);
+            if (dailyList.isEmpty()) return;
             forecastCacheService.put(regionId.toString(), dailyList);
             forecastFailureService.removeFailure(regionId); // 성공 시 삭제
         }
