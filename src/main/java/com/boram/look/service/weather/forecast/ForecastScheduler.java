@@ -32,7 +32,7 @@ public class ForecastScheduler {
         forecastCacheService.updateForecastCache(dailyMap);
     }
 
-    @Scheduled(fixedDelay = 30 * 60 * 1000) // 30분마다
+    @Scheduled(fixedDelay = 60 * 60 * 1000) // 60분마다
     public void retryFailedRegions() {
         List<ForecastFetchFailure> failures = forecastFailureService.findAllFailures();
         if (failures.isEmpty()) {
@@ -60,7 +60,5 @@ public class ForecastScheduler {
             forecastFailureService.removeFailure(regionId); // 성공 시 삭제
         }
     }
-
-    //TODO: 시간에 따라서 캐시를 한시간씩 미뤄주는 기능 필요
 
 }
