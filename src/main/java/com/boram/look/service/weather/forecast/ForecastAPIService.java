@@ -34,6 +34,11 @@ public class ForecastAPIService {
     private final ForecastFailureService failureService;
     private final ObjectMapper objectMapper;
 
+    private final BlockingQueue<Long> queue = new LinkedBlockingQueue<>();
+    private final Map<Long, List<ForecastDto>> weatherMap = new ConcurrentHashMap<>();
+    private final int CONSUMER_COUNT = 3;
+    private final int REQUEST_INTERVAL_MS = 300; // 300ms = 초당 3건
+
     @Value("${weather.vilage-fcst-url}")
     private String vilageFcstUrl;
     @Value("${weather.service-key}")
@@ -137,33 +142,16 @@ public class ForecastAPIService {
 
     public Map<Long, List<ForecastDto>> fetchAllWeather(Map<Long, SiGunGuRegion> regionMap) {
         log.info("fetch all forecast....");
-        ExecutorService executor = Executors.newFixedThreadPool(10);
-        Semaphore limiter = new Semaphore(30);
-        Map<Long, List<ForecastDto>> weatherMap = new ConcurrentHashMap<>();
-        AtomicInteger count = new AtomicInteger();
+        this.weatherMap.clear();
 
-        List<Future<Void>> futures = regionMap.entrySet().stream()
-                .map(entry -> executor.submit(((Callable<Void>) () -> {
-                    runWithThrottle(
-                            entry.getKey(),
-                            entry.getValue(),
-                            weatherMap,
-                            limiter,
-                            count
-                    );
-                    return null;
-                }))).toList();
-
-        for (Future<Void> future : futures) {
-            try {
-                future.get(); // 예외 발생 시 throw 됨
-            } catch (InterruptedException | ExecutionException e) {
-                log.error(e.getMessage());
-            }
+        try {
+            this.runWithQueue(regionMap);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("Weather fetching interrupted", e);
         }
-        executor.shutdown();
-        executor.close();
-        return weatherMap;
+
+        return this.weatherMap;
     }
 
     private void runWithThrottle(
@@ -194,6 +182,48 @@ public class ForecastAPIService {
         } finally {
             limiter.release();
         }
+    }
+
+
+    public void runWithQueue(Map<Long, SiGunGuRegion> regionMap) throws InterruptedException {
+        ExecutorService executor = Executors.newFixedThreadPool(this.CONSUMER_COUNT + 1);
+
+        // 1. Producer: Queue에 모든 regionId 넣기
+        executor.submit(() -> {
+            for (Long regionId : regionMap.keySet()) {
+                try {
+                    this.queue.put(regionId);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        });
+
+        for (int i = 0; i < this.CONSUMER_COUNT; i++) {
+            executor.submit(() -> {
+                while (true) {
+                    try {
+                        Long regionId = this.queue.poll(5, TimeUnit.SECONDS);
+                        if (regionId == null) break;
+                        runRegionFetch(regionId, regionMap.get(regionId));
+                        Thread.sleep(this.REQUEST_INTERVAL_MS);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        break;
+                    }
+                }
+            });
+        }
+
+        executor.shutdown();
+        executor.awaitTermination(10, TimeUnit.MINUTES);
+        log.info("All weather fetched: {}", this.weatherMap.size());
+    }
+
+    private void runRegionFetch(Long regionId, SiGunGuRegion region) {
+        ForecastBase base = getNearestForecastBase(LocalDate.now(), LocalTime.now());
+        List<ForecastDto> dtos = this.fetchWeatherForRegion(base, region.grid().nx(), region.grid().ny(), regionId);
+        weatherMap.put(regionId, dtos);
     }
 
 }

@@ -11,6 +11,7 @@ import com.boram.look.service.weather.WeatherFacade;
 import com.boram.look.service.weather.air.AirQualityService;
 import com.boram.look.service.weather.forecast.ForecastCacheService;
 import com.boram.look.service.weather.forecast.ForecastAPIService;
+import com.boram.look.service.weather.forecast.ForecastService;
 import com.boram.look.service.weather.mid.MidForecastService;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,6 +35,7 @@ public class WeatherController {
     private final ForecastAPIService forecastAPIService;
     private final RegionCacheService regionCacheService;
     private final ForecastCacheService forecastCacheService;
+    private final ForecastService forecastService;
     private final WeatherFacade weatherFacade;
     private final MidForecastService midService;
 
@@ -65,8 +67,9 @@ public class WeatherController {
     public ResponseEntity<?> fetchDailyWeather() {
         Map<Long, SiGunGuRegion> regionMap = regionCacheService.regionCache();
         Map<Long, List<ForecastDto>> weatherMap = forecastAPIService.fetchAllWeather(regionMap);
-        forecastCacheService.updateForecastCache(weatherMap);
-        return ResponseEntity.ok(weatherMap);
+        Map<Long, List<ForecastDto>> dailyMap = forecastService.saveShortTermsForecast(weatherMap);
+        forecastCacheService.updateForecastCache(dailyMap);
+        return ResponseEntity.ok().build();
     }
 
     @Hidden
