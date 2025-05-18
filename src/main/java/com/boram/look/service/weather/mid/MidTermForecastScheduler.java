@@ -23,11 +23,10 @@ public class MidTermForecastScheduler {
     public void loadMidTermWeather() {
         regionCacheService.sidoCache().forEach((id, sido) -> midForecastAPIService.fetchMidTemperature(sido));
         regionCacheService.sidoCache().forEach((id, sido) -> midForecastAPIService.fetchMidForecast(sido));
-        regionCacheService.sidoCache().forEach((id, sido) -> midForecastAPIService.fetch3DaysTermsForecastAndTemperature(sido));
         midForecastService.deletePastDateWeather();
     }
 
-    @Scheduled(cron = "0 5 * * * *")
+    @Scheduled(cron = "0 30 * * * *")
     public void loadFailureMidTermWeather() {
         List<MidTermFailure> failures = failureService.getAllFailures();
         if (failures.isEmpty()) {
@@ -39,7 +38,6 @@ public class MidTermForecastScheduler {
             SidoRegionCache sido = regionCacheService.sidoCache().get(failure.getSidoId());
             midForecastAPIService.fetchMidTemperature(sido);
             midForecastAPIService.fetchMidForecast(sido);
-            midForecastAPIService.fetch3DaysTermsForecastAndTemperature(sido);
         }
     }
 

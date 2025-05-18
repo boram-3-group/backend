@@ -1,200 +1,131 @@
 package com.boram.look.service.weather.forecast;
 
-import com.boram.look.api.dto.weather.WeatherForecastDto;
-import com.boram.look.domain.region.cache.SidoRegionCache;
-import com.boram.look.global.constant.WeatherConstants;
-import com.boram.look.domain.region.cache.SiGunGuRegion;
-import com.boram.look.domain.weather.forecast.Forecast;
-import com.boram.look.domain.weather.forecast.ForecastBase;
-import com.boram.look.domain.weather.forecast.ForecastMapper;
-import com.boram.look.domain.weather.forecast.entity.ForecastIcon;
-import com.boram.look.global.util.TimeUtil;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.boram.look.api.dto.weather.ForecastDto;
+import com.boram.look.domain.region.entity.Region;
+import com.boram.look.domain.region.repository.RegionRepository;
+import com.boram.look.domain.weather.forecast.entity.Forecast;
+import com.boram.look.domain.weather.forecast.repository.ForecastRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.ResourceAccessException;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.net.URI;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class ForecastService {
-    private final RestTemplate restTemplate;
-    private final ForecastFailureService failureService;
-    private final ObjectMapper objectMapper;
 
-    @Value("${weather.vilage-fcst-url}")
-    private String vilageFcstUrl;
-    @Value("${weather.service-key}")
-    private String serviceKey;
+    private final ForecastRepository forecastRepository;
+    private final RegionRepository regionRepository;
 
-    public List<WeatherForecastDto> callWeather(ForecastBase base, int nx, int ny, Long regionId) {
-        String url = this.buildWeatherRequestUrl(base, nx, ny);
+    @Transactional
+    public Map<Long, List<ForecastDto>> saveShortTermsForecast(Map<Long, List<ForecastDto>> weatherMap) {
+        Map<Long, List<ForecastDto>> resultMap = new HashMap<>();
+        for (Map.Entry<Long, List<ForecastDto>> entry : weatherMap.entrySet()) {
+            List<ForecastDto> dtos = entry.getValue();
+            Long regionId = entry.getKey();
+            forecastRepository.deleteByRegionId(regionId);
 
-        try {
-            URI uri = URI.create(url);
-            ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
-            JsonNode root = objectMapper.readTree(response.getBody());
-            if (root == null) {
-                return Collections.emptyList();
-            }
+            // 지역 정보 조회
+            Optional<Region> region = regionRepository.findById(regionId);
+            if (region.isEmpty()) continue;
 
-            return this.parseWeatherItems(root);
-        } catch (JsonProcessingException | ResourceAccessException e) {
-            log.error("fail region id: {}", regionId);
-            failureService.saveFailure(regionId);
-            return null;
-        }
-    }
+            List<Forecast> forecasts = dtos.stream()
+                    .map(dto -> dto.toEntity(region.get()))
+                    .toList();
+            forecastRepository.saveAll(forecasts);
 
-    private String buildWeatherRequestUrl(ForecastBase base, int nx, int ny) {
-        return UriComponentsBuilder.fromUriString(this.vilageFcstUrl)
-                .queryParam("serviceKey", this.serviceKey)
-                .queryParam("numOfRows", 290)
-                .queryParam("pageNo", 1)
-                .queryParam("dataType", "JSON")
-                .queryParam("base_date", base.baseDate())
-                .queryParam("base_time", base.baseTime()) // 0200, 0500 ...
-                .queryParam("nx", nx)
-                .queryParam("ny", ny)
-                .build(false)
-                .toUriString();
-    }
+            // 하루치만 추출 (최소 시간부터 24시간 이내)
+            List<LocalDateTime> dateTimes = dtos.stream()
+                    .map(ForecastDto::toDateTime)
+                    .sorted()
+                    .toList();
 
-    private List<WeatherForecastDto> parseWeatherItems(JsonNode root) {
-        JsonNode items = root.path("response").path("body").path("items").path("item");
+            if (dateTimes.isEmpty()) continue;
+            LocalDateTime minDateTime = dateTimes.get(0);
+            LocalDateTime maxDateTime = minDateTime.plusHours(24);
 
-        List<WeatherForecastDto> results = new ArrayList<>();
-        for (JsonNode item : items) {
-            WeatherForecastDto dto = WeatherForecastDto.builder()
-                    .fcstTime(item.get("fcstTime").asText())
-                    .category(item.get("category").asText())
-                    .fcstValue(item.get("fcstValue").asText())
-                    .fcstDate(item.get("fcstDate").asText())
-                    .build();
-            results.add(dto);
+            List<ForecastDto> oneDayDtos = dtos.stream()
+                    .filter(dto -> {
+                        LocalDateTime dt = dto.toDateTime();
+                        return !dt.isBefore(minDateTime) && dt.isBefore(maxDateTime);
+                    })
+                    .toList();
+
+            resultMap.put(regionId, oneDayDtos);
         }
 
-        return results;
+        return resultMap;
     }
 
+    @Transactional
+    public List<ForecastDto> saveShortTermsForecastByRegion(List<ForecastDto> dtos, Long regionId) {
+        forecastRepository.deleteByRegionId(regionId);
 
-    public List<Forecast> fetchWeatherForRegion(ForecastBase base, int nx, int ny, Long regionId) {
-        List<WeatherForecastDto> res = this.callWeather(base, nx, ny, regionId);
-        if (res == null || res.isEmpty()) {
-            return Collections.emptyList();
-        }
-        return this.mergeForecasts(res);
+        // 지역 정보 조회
+        Optional<Region> region = regionRepository.findById(regionId);
+        if (region.isEmpty()) return new ArrayList<>();
+
+        List<Forecast> forecasts = dtos.stream()
+                .map(dto -> dto.toEntity(region.get()))
+                .toList();
+        forecastRepository.saveAll(forecasts);
+
+        // 하루치만 추출 (최소 시간부터 24시간 이내)
+        List<LocalDateTime> dateTimes = dtos.stream()
+                .map(ForecastDto::toDateTime)
+                .sorted()
+                .toList();
+
+        if (dateTimes.isEmpty()) return new ArrayList<>();
+        LocalDateTime minDateTime = dateTimes.get(0);
+        LocalDateTime maxDateTime = minDateTime.plusHours(24);
+
+        return dtos.stream()
+                .filter(dto -> {
+                    LocalDateTime dt = dto.toDateTime();
+                    return !dt.isBefore(minDateTime) && dt.isBefore(maxDateTime);
+                })
+                .toList();
     }
 
-    public List<Forecast> mergeForecasts(List<WeatherForecastDto> rawItems) {
-        Map<String, Forecast> timeMap = new TreeMap<>();
+    public List<Forecast> find24HourForecasts(Long regionId) {
+        Optional<Region> region = regionRepository.findById(regionId);
+        if (region.isEmpty()) return new ArrayList<>();
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime end = now.plusHours(24);
 
-        for (WeatherForecastDto item : rawItems) {
-            String dateTimeKey = item.fcstDate() + item.fcstTime();
-            Forecast forecast = timeMap.computeIfAbsent(dateTimeKey, t -> {
-                Forecast f = new Forecast();
-                f.setTime(item.fcstTime());
-                f.setDate(item.fcstDate());
-                return f;
-            });
-            ForecastMapper.apply(forecast, item);
-        }
+        // 예보 데이터가 "20250518", "0100" 이런 형식이면
+        String startDate = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String endDate = end.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
-        for (Forecast f : timeMap.values()) {
-            ForecastIcon icon = ForecastMapper.getWeatherIcon(f.getTime(), f.getPty(), f.getSky());
-            f.withForecastIcon(icon);
-        }
+        // 날짜 기준으로 대략적으로 필터 (하루 or 이틀치)
+        List<Forecast> forecasts = forecastRepository.findByRegionAndDateBetween(region.get(), startDate, endDate);
 
-        return new ArrayList<>(timeMap.values());
+        // 날짜 + 시간 합쳐서 정확히 24시간 이내 필터
+        return forecasts.stream()
+                .filter(f -> {
+                    LocalDateTime forecastTime = toDateTime(f.getDate(), f.getTime());
+                    return !forecastTime.isBefore(now) && forecastTime.isBefore(end);
+                })
+                .toList();
     }
 
-    public ForecastBase getNearestForecastBase(LocalDate today, LocalTime now) {
-        for (int i = WeatherConstants.BASE_TIME_LIST.size() - 1; i >= 0; i--) {
-            String time = WeatherConstants.BASE_TIME_LIST.get(i);
-            LocalTime baseTime = LocalTime.parse(time, WeatherConstants.TIME_FORMATTER);
-
-            if (now.isAfter(baseTime) || now.equals(baseTime)) {
-                return new ForecastBase(today.format(WeatherConstants.DATE_FORMATTER), time);
-            }
-        }
-
-        // 자정 직후 → 전날 23시 예보
-        return new ForecastBase(today.minusDays(1).format(WeatherConstants.DATE_FORMATTER), "2300");
+    // date: "20250518", time: "0100"
+    private LocalDateTime toDateTime(String date, String time) {
+        String paddedTime = String.format("%04d", Integer.parseInt(time)); // "0100"
+        return LocalDateTime.of(
+                Integer.parseInt(date.substring(0, 4)),
+                Integer.parseInt(date.substring(4, 6)),
+                Integer.parseInt(date.substring(6, 8)),
+                Integer.parseInt(paddedTime.substring(0, 2)),
+                Integer.parseInt(paddedTime.substring(2, 4))
+        );
     }
 
-    public Map<Long, List<Forecast>> fetchAllWeather(Map<Long, SiGunGuRegion> regionMap) {
-        log.info("fetch all forecast....");
-        ExecutorService executor = Executors.newFixedThreadPool(10);
-        Semaphore limiter = new Semaphore(30);
-        Map<Long, List<Forecast>> weatherMap = new ConcurrentHashMap<>();
-        AtomicInteger count = new AtomicInteger();
-
-        List<Future<Void>> futures = regionMap.entrySet().stream()
-                .map(entry -> executor.submit(((Callable<Void>) () -> {
-                    runWithThrottle(
-                            entry.getKey(),
-                            entry.getValue(),
-                            weatherMap,
-                            limiter,
-                            count
-                    );
-                    return null;
-                }))).toList();
-
-        for (Future<Void> future : futures) {
-            try {
-                future.get(); // 예외 발생 시 throw 됨
-            } catch (InterruptedException | ExecutionException e) {
-                log.error(e.getMessage());
-            }
-        }
-        executor.shutdown();
-        executor.close();
-        return weatherMap;
-    }
-
-    private void runWithThrottle(
-            Long id,
-            SiGunGuRegion region,
-            Map<Long, List<Forecast>> weatherMap,
-            Semaphore limiter,
-            AtomicInteger count
-    ) {
-        try {
-            limiter.acquire();
-
-            int current = count.incrementAndGet();
-            if (current % 30 == 0) {
-                Thread.sleep(1000); // TPS 제한
-            }
-
-            ForecastBase base = this.getNearestForecastBase(LocalDate.now(), LocalTime.now());
-            List<Forecast> forecasts = this.fetchWeatherForRegion(
-                    base,
-                    region.grid().nx(),
-                    region.grid().ny(),
-                    region.id()
-            );
-            weatherMap.put(id, forecasts);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt(); // 권장되는 처리
-        } finally {
-            limiter.release();
-        }
-    }
 
 }

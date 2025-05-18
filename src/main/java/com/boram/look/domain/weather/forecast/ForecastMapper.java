@@ -1,5 +1,6 @@
 package com.boram.look.domain.weather.forecast;
 
+import com.boram.look.api.dto.weather.ForecastDto;
 import com.boram.look.api.dto.weather.WeatherForecastDto;
 import com.boram.look.domain.weather.forecast.entity.ForecastIcon;
 
@@ -12,17 +13,17 @@ import static com.boram.look.global.constant.WeatherConstants.KMA_PRECIPITATION_
 import static com.boram.look.global.constant.WeatherConstants.KMA_SKY_CONDITION;
 
 public class ForecastMapper {
-    private static final Map<String, BiConsumer<Forecast, String>> CATEGORY_APPLIERS = Map.of(
+    private static final Map<String, BiConsumer<ForecastDto, String>> CATEGORY_APPLIERS = Map.of(
             KMA_TEMP_3H, (f, v) -> f.setTemperature(Float.parseFloat(v)),
             KMA_PRECIPITATION_PROBABILITY, (f, v) -> f.setPop(Integer.parseInt(v)),
             KMA_PRECIPITATION_TYPE, (f, v) -> f.setPty(Integer.parseInt(v)),
             KMA_SKY_CONDITION, (f, v) -> f.setSky(Integer.parseInt(v))
     );
 
-    public static void apply(Forecast forecast, WeatherForecastDto item) {
-        BiConsumer<Forecast, String> applier = CATEGORY_APPLIERS.get(item.category());
+    public static void apply(ForecastDto forecastDto, WeatherForecastDto item) {
+        BiConsumer<ForecastDto, String> applier = CATEGORY_APPLIERS.get(item.category());
         if (applier != null) {
-            applier.accept(forecast, item.fcstValue());
+            applier.accept(forecastDto, item.fcstValue());
         }
     }
 

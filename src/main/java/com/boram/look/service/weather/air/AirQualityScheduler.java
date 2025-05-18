@@ -30,7 +30,7 @@ public class AirQualityScheduler {
         }
     }
 
-    @Scheduled(cron = "0 */10 * * * *")
+    @Scheduled(cron = "0 30 * * * *")
     public void retryFetchIfNeeded() {
         log.info("whether air quality fetch is needed: {}", this.isFailed);
         if (isFailed) {

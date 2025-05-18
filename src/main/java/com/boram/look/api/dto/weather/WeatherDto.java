@@ -1,15 +1,12 @@
 package com.boram.look.api.dto.weather;
 
 import com.boram.look.domain.weather.air.AirQualityGrade;
-import com.boram.look.domain.weather.forecast.Forecast;
 import com.boram.look.domain.weather.forecast.entity.ForecastIcon;
 import com.boram.look.domain.weather.uv.UvGrade;
-import com.boram.look.domain.weather.uv.UvIndexRange;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -18,14 +15,14 @@ import java.util.Optional;
 @AllArgsConstructor
 @Builder
 public class WeatherDto {
-    private List<Forecast> forecasts;
+    private List<ForecastDto> forecastDtos;
     private AirQualityDto airQuality;
     private UvIndexDto uvIndex;
     private String weatherMessage;
 
 
     public void buildWeatherMessage() {
-        Optional<Forecast> firstRain = forecasts.stream()
+        Optional<ForecastDto> firstRain = forecastDtos.stream()
                 .filter(forecast -> forecast.getPty() > 0)
                 .findFirst();
         if (firstRain.isPresent()) {
@@ -51,7 +48,7 @@ public class WeatherDto {
             this.weatherMessage = uvIndex.getMessage();
         } else if (Objects.equals(uvIndex.getGrade(), UvGrade.MODERATE)) {
             this.weatherMessage = uvIndex.getMessage();
-        } else if (forecasts.getFirst().getSky() > 2) {
+        } else if (forecastDtos.getFirst().getSky() > 2) {
             this.weatherMessage = "오늘은 흐린 날이에요";
         } else {
             this.weatherMessage = "오늘은 맑고 화창해요";

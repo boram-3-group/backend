@@ -5,7 +5,7 @@ import com.boram.look.api.dto.weather.UvIndexDto;
 import com.boram.look.api.dto.weather.WeatherDto;
 import com.boram.look.domain.region.cache.SiGunGuRegion;
 import com.boram.look.domain.region.cache.SidoRegionCache;
-import com.boram.look.domain.weather.forecast.Forecast;
+import com.boram.look.api.dto.weather.ForecastDto;
 import com.boram.look.service.region.RegionCacheService;
 import com.boram.look.service.weather.air.AirQualityService;
 import com.boram.look.service.weather.forecast.ForecastCacheService;
@@ -29,14 +29,14 @@ public class WeatherFacade {
     public WeatherDto getWeather(double lat, double lon) {
         SiGunGuRegion region = regionCacheService.findRegionByLocation(lat, lon)
                 .orElseThrow(EntityNotFoundException::new);
-        List<Forecast> forecasts = forecastCacheService.getForecast(region.id());
+        List<ForecastDto> forecastDtos = forecastCacheService.getForecast(region.id());
 
         SidoRegionCache sidoRegionCache = regionCacheService.findSidoRegionByLocation(lat, lon)
                 .orElseThrow(EntityNotFoundException::new);
         AirQualityDto airDto = airQualityService.getAirQuality(sidoRegionCache.apiKey(), "PM10");
         UvIndexDto uvIndexDto = uvIndexService.getUvIndex(sidoRegionCache.sido());
         WeatherDto dto = WeatherDto.builder()
-                .forecasts(forecasts)
+                .forecastDtos(forecastDtos)
                 .airQuality(airDto)
                 .uvIndex(uvIndexDto)
                 .build();

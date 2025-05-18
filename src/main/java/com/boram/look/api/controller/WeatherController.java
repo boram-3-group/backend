@@ -5,12 +5,12 @@ import com.boram.look.api.dto.weather.MidTermForecastDto;
 import com.boram.look.api.dto.weather.WeatherDto;
 import com.boram.look.domain.region.cache.SiGunGuRegion;
 import com.boram.look.domain.region.cache.SidoRegionCache;
-import com.boram.look.domain.weather.forecast.Forecast;
+import com.boram.look.api.dto.weather.ForecastDto;
 import com.boram.look.service.region.RegionCacheService;
 import com.boram.look.service.weather.WeatherFacade;
 import com.boram.look.service.weather.air.AirQualityService;
 import com.boram.look.service.weather.forecast.ForecastCacheService;
-import com.boram.look.service.weather.forecast.ForecastService;
+import com.boram.look.service.weather.forecast.ForecastAPIService;
 import com.boram.look.service.weather.mid.MidForecastService;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,7 +31,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/weather")
 public class WeatherController {
-    private final ForecastService forecastService;
+    private final ForecastAPIService forecastAPIService;
     private final RegionCacheService regionCacheService;
     private final ForecastCacheService forecastCacheService;
     private final WeatherFacade weatherFacade;
@@ -64,7 +64,7 @@ public class WeatherController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> fetchDailyWeather() {
         Map<Long, SiGunGuRegion> regionMap = regionCacheService.regionCache();
-        Map<Long, List<Forecast>> weatherMap = forecastService.fetchAllWeather(regionMap);
+        Map<Long, List<ForecastDto>> weatherMap = forecastAPIService.fetchAllWeather(regionMap);
         forecastCacheService.updateForecastCache(weatherMap);
         return ResponseEntity.ok(weatherMap);
     }
@@ -73,8 +73,8 @@ public class WeatherController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/region/{regionId}")
     public ResponseEntity<?> getWeather(@PathVariable Long regionId) {
-        List<Forecast> forecasts = forecastCacheService.getForecast(regionId);
-        return ResponseEntity.ok(forecasts);
+        List<ForecastDto> forecastDtos = forecastCacheService.getForecast(regionId);
+        return ResponseEntity.ok(forecastDtos);
     }
 
     @Operation(

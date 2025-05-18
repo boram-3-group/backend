@@ -20,7 +20,6 @@ public class QuartzConfig {
         SchedulerFactoryBean factory = new SchedulerFactoryBean();
         factory.setJobFactory(jobFactory(applicationContext));
         factory.setDataSource(dataSource);
-        factory.setQuartzProperties(this.quartzProperties());
         factory.setOverwriteExistingJobs(true);
         factory.setWaitForJobsToCompleteOnShutdown(true);
         return factory;
@@ -51,16 +50,4 @@ public class QuartzConfig {
     }
 
 
-    private Properties quartzProperties() {
-        Properties props = new Properties();
-        props.setProperty("org.quartz.scheduler.instanceId", "AUTO");
-        props.setProperty("org.quartz.jobStore.class", "org.quartz.impl.jdbcjobstore.JobStoreTX");
-        props.setProperty("org.quartz.jobStore.driverDelegateClass", "org.quartz.impl.jdbcjobstore.StdJDBCDelegate");
-        props.setProperty("org.quartz.jobStore.tablePrefix", "QRTZ_");
-        props.setProperty("org.quartz.jobStore.isClustered", "false");
-        props.setProperty("org.quartz.threadPool.threadCount", "5");
-        props.setProperty("org.quartz.jobStore.dataSource", "quartzDataSource");
-
-        return props;
-    }
 }

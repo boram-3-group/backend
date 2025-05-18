@@ -1,15 +1,10 @@
 package com.boram.look.api.controller;
 
 import com.boram.look.api.dto.outfit.OutfitDto;
-import com.boram.look.domain.region.cache.SiGunGuRegion;
 import com.boram.look.domain.user.constants.Gender;
-import com.boram.look.domain.weather.forecast.Forecast;
-import com.boram.look.global.ex.ResourceNotFoundException;
 import com.boram.look.global.security.authentication.PrincipalDetails;
 import com.boram.look.service.outfit.OutfitFacade;
 import com.boram.look.service.outfit.OutfitService;
-import com.boram.look.service.region.RegionCacheService;
-import com.boram.look.service.weather.forecast.ForecastCacheService;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -27,7 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/outfit")

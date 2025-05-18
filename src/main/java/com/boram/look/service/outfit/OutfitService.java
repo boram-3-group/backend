@@ -15,7 +15,7 @@ import com.boram.look.domain.s3.FileMetadata;
 import com.boram.look.domain.user.constants.Gender;
 import com.boram.look.domain.user.entity.User;
 import com.boram.look.domain.user.repository.BookmarkRepository;
-import com.boram.look.domain.weather.forecast.Forecast;
+import com.boram.look.api.dto.weather.ForecastDto;
 import com.boram.look.global.ex.ResourceNotFoundException;
 import com.boram.look.global.security.authentication.PrincipalDetails;
 import com.boram.look.service.s3.FileFacade;
@@ -100,9 +100,9 @@ public class OutfitService {
     }
 
     @Transactional(readOnly = true)
-    public OutfitDto.Transfer matchOutfit(Integer eventTypeId, List<Forecast> forecasts, Gender gender, UUID userId) {
-        float averageTemperature = (float) forecasts.stream()
-                .mapToDouble(Forecast::getTemperature)
+    public OutfitDto.Transfer matchOutfit(Integer eventTypeId, List<ForecastDto> forecastDtos, Gender gender, UUID userId) {
+        float averageTemperature = (float) forecastDtos.stream()
+                .mapToDouble(ForecastDto::getTemperature)
                 .average()
                 .orElse(20.0);
 
