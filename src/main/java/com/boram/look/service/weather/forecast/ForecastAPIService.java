@@ -36,7 +36,6 @@ public class ForecastAPIService {
 
     private final BlockingQueue<Long> queue = new LinkedBlockingQueue<>();
     private final Map<Long, List<ForecastDto>> weatherMap = new ConcurrentHashMap<>();
-    private final int CONSUMER_COUNT = 3;
     private final int REQUEST_INTERVAL_MS = 300; // 300ms = 초당 3건
 
     @Value("${weather.vilage-fcst-url}")
@@ -154,76 +153,46 @@ public class ForecastAPIService {
         return this.weatherMap;
     }
 
-    private void runWithThrottle(
-            Long id,
-            SiGunGuRegion region,
-            Map<Long, List<ForecastDto>> weatherMap,
-            Semaphore limiter,
-            AtomicInteger count
-    ) {
-        try {
-            limiter.acquire();
-
-            int current = count.incrementAndGet();
-            if (current % 30 == 0) {
-                Thread.sleep(1000); // TPS 제한
-            }
-
-            ForecastBase base = this.getNearestForecastBase(LocalDate.now(), LocalTime.now());
-            List<ForecastDto> forecastDtos = this.fetchWeatherForRegion(
-                    base,
-                    region.grid().nx(),
-                    region.grid().ny(),
-                    region.id()
-            );
-            weatherMap.put(id, forecastDtos);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt(); // 권장되는 처리
-        } finally {
-            limiter.release();
-        }
-    }
-
-
     public void runWithQueue(Map<Long, SiGunGuRegion> regionMap) throws InterruptedException {
-        ExecutorService executor = Executors.newFixedThreadPool(this.CONSUMER_COUNT + 1);
-
-        // 1. Producer: Queue에 모든 regionId 넣기
-        executor.submit(() -> {
-            for (Long regionId : regionMap.keySet()) {
-                try {
-                    this.queue.put(regionId);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-        });
-
-        for (int i = 0; i < this.CONSUMER_COUNT; i++) {
+        int CONSUMER_COUNT = 3;
+        try (ExecutorService executor = Executors.newFixedThreadPool(CONSUMER_COUNT + 1)) {
+            // 1. Producer: Queue에 모든 regionId 넣기
             executor.submit(() -> {
-                while (true) {
+                for (Long regionId : regionMap.keySet()) {
                     try {
-                        Long regionId = this.queue.poll(5, TimeUnit.SECONDS);
-                        if (regionId == null) break;
-                        runRegionFetch(regionId, regionMap.get(regionId));
-                        Thread.sleep(this.REQUEST_INTERVAL_MS);
+                        this.queue.put(regionId);
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
-                        break;
                     }
                 }
             });
-        }
 
-        executor.shutdown();
-        executor.awaitTermination(10, TimeUnit.MINUTES);
-        log.info("All weather fetched: {}", this.weatherMap.size());
+            for (int i = 0; i < CONSUMER_COUNT; i++) {
+                executor.submit(() -> {
+                    while (true) {
+                        try {
+                            Long regionId = this.queue.poll(5, TimeUnit.SECONDS);
+                            if (regionId == null) break;
+                            this.runRegionFetch(regionId, regionMap.get(regionId));
+                            Thread.sleep(this.REQUEST_INTERVAL_MS);
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                            break;
+                        }
+                    }
+                });
+            }
+
+            executor.shutdown();
+            executor.awaitTermination(10, TimeUnit.MINUTES);
+            log.info("All weather fetched: {}", this.weatherMap.size());
+        }
     }
 
     private void runRegionFetch(Long regionId, SiGunGuRegion region) {
         ForecastBase base = getNearestForecastBase(LocalDate.now(), LocalTime.now());
         List<ForecastDto> dtos = this.fetchWeatherForRegion(base, region.grid().nx(), region.grid().ny(), regionId);
-        weatherMap.put(regionId, dtos);
+        this.weatherMap.put(regionId, dtos);
     }
 
 }

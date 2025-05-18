@@ -6,11 +6,13 @@ import com.boram.look.api.dto.weather.WeatherDto;
 import com.boram.look.domain.region.cache.SiGunGuRegion;
 import com.boram.look.domain.region.cache.SidoRegionCache;
 import com.boram.look.api.dto.weather.ForecastDto;
+import com.boram.look.domain.weather.forecast.ForecastBase;
 import com.boram.look.service.region.RegionCacheService;
 import com.boram.look.service.weather.WeatherFacade;
 import com.boram.look.service.weather.air.AirQualityService;
 import com.boram.look.service.weather.forecast.ForecastCacheService;
 import com.boram.look.service.weather.forecast.ForecastAPIService;
+import com.boram.look.service.weather.forecast.ForecastFailureService;
 import com.boram.look.service.weather.forecast.ForecastService;
 import com.boram.look.service.weather.mid.MidForecastService;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -21,16 +23,20 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/weather")
+@Slf4j
 public class WeatherController {
     private final ForecastAPIService forecastAPIService;
     private final RegionCacheService regionCacheService;
@@ -38,7 +44,7 @@ public class WeatherController {
     private final ForecastService forecastService;
     private final WeatherFacade weatherFacade;
     private final MidForecastService midService;
-
+    private final ForecastFailureService forecastFailureService;
 
     private final AirQualityService airQualityService;
 
@@ -65,10 +71,37 @@ public class WeatherController {
     @Hidden
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> fetchDailyWeather() {
-        Map<Long, SiGunGuRegion> regionMap = regionCacheService.regionCache();
-        Map<Long, List<ForecastDto>> weatherMap = forecastAPIService.fetchAllWeather(regionMap);
-        Map<Long, List<ForecastDto>> dailyMap = forecastService.saveShortTermsForecast(weatherMap);
-        forecastCacheService.updateForecastCache(dailyMap);
+//        Map<Long, SiGunGuRegion> regionMap = regionCacheService.regionCache();
+//        Map<Long, List<ForecastDto>> weatherMap = forecastAPIService.fetchAllWeather(regionMap);
+//        Map<Long, List<ForecastDto>> dailyMap = forecastService.saveShortTermsForecast(weatherMap);
+//        forecastCacheService.updateForecastCache(dailyMap);
+
+        regionCacheService.regionCache().forEach(((regionId, region) -> {
+            if (region == null) {
+                log.warn("캐시에 regionId={} 정보 없음", regionId);
+                return;
+            }
+
+            ForecastBase base = forecastAPIService.getNearestForecastBase(LocalDate.now(), LocalTime.now());
+            List<ForecastDto> forecastDtos = forecastAPIService.fetchWeatherForRegion(base, region.grid().nx(), region.grid().ny(), region.id());
+            // forecasts가 빈 리스트이면 연계가 실패한 것으로 간주
+            if (forecastDtos.isEmpty()) {
+                forecastFailureService.updateFailureTime(regionId);
+                return;
+            }
+
+            List<ForecastDto> dailyList = forecastService.saveShortTermsForecastByRegion(forecastDtos, regionId);
+            if (dailyList.isEmpty()) return;
+            forecastCacheService.put(regionId.toString(), dailyList);
+
+
+            try {
+                Thread.sleep(300); // optional: 외부 API 과부하 방지용
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }));
+
         return ResponseEntity.ok().build();
     }
 

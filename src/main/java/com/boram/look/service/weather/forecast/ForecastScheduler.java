@@ -27,9 +27,35 @@ public class ForecastScheduler {
 
     @Scheduled(cron = "0 15 2,5,8,11,14,17,20,23 * * *") // 매일 02:15, 05:15, ... 실행
     public void runForecastBatch() {
-        Map<Long, List<ForecastDto>> weatherMap = forecastAPIService.fetchAllWeather(regionCacheService.regionCache());
-        Map<Long, List<ForecastDto>> dailyMap = forecastService.saveShortTermsForecast(weatherMap);
-        forecastCacheService.updateForecastCache(dailyMap);
+        regionCacheService.regionCache().forEach(((regionId, region) -> {
+            if (region == null) {
+                log.warn("캐시에 regionId={} 정보 없음", regionId);
+                return;
+            }
+
+            ForecastBase base = forecastAPIService.getNearestForecastBase(LocalDate.now(), LocalTime.now());
+            List<ForecastDto> forecastDtos = forecastAPIService.fetchWeatherForRegion(base, region.grid().nx(), region.grid().ny(), region.id());
+            // forecasts가 빈 리스트이면 연계가 실패한 것으로 간주
+            if (forecastDtos.isEmpty()) {
+                forecastFailureService.updateFailureTime(regionId);
+                return;
+            }
+
+            List<ForecastDto> dailyList = forecastService.saveShortTermsForecastByRegion(forecastDtos, regionId);
+            if (dailyList.isEmpty()) return;
+            forecastCacheService.put(regionId.toString(), dailyList);
+
+
+            try {
+                Thread.sleep(300); // optional: 외부 API 과부하 방지용
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }));
+
+//        Map<Long, List<ForecastDto>> weatherMap = forecastAPIService.fetchAllWeather(regionCacheService.regionCache());
+//        Map<Long, List<ForecastDto>> dailyMap = forecastService.saveShortTermsForecast(weatherMap);
+//        forecastCacheService.updateForecastCache(dailyMap);
     }
 
     @Scheduled(fixedDelay = 60 * 60 * 1000) // 60분마다

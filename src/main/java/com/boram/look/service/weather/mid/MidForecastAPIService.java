@@ -109,22 +109,26 @@ public class MidForecastAPIService {
 
 
     private JsonNode getMidTemperatureJsonNode(String uri, Long regionId) {
+        ResponseEntity<String> response = null;
         try {
-            ResponseEntity<String> response = restTemplate.getForEntity(URI.create(uri), String.class);
+            response = restTemplate.getForEntity(URI.create(uri), String.class);
             return objectMapper.readTree(response.getBody());
         } catch (JsonProcessingException | ResourceAccessException e) {
-            log.error("mid temperature fail region id: {}", regionId);
+            assert response != null;
+            log.error("mid temperature fail region id: {}\nresponse: {}", regionId, response.getBody());
             failureService.saveFailure(regionId);
             return null;
         }
     }
 
     private JsonNode getMidForecastJsonNode(String uri, Long regionId) {
+        ResponseEntity<String> response = null;
         try {
-            ResponseEntity<String> response = restTemplate.getForEntity(URI.create(uri), String.class);
+            response = restTemplate.getForEntity(URI.create(uri), String.class);
             return objectMapper.readTree(response.getBody());
         } catch (JsonProcessingException | ResourceAccessException e) {
-            log.error("mid forecast fail region id: {}", regionId);
+            assert response != null;
+            log.error("mid forecast fail region id: {}\nresponse: {}", regionId, response.getBody());
             failureService.saveFailure(regionId);
             return null;
         }
