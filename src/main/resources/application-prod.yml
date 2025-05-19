@@ -65,6 +65,26 @@ spring:
             user-info-uri: ${KAKAO_USER_INFO_URI}
             jwk-set-uri: ${KAKAO_JWK_SET_URI}
 
+  quartz:
+    job-store-type: jdbc
+    jdbc:
+      initialize-schema: never
+    properties:
+      org:
+        quartz:
+          job-store-type: jdbc
+          jobStore:
+            class: org.quartz.impl.jdbcjobstore.JobStoreTX
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+            tablePrefix: QRTZ_
+            isClustered: false
+      org.quartz.jobStore.dataSource: quartzDataSource
+      org.quartz.dataSource.quartzDataSource.driver: org.mariadb.jdbc.Driver
+      org.quartz.dataSource.quartzDataSource.URL: ${DB_URL}
+      org.quartz.dataSource.quartzDataSource.user: ${DB_USERNAME}
+      org.quartz.dataSource.quartzDataSource.password: ${DB_PASSWORD}
+      org.quartz.dataSource.quartzDataSource.maxConnections: 10
+
 jwt:
   secret-key: ${JWT_SECRET_KEY}
   access_expiration_time: ${ACCESS_EXPIRATION_TIME}
