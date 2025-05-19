@@ -138,6 +138,7 @@ public class SecurityConfig {
                 new AntPathRequestMatcher("/oauth2/authorization/**"),
                 new AntPathRequestMatcher("/oauth/oidc/**"),
                 new AntPathRequestMatcher("/oauth/issue/**", HttpMethod.POST.name()),
+                new AntPathRequestMatcher("/api/v1/auth/reissue/**", HttpMethod.POST.name()),
                 new AntPathRequestMatcher("/actuator/**"),
                 new AntPathRequestMatcher("/favicon.ico"),
                 new AntPathRequestMatcher("/error"),

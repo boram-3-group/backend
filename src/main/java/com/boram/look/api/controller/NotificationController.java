@@ -75,6 +75,16 @@ public class NotificationController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/notification-setting")
+    public ResponseEntity<?> getNotificationSetting(
+            @AuthenticationPrincipal PrincipalDetails principalDetails
+    ) {
+        UserNotificationSettingDto.Get dto = userSettingService.getNotificationSetting(principalDetails);
+        return ResponseEntity.ok().body(dto);
+    }
+
+
     @Hidden
     @PostMapping("/noti-test")
     public ResponseEntity<?> notiTest(@RequestBody NotificationDto dto) {

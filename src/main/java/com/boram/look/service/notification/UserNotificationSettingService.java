@@ -80,10 +80,9 @@ public class UserNotificationSettingService {
         }
     }
 
-    @Transactional(readOnly = true)
-    public void loadSetting() {
-        List<UserNotificationSetting> settings = settingRepository.findAll();
-        settings.forEach(schedulerService::scheduleUserNotification);
+    public UserNotificationSettingDto.Get getNotificationSetting(PrincipalDetails principalDetails) {
+        User loginUser = principalDetails.getUser();
+        UserNotificationSetting setting = settingRepository.findByUserId(loginUser.getId()).orElseThrow(EntityNotFoundException::new);
+        return setting.toDto();
     }
-
 }

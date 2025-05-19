@@ -52,4 +52,18 @@ public class UserNotificationSetting extends AuditingFields {
         this.eventTypeId = dto.eventTypeId();
         this.gender = dto.gender();
     }
+
+    public UserNotificationSettingDto.Get toDto() {
+        return UserNotificationSettingDto.Get.builder()
+                .id(this.id)
+                .dayOfWeek(this.dayOfWeek)
+                .enabled(this.enabled)
+                .eventTypeId(this.eventTypeId)
+                .gender(this.gender)
+                .hour(this.hour)
+                .latitude(this.latitude)
+                .longitude(this.longitude)
+                .minute(this.minute)
+                .build();
+    }
 }
