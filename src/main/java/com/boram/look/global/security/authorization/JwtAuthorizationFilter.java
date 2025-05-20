@@ -48,8 +48,9 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
         String token = header.substring(7);
         if (jwtProvider.isTokenInvalid(token)) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Invalid token");
             log.info("token is not valid");
-            filterChain.doFilter(request, response);
             return;
         }
 
