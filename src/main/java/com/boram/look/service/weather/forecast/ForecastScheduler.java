@@ -88,4 +88,19 @@ public class ForecastScheduler {
         }
     }
 
+    @Scheduled(cron = "0 0 * * * *") // 매시 정각 실행
+    public void scheduleUpdateForecastCache() {
+        regionCacheService.regionCache().forEach(((regionId, region) -> {
+            if (region == null) {
+                log.warn("캐시에 regionId={} 정보 없음", regionId);
+                return;
+            }
+
+            List<ForecastDto> dailyList = forecastService.getDailyForecast(regionId);
+            if (dailyList.isEmpty()) return;
+            forecastCacheService.put(regionId.toString(), dailyList);
+        }));
+    }
+
+
 }

@@ -5,6 +5,7 @@ import com.boram.look.domain.region.entity.Region;
 import com.boram.look.domain.region.repository.RegionRepository;
 import com.boram.look.domain.weather.forecast.entity.Forecast;
 import com.boram.look.domain.weather.forecast.repository.ForecastRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,7 @@ public class ForecastService {
 
     @Transactional
     public Map<Long, List<ForecastDto>> saveShortTermsForecast(Map<Long, List<ForecastDto>> weatherMap) {
-        if(weatherMap.isEmpty()) return new HashMap<>();
+        if (weatherMap.isEmpty()) return new HashMap<>();
         Map<Long, List<ForecastDto>> resultMap = new HashMap<>();
         for (Map.Entry<Long, List<ForecastDto>> entry : weatherMap.entrySet()) {
             List<ForecastDto> dtos = entry.getValue();
@@ -65,7 +66,7 @@ public class ForecastService {
 
     @Transactional
     public List<ForecastDto> saveShortTermsForecastByRegion(List<ForecastDto> dtos, Long regionId) {
-        if(dtos.isEmpty()) return new ArrayList<>();
+        if (dtos.isEmpty()) return new ArrayList<>();
         forecastRepository.deleteByRegionId(regionId);
 
         // 지역 정보 조회
@@ -127,6 +128,29 @@ public class ForecastService {
                 Integer.parseInt(paddedTime.substring(0, 2)),
                 Integer.parseInt(paddedTime.substring(2, 4))
         );
+    }
+
+    @Transactional(readOnly = true)
+    public List<ForecastDto> getDailyForecast(Long regionId) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime end = now.plusHours(24);
+
+        // 예보 데이터가 "20250518", "0100" 이런 형식이면
+        String startDate = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String endDate = end.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+
+        Region region = regionRepository.findById(regionId).orElseThrow((EntityNotFoundException::new));
+        // 날짜 기준으로 대략적으로 필터 (하루 or 이틀치)
+        List<Forecast> forecasts = forecastRepository.findByRegionAndDateBetween(region, startDate, endDate);
+
+        // 날짜 + 시간 합쳐서 정확히 24시간 이내 필터
+        return forecasts.stream()
+                .filter(f -> {
+                    LocalDateTime forecastTime = toDateTime(f.getDate(), f.getTime());
+                    return !forecastTime.isBefore(now) && forecastTime.isBefore(end);
+                })
+                .map(Forecast::toDto)
+                .toList();
     }
 
 
