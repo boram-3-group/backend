@@ -41,7 +41,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     ) throws ServletException, IOException {
         String header = request.getHeader("Authorization");
         if (header == null || !header.startsWith("Bearer ")) {
-//            log.info("header is not a valid authorization header\nrequest url: {}", request.getRequestURL());
+            log.warn("header is not a valid authorization header\nrequest url: {}", request.getRequestURL());
             filterChain.doFilter(request, response);
             return;
         }
@@ -50,7 +50,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         if (jwtProvider.isTokenInvalid(token)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Invalid token");
-            log.info("token is not valid");
+            log.warn("token is not valid");
             return;
         }
 

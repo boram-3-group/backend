@@ -23,18 +23,14 @@ import java.util.Map;
 @Slf4j
 public class InitAsyncService {
     private final RegionCacheService regionCacheService;
-    private final ForecastAPIService forecastAPIService;
     private final ForecastCacheService forecastCacheService;
     private final AirQualityService airQualityService;
     private final UvIndexService uvIndexService;
     private final MidForecastAPIService midForecastAPIService;
-    private final ForecastService forecastService;
 
     @Async
     public void asyncInit() {
         Map<Long, SiGunGuRegion> regionMap = regionCacheService.regionCache();
-//        Map<Long, List<ForecastDto>> weatherMap = forecastAPIService.fetchAllWeather(regionMap);
-//        forecastService.saveShortTermsForecast(weatherMap);
         regionMap.forEach((regionId, regionCache) -> forecastCacheService.initForecastCache(regionId));
         airQualityService.fetchAirQuality("PM10");
         uvIndexService.updateUvIndexCache();
