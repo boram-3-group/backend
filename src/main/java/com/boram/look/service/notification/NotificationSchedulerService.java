@@ -35,7 +35,6 @@ public class NotificationSchedulerService {
                 .build();
 
         try {
-            scheduler.scheduleJob(jobDetail, trigger);
             JobKey jobKey = new JobKey(jobName, "user-alarms");
             TriggerKey triggerKey = new TriggerKey(triggerName, "user-alarms");
 
@@ -47,6 +46,7 @@ public class NotificationSchedulerService {
                 scheduler.deleteJob(jobKey); // 기존 잡 제거
             }
 
+            scheduler.scheduleJob(jobDetail, trigger);
         } catch (SchedulerException e) {
             log.error("scheduleUserNotification exception occur.");
             e.printStackTrace();
