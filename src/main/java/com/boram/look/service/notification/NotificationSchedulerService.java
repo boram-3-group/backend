@@ -36,6 +36,16 @@ public class NotificationSchedulerService {
 
         try {
             scheduler.scheduleJob(jobDetail, trigger);
+            JobKey jobKey = new JobKey(jobName, "user-alarms");
+            TriggerKey triggerKey = new TriggerKey(triggerName, "user-alarms");
+
+            if (scheduler.checkExists(triggerKey)) {
+                scheduler.unscheduleJob(triggerKey); // 기존 트리거 제거
+            }
+
+            if (scheduler.checkExists(jobKey)) {
+                scheduler.deleteJob(jobKey); // 기존 잡 제거
+            }
 
         } catch (SchedulerException e) {
             log.error("scheduleUserNotification exception occur.");
