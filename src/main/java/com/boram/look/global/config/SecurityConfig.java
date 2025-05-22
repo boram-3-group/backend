@@ -129,7 +129,7 @@ public class SecurityConfig {
         return new OrRequestMatcher(
                 new AntPathRequestMatcher("/h2-console/**"),
                 new AntPathRequestMatcher("/"),
-                new AntPathRequestMatcher("/healthy"),
+                new AntPathRequestMatcher("/health"),
                 new AntPathRequestMatcher("/swagger-ui/**"),
                 new AntPathRequestMatcher("/v3/api-docs/**"),
                 new AntPathRequestMatcher("/swagger-ui.html"),
