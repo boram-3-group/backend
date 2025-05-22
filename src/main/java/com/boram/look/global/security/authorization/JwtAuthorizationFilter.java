@@ -41,7 +41,15 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     ) throws ServletException, IOException {
         String header = request.getHeader("Authorization");
         if (header == null || !header.startsWith("Bearer ")) {
-            log.warn("header is not a valid authorization header\nrequest url: {}", request.getRequestURL());
+            log.warn("""
+                            header is not a valid authorization header
+                            Request from IP: {}
+                            Request URI: {}
+                            Header: {}""",
+                    request.getRemoteAddr(),
+                    request.getRequestURI(),
+                    request.getHeader("Authorization")
+            );
             filterChain.doFilter(request, response);
             return;
         }
