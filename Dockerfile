@@ -60,5 +60,5 @@ USER 1000
 WORKDIR /app
 
 # 실행
-ENTRYPOINT ["java", "-Xmx512m", "-Xms256m", "-Duser.timezone=Asia/Seoul", "-Dspring.profiles.active=prod", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Xmx700m", "-Xms512m", "-Duser.timezone=Asia/Seoul", "-Dspring.profiles.active=prod", "-jar", "app.jar"]
 EXPOSE 8080
