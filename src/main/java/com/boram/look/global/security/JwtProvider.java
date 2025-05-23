@@ -112,7 +112,7 @@ public class JwtProvider {
                 .path("/")
                 .maxAge(Duration.ofDays(7))
                 .build();
-        response.setHeader("Set-Cookie", cookie.toString());
+        response.addHeader("Set-Cookie", cookie.toString());
     }
 
 }
